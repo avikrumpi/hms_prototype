@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Patient Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+  --shadow-lg: 0 12px 48px rgba(26,107,90,0.16);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(ellipse 800px 600px at 90% 10%, rgba(61,191,160,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 10% 80%, rgba(200,150,62,0.05) 0%, transparent 70%);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px; position: fixed; top: 0; left: 0; height: 100vh;
+  background: var(--text-dark);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  box-shadow: 4px 0 40px rgba(0,0,0,0.15);
+}
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.logo-mark {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: #fff; letter-spacing: -0.5px;
+}
+.logo-mark span { color: var(--teal-glow); }
+.logo-sub { font-size: 11px; color: var(--text-soft); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+.sidebar-admin {
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.admin-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; position: relative;
+}
+.admin-avatar::after {
+  content:''; position: absolute; bottom: 2px; right: 2px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #4ADE80; border: 2px solid var(--text-dark);
+}
+.admin-name { font-weight: 600; font-size: 14px; color: #fff; }
+.admin-role { font-size: 11px; color: var(--text-soft); }
+.nav-section { padding: 16px 12px 8px; }
+.nav-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0 12px 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 10px;
+  color: rgba(255,255,255,0.55); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; text-decoration: none;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; }
+.nav-item .icon { font-size: 18px; width: 22px; }
+.sidebar-bottom { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+.date-pill {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 8px 14px; text-align: center;
+  font-size: 12px; color: var(--text-soft); font-family: 'DM Mono', monospace;
+}
+
+/* MAIN */
+.main { margin-left: 260px; min-height: 100vh; }
+.topbar {
+  background: var(--glass); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 36px; display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 50;
+}
+.page-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--text-dark); }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-btn {
+  padding: 8px 18px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: #fff; font-size: 13px; font-weight: 500; color: var(--text-mid);
+  cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.topbar-btn:hover { border-color: var(--teal); color: var(--teal); }
+.topbar-btn.primary {
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  border-color: transparent; color: #fff;
+}
+.topbar-btn.primary:hover { opacity: 0.92; transform: translateY(-1px); }
+
+.content { padding: 32px 36px; }
+
+/* AI INSIGHT BANNER */
+.ai-banner {
+  background: linear-gradient(135deg, #0F4C35 0%, var(--teal) 50%, #1D8A70 100%);
+  border-radius: 20px; padding: 24px 32px;
+  display: flex; align-items: center; gap: 24px;
+  margin-bottom: 28px; position: relative; overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: slideDown 0.5s ease;
+}
+@keyframes slideDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
+.ai-banner::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: rgba(255,255,255,0.04); pointer-events: none;
+}
+.ai-banner::after {
+  content: ''; position: absolute; bottom: -80px; right: 200px;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(255,255,255,0.03); pointer-events: none;
+}
+.ai-icon-wrap {
+  width: 52px; height: 52px; border-radius: 16px; flex-shrink: 0;
+  background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+}
+.ai-content { flex: 1; }
+.ai-label { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--teal-glow); font-weight: 600; margin-bottom: 4px; }
+.ai-title { font-family: 'Playfair Display', serif; font-size: 18px; color: #fff; font-weight: 600; margin-bottom: 4px; }
+.ai-text { font-size: 13px; color: rgba(255,255,255,0.78); line-height: 1.5; }
+.ai-chips { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.ai-chip {
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px; padding: 4px 12px; font-size: 12px; color: rgba(255,255,255,0.9); font-weight: 500;
+}
+.ai-chip.highlight { background: var(--gold); border-color: var(--gold); color: #fff; }
+.ai-actions { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.ai-action-btn {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 10px; padding: 8px 16px; color: #fff; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+}
+.ai-action-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+
+/* STATS ROW */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: #fff; border: 1px solid var(--border); border-radius: 16px;
+  padding: 20px 22px; position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: fadeUp 0.4s ease both;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.2s; }
+.stat-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+.stat-accent.teal { background: linear-gradient(90deg, var(--teal), var(--teal-glow)); }
+.stat-accent.gold { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+.stat-accent.rose { background: linear-gradient(90deg, var(--rose), var(--rose-light)); }
+.stat-accent.indigo { background: linear-gradient(90deg, var(--indigo), #6B7FCA); }
+.stat-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-soft); margin-bottom: 8px; }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--text-dark); line-height: 1; }
+.stat-sub { font-size: 12px; color: var(--text-soft); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+.stat-delta { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+.stat-delta.up { background: rgba(26,107,90,0.1); color: var(--teal); }
+.stat-delta.down { background: rgba(192,80,74,0.1); color: var(--rose); }
+
+/* TOOLBAR */
+.toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.search-wrap {
+  background: #fff; border: 1.5px solid var(--border); border-radius: 12px;
+  display: flex; align-items: center; gap: 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; flex: 1; min-width: 240px;
+}
+.search-wrap:focus-within { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(26,107,90,0.08); }
+.search-icon { padding: 0 14px; color: var(--text-soft); font-size: 16px; }
+.search-input {
+  flex: 1; padding: 11px 0; font-size: 13px; font-family: 'DM Sans', sans-serif;
+  border: none; outline: none; background: transparent; color: var(--text-dark);
+}
+.search-input::placeholder { color: var(--text-soft); }
+.filter-btn {
+  padding: 9px 16px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: #fff; font-size: 13px; font-weight: 500; color: var(--text-mid);
+  cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif; white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--teal); color: var(--teal); }
+.filter-btn.active { border-color: var(--teal); background: rgba(26,107,90,0.07); color: var(--teal); }
+.ai-autofill-btn {
+  padding: 9px 18px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border: none; font-size: 13px; font-weight: 600; color: #fff;
+  cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif; white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(200,150,62,0.3);
+}
+.ai-autofill-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,150,62,0.4); }
+
+/* TABLE */
+.table-card {
+  background: #fff; border: 1px solid var(--border); border-radius: 20px;
+  overflow: hidden; box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+}
+.table-head {
+  display: grid;
+  grid-template-columns: 40px 2fr 1.2fr 1fr 1.2fr 1fr 1.2fr 1fr 100px;
+  gap: 0; padding: 14px 24px;
+  background: var(--ivory); border-bottom: 1px solid var(--border);
+}
+.th {
+  font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-soft); font-weight: 600;
+}
+.table-body { max-height: 580px; overflow-y: auto; }
+.table-row {
+  display: grid;
+  grid-template-columns: 40px 2fr 1.2fr 1fr 1.2fr 1fr 1.2fr 1fr 100px;
+  gap: 0; padding: 14px 24px; align-items: center;
+  border-bottom: 1px solid rgba(226,217,204,0.5);
+  transition: background 0.15s; cursor: pointer;
+}
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: rgba(26,107,90,0.03); }
+.row-num { font-size: 12px; color: var(--text-soft); font-family: 'DM Mono', monospace; }
+.pat-name { font-weight: 600; font-size: 14px; color: var(--text-dark); }
+.pat-id { font-size: 11px; color: var(--text-soft); font-family: 'DM Mono', monospace; margin-top: 2px; }
+.td { font-size: 13px; color: var(--text-mid); }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.badge-green { background: rgba(26,107,90,0.1); color: var(--teal); }
+.badge-gold { background: rgba(200,150,62,0.12); color: var(--gold); }
+.badge-rose { background: rgba(192,80,74,0.1); color: var(--rose); }
+.badge-indigo { background: rgba(61,79,138,0.1); color: var(--indigo); }
+.badge-grey { background: rgba(136,150,165,0.12); color: var(--text-soft); }
+.risk-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.risk-low { background: #4ADE80; }
+.risk-med { background: var(--gold); }
+.risk-high { background: var(--rose); }
+.action-btn {
+  padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 500;
+  border: 1.5px solid var(--border); background: #fff; color: var(--text-mid);
+  cursor: pointer; transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.action-btn:hover { border-color: var(--teal); color: var(--teal); background: rgba(26,107,90,0.04); }
+
+/* AI INSIGHT MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(28,35,49,0.45);
+  backdrop-filter: blur(6px); z-index: 999; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 24px; padding: 36px;
+  max-width: 560px; width: 90%; position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+  animation: modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes modalIn { from { opacity:0; transform:scale(0.9) translateY(20px); } to { opacity:1; transform:none; } }
+.modal-close {
+  position: absolute; top: 20px; right: 20px;
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+  background: var(--ivory); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; color: var(--text-soft); transition: all 0.15s;
+}
+.modal-close:hover { background: var(--rose); color: #fff; border-color: var(--rose); }
+.modal-ai-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, rgba(26,107,90,0.1), rgba(61,191,160,0.1));
+  border: 1px solid rgba(26,107,90,0.2); border-radius: 20px;
+  padding: 5px 14px; font-size: 11px; font-weight: 600; color: var(--teal);
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px;
+}
+.modal-patient-name { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: var(--text-soft); margin-bottom: 20px; }
+.modal-section { margin-bottom: 18px; }
+.modal-section-title { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-soft); font-weight: 600; margin-bottom: 8px; }
+.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-stat {
+  background: var(--ivory); border-radius: 12px; padding: 12px 16px;
+  border: 1px solid var(--border);
+}
+.modal-stat-label { font-size: 11px; color: var(--text-soft); margin-bottom: 4px; }
+.modal-stat-val { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+.ai-summary-box {
+  background: linear-gradient(135deg, rgba(26,107,90,0.06), rgba(61,191,160,0.04));
+  border: 1px solid rgba(26,107,90,0.15); border-radius: 14px;
+  padding: 16px 18px; position: relative; overflow: hidden;
+}
+.ai-summary-box::before {
+  content: '✦'; position: absolute; top: 12px; right: 14px;
+  font-size: 20px; color: var(--teal-glow); opacity: 0.4;
+}
+.ai-summary-text { font-size: 13px; color: var(--text-dark); line-height: 1.6; }
+.modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+.modal-btn {
+  flex: 1; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; border: none;
+}
+.modal-btn.primary { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; }
+.modal-btn.secondary { background: var(--ivory); color: var(--text-mid); border: 1.5px solid var(--border); }
+.modal-btn:hover { transform: translateY(-1px); }
+
+/* AI COMPARE PANEL */
+.compare-panel {
+  margin-top: 24px;
+  background: linear-gradient(135deg, #0F4C35, var(--teal));
+  border-radius: 20px; padding: 24px 28px;
+  display: none;
+}
+.compare-panel.open { display: block; animation: fadeUp 0.3s ease; }
+.compare-title { font-family: 'Playfair Display', serif; font-size: 18px; color: #fff; margin-bottom: 6px; }
+.compare-sub { font-size: 13px; color: rgba(255,255,255,0.65); margin-bottom: 18px; }
+.compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.compare-card {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px; padding: 16px;
+}
+.compare-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 10px; }
+.compare-metric { margin-bottom: 8px; }
+.compare-metric-label { font-size: 10px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 1px; }
+.compare-metric-val { font-size: 15px; font-weight: 700; color: #fff; }
+.compare-metric-val.best { color: var(--teal-glow); }
+.compare-metric-val.worst { color: var(--rose-light); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+/* TYPING ANIMATION */
+.typing-cursor::after {
+  content: '|'; animation: blink 0.9s step-end infinite; color: var(--teal-glow);
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* AI PROGRESS BAR */
+.ai-progress { height: 4px; background: rgba(255,255,255,0.15); border-radius: 10px; overflow: hidden; margin-top: 12px; }
+.ai-progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal-glow), var(--gold-light)); border-radius: 10px; animation: progress 2s ease; }
+@keyframes progress { from { width: 0; } to { width: 100%; } }
+
+/* RISK TREND SPARKLINE */
+.sparkline { display: flex; align-items: flex-end; gap: 3px; height: 24px; }
+.spark-bar { width: 5px; background: var(--teal-glow); border-radius: 3px; opacity: 0.7; transition: opacity 0.2s; }
+.spark-bar:hover { opacity: 1; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 32px; right: 32px;
+  background: var(--text-dark); color: #fff; padding: 14px 22px;
+  border-radius: 14px; font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  transform: translateY(80px); opacity: 0;
+  transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 9999;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-icon { font-size: 18px; }
+
+/* AI ANOMALY BADGE */
+.anomaly-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(192,80,74,0.1); border: 1px solid rgba(192,80,74,0.2);
+  border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 600; color: var(--rose);
+  margin-left: 6px; vertical-align: middle;
+}
+.pulse-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--rose);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.4);opacity:0.6;} }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div><div class="admin-name">Dr. Sumit C.</div><div class="admin-role">Administrator</div></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Management</div>
+    <a class="nav-item" href="admin_panel.html"><span class="icon">🏥</span> Patients</a>
+    <a class="nav-item" href="doctor_panel.html"><span class="icon">👨‍⚕️</span> Doctor</a>
+    <a class="nav-item" href="ha_panel.html"><span class="icon">🏥</span> HA</a>
+    <a class="nav-item" href="cluster_panel.html"><span class="icon">🏘️</span> Cluster</a>
+    <a class="nav-item" href="medicine_panel.html"><span class="icon">💊</span> Medicine</a>
+    <a class="nav-item" href="all_services.html"><span class="icon">🩺</span> Services</a>
+    <a class="nav-item" href="inventory_panel.html"><span class="icon">📦</span> Inventory</a>
+    <a class="nav-item" href="billing.html"><span class="icon">💰</span> Billing</a>
+    <a class="nav-item active" href="reports.html"><span class="icon">📋</span> Report</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="date-pill">📅 25 / 04 / 2026</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title">📋 Patient Reports</div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="toggleCompare()">⚖️ AI Compare</button>
+      <button class="topbar-btn" onclick="exportReport()">⬇️ Export</button>
+      <button class="topbar-btn primary" onclick="showToast('✨','New report generation started')">+ New Report</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- AI BANNER -->
+    <div class="ai-banner">
+      <div class="ai-icon-wrap">🧠</div>
+      <div class="ai-content">
+        <div class="ai-label">✦ GenAI Insights Engine — Live</div>
+        <div class="ai-title" id="ai-headline">Analysing 20 patient records across West Bengal...</div>
+        <div class="ai-text" id="ai-body">3 patients flagged for elevated risk this week · Diabetes cohort showing 12% improvement in HbA1c · Fever cluster detected in Purulia district</div>
+        <div class="ai-chips">
+          <span class="ai-chip highlight">⚠️ 3 High Risk</span>
+          <span class="ai-chip">📈 Avg Recovery: 6.4 days</span>
+          <span class="ai-chip">💊 87% Medication Adherence</span>
+          <span class="ai-chip">🗓️ 4 Follow-ups Due</span>
+        </div>
+        <div class="ai-progress"><div class="ai-progress-fill"></div></div>
+      </div>
+      <div class="ai-actions">
+        <button class="ai-action-btn" onclick="generateSummary()">🪄 Generate Summary</button>
+        <button class="ai-action-btn" onclick="detectAnomalies()">🔍 Detect Anomalies</button>
+        <button class="ai-action-btn" onclick="autofillReports()">⚡ Auto-Fill Reports</button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-accent teal"></div>
+        <div class="stat-label">Total Patients</div>
+        <div class="stat-val">20</div>
+        <div class="stat-sub"><span class="stat-delta up">↑ 15%</span> vs last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-accent gold"></div>
+        <div class="stat-label">Active Cases</div>
+        <div class="stat-val">14</div>
+        <div class="stat-sub"><span class="stat-delta up">↑ 8%</span> this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-accent rose"></div>
+        <div class="stat-label">High Risk Flagged</div>
+        <div class="stat-val">3</div>
+        <div class="stat-sub"><span class="stat-delta down">↓ 2</span> from AI scan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-accent indigo"></div>
+        <div class="stat-label">Avg. Recovery Days</div>
+        <div class="stat-val">6.4</div>
+        <div class="stat-sub"><span class="stat-delta up">↑ Better</span> than benchmark</div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" placeholder="Search by patient name, ID, condition..." oninput="filterTable(this.value)">
+      </div>
+      <button class="filter-btn active" onclick="setFilter(this,'All')">All Patients</button>
+      <button class="filter-btn" onclick="setFilter(this,'High Risk')">⚠️ High Risk</button>
+      <button class="filter-btn" onclick="setFilter(this,'Active')">🟢 Active</button>
+      <button class="filter-btn" onclick="setFilter(this,'Follow-up')">📅 Follow-up</button>
+      <button class="ai-autofill-btn" onclick="autofillReports()">✨ AI Auto-Fill</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <div class="table-head">
+        <div class="th">#</div>
+        <div class="th">Patient</div>
+        <div class="th">Condition</div>
+        <div class="th">Age / Sex</div>
+        <div class="th">Last Visit</div>
+        <div class="th">Risk</div>
+        <div class="th">Status</div>
+        <div class="th">AI Trend</div>
+        <div class="th">Action</div>
+      </div>
+      <div class="table-body" id="table-body">
+        <!-- Rows injected by JS -->
+      </div>
+    </div>
+
+    <!-- AI COMPARE PANEL -->
+    <div class="compare-panel" id="compare-panel">
+      <div class="compare-title">⚖️ AI Patient Comparison — Top 3 Active Cases</div>
+      <div class="compare-sub">Generated by HealthOS Intelligence · Comparing vitals, risk, adherence across cohort</div>
+      <div class="compare-grid" id="compare-grid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-ai-label">🧠 AI Patient Summary</div>
+    <div class="modal-patient-name" id="modal-name">—</div>
+    <div class="modal-sub" id="modal-sub">—</div>
+    <div class="modal-section">
+      <div class="modal-section-title">Clinical Overview</div>
+      <div class="modal-grid" id="modal-grid"></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">🧠 GenAI Clinical Summary</div>
+      <div class="ai-summary-box">
+        <div class="ai-summary-text typing-cursor" id="modal-summary">Loading AI analysis...</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn primary" onclick="showToast('📄','Full report downloaded')">Download Report</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon">✓</span>
+  <span id="toast-msg">Done</span>
+</div>
+
+<script>
+const patients = [
+  { id:'PT-001', name:'Amitava Chakraborty', age:58, sex:'M', condition:'Type 2 Diabetes', visit:'22/04/2026', risk:'high', status:'Active', hba1c:'8.4%', bp:'148/92', adherence:'62%', days:9, sparkline:[3,5,4,7,6,8,5,9] },
+  { id:'PT-002', name:'Priya Sen',           age:34, sex:'F', condition:'Hypertension',   visit:'23/04/2026', risk:'med',  status:'Active', hba1c:'N/A', bp:'138/88', adherence:'85%', days:4, sparkline:[8,7,8,9,8,9,9,8] },
+  { id:'PT-003', name:'Rajiv Mondal',         age:45, sex:'M', condition:'Tuberculosis',   visit:'21/04/2026', risk:'high', status:'Follow-up', hba1c:'N/A', bp:'120/78', adherence:'71%', days:12, sparkline:[6,5,4,5,6,5,6,5] },
+  { id:'PT-004', name:'Sunita Dey',           age:62, sex:'F', condition:'COPD',           visit:'20/04/2026', risk:'high', status:'Active', hba1c:'N/A', bp:'130/84', adherence:'79%', days:14, sparkline:[4,3,5,4,3,4,3,4] },
+  { id:'PT-005', name:'Debashis Roy',         age:27, sex:'M', condition:'Viral Fever',    visit:'24/04/2026', risk:'low',  status:'Recovered', hba1c:'N/A', bp:'118/76', adherence:'95%', days:3, sparkline:[9,9,8,9,9,9,9,8] },
+  { id:'PT-006', name:'Ananya Ghosh',         age:41, sex:'F', condition:'Anaemia',        visit:'22/04/2026', risk:'med',  status:'Active', hba1c:'N/A', bp:'110/70', adherence:'80%', days:7, sparkline:[7,6,7,8,7,7,8,7] },
+  { id:'PT-007', name:'Subhash Biswas',       age:55, sex:'M', condition:'Heart Disease',  visit:'19/04/2026', risk:'med',  status:'Follow-up', hba1c:'N/A', bp:'145/90', adherence:'88%', days:10, sparkline:[5,6,5,6,7,6,7,6] },
+  { id:'PT-008', name:'Mamata Halder',        age:48, sex:'F', condition:'Type 2 Diabetes',visit:'23/04/2026', risk:'low',  status:'Active', hba1c:'7.1%', bp:'126/82', adherence:'92%', days:5, sparkline:[8,8,9,8,9,9,9,9] },
+  { id:'PT-009', name:'Tapas Bose',           age:38, sex:'M', condition:'Asthma',         visit:'21/04/2026', risk:'low',  status:'Active', hba1c:'N/A', bp:'122/80', adherence:'89%', days:4, sparkline:[9,8,9,9,8,9,9,8] },
+  { id:'PT-010', name:'Rinku Sarkar',         age:29, sex:'F', condition:'Malaria',        visit:'24/04/2026', risk:'med',  status:'Active', hba1c:'N/A', bp:'115/74', adherence:'78%', days:6, sparkline:[7,7,6,7,8,7,7,8] },
+  { id:'PT-011', name:'Santanu Paul',         age:66, sex:'M', condition:'CKD Stage 3',    visit:'18/04/2026', risk:'high', status:'Active', hba1c:'N/A', bp:'152/96', adherence:'68%', days:16, sparkline:[3,4,3,4,3,3,4,3] },
+  { id:'PT-012', name:'Keya Mukherjee',       age:52, sex:'F', condition:'Hypothyroid',    visit:'22/04/2026', risk:'low',  status:'Active', hba1c:'N/A', bp:'128/80', adherence:'94%', days:3, sparkline:[9,9,8,9,9,9,8,9] },
+  { id:'PT-013', name:'Palash Das',           age:33, sex:'M', condition:'Gastritis',      visit:'23/04/2026', risk:'low',  status:'Recovered', hba1c:'N/A', bp:'116/76', adherence:'91%', days:4, sparkline:[9,8,9,9,9,8,9,9] },
+  { id:'PT-014', name:'Indrani Chatterjee',   age:57, sex:'F', condition:'Osteoarthritis', visit:'20/04/2026', risk:'med',  status:'Follow-up', hba1c:'N/A', bp:'134/86', adherence:'76%', days:8, sparkline:[7,6,7,6,7,7,6,7] },
+  { id:'PT-015', name:'Binoy Mandal',         age:44, sex:'M', condition:'Dengue',         visit:'25/04/2026', risk:'high', status:'Active', hba1c:'N/A', bp:'110/70', adherence:'82%', days:3, sparkline:[5,4,4,5,4,5,4,5] },
+  { id:'PT-016', name:'Srabani Roy',          age:31, sex:'F', condition:'Migraine',       visit:'22/04/2026', risk:'low',  status:'Active', hba1c:'N/A', bp:'118/76', adherence:'88%', days:2, sparkline:[9,8,9,9,8,9,9,9] },
+  { id:'PT-017', name:'Partha Sarathi Nath',  age:61, sex:'M', condition:'Type 2 Diabetes',visit:'21/04/2026', risk:'med',  status:'Active', hba1c:'7.9%', bp:'140/88', adherence:'74%', days:7, sparkline:[6,7,6,7,6,7,6,7] },
+  { id:'PT-018', name:'Champa Pal',           age:70, sex:'F', condition:'Dementia',       visit:'17/04/2026', risk:'high', status:'Active', hba1c:'N/A', bp:'136/84', adherence:'55%', days:20, sparkline:[3,3,4,3,3,3,4,3] },
+  { id:'PT-019', name:'Sourav Ghosh',         age:22, sex:'M', condition:'Viral Fever',    visit:'25/04/2026', risk:'low',  status:'Active', hba1c:'N/A', bp:'114/72', adherence:'96%', days:2, sparkline:[9,9,9,9,9,9,9,9] },
+  { id:'PT-020', name:'Tanusree Mitra',       age:47, sex:'F', condition:'Hypertension',   visit:'23/04/2026', risk:'med',  status:'Follow-up', hba1c:'N/A', bp:'136/86', adherence:'83%', days:6, sparkline:[7,8,7,8,7,8,7,8] }
+];
+
+const aiSummaries = {
+  'PT-001': 'Amitava shows persistently elevated HbA1c at 8.4% — above the target of 7.0%. Medication adherence at 62% is critically low. AI recommends a caregiver check-in and possible insulin initiation. Diet counselling flagged as immediate priority. Blood pressure also elevated at 148/92 — dual risk for cardiovascular events. Schedule nephrology review within 2 weeks.',
+  'PT-002': 'Priya is responding well to antihypertensive therapy. Blood pressure trending down from 152/100 three months ago to 138/88 today — a positive 9% improvement. Adherence strong at 85%. AI projects normalization within 6–8 weeks at current trajectory. No intervention changes recommended.',
+  'PT-003': 'Rajiv is in Month 4 of DOTS TB therapy. Adherence at 71% raises concerns about treatment completion. AI has flagged potential drug resistance risk if adherence does not improve. Sputum culture follow-up is overdue by 8 days. Immediate field worker visit recommended.',
+  'PT-004': 'Sunita presents with worsening COPD — FEV1 has declined 8% compared to last quarter. High-flow oxygen usage at home is increasing. AI detects seasonal exacerbation pattern (April–May historically high). Pulmonologist consult recommended; consider inhaler step-up therapy.',
+  'PT-005': 'Debashis has fully recovered from viral fever. Vitals stable, no residual symptoms. AI clears this patient for discharge from active monitoring. Follow-up in 30 days as precaution.',
+  'PT-011': 'Santanu has CKD Stage 3 with GFR trending downward. BP critically elevated at 152/96. Medication adherence at 68% is insufficient. AI projects progression to Stage 4 within 18 months without intervention. Urgent nephrology referral recommended. Dietary sodium restriction and ACE inhibitor adjustment required.',
+  'PT-015': 'Binoy presents with acute dengue — platelet count trending down (82,000 today). AI early-warning system flagged dengue cluster in Purulia district — 3 cases in same block within 48 hours. Hospital admission criteria approaching. Monitor platelet count every 12 hours.',
+  'PT-018': 'Champa has moderate-to-severe dementia with declining cognitive function. Caregiver reports increased confusion at night. Medication adherence at 55% is highest concern — caregiver training required. AI recommends weekly home health assistant visits and simplification of medication schedule to once-daily dosing.'
+};
+
+function getRiskBadge(risk) {
+  if(risk==='high') return `<span class="badge badge-rose"><span class="risk-dot risk-high"></span> High</span>`;
+  if(risk==='med')  return `<span class="badge badge-gold"><span class="risk-dot risk-med"></span> Medium</span>`;
+  return `<span class="badge badge-green"><span class="risk-dot risk-low"></span> Low</span>`;
+}
+function getStatusBadge(status) {
+  if(status==='Active') return `<span class="badge badge-green">${status}</span>`;
+  if(status==='Follow-up') return `<span class="badge badge-gold">${status}</span>`;
+  if(status==='Recovered') return `<span class="badge badge-indigo">${status}</span>`;
+  return `<span class="badge badge-grey">${status}</span>`;
+}
+function getSparkline(data) {
+  const max = Math.max(...data);
+  return `<div class="sparkline">${data.map(v=>`<div class="spark-bar" style="height:${Math.round((v/max)*22)}px"></div>`).join('')}</div>`;
+}
+function anomalyBadge(p) {
+  if(p.risk==='high') return `<span class="anomaly-badge"><span class="pulse-dot"></span> AI Alert</span>`;
+  return '';
+}
+
+let activeFilter = 'All';
+function renderTable(data) {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = data.map((p,i)=>`
+    <div class="table-row" onclick="openModal('${p.id}')">
+      <div class="row-num">${String(i+1).padStart(2,'0')}</div>
+      <div>
+        <div class="pat-name">${p.name}${anomalyBadge(p)}</div>
+        <div class="pat-id">${p.id}</div>
+      </div>
+      <div class="td">${p.condition}</div>
+      <div class="td">${p.age}y / ${p.sex}</div>
+      <div class="td">${p.visit}</div>
+      <div class="td">${getRiskBadge(p.risk)}</div>
+      <div class="td">${getStatusBadge(p.status)}</div>
+      <div class="td">${getSparkline(p.sparkline)}</div>
+      <div><button class="action-btn" onclick="event.stopPropagation();openModal('${p.id}')">View →</button></div>
+    </div>
+  `).join('');
+}
+
+function filterTable(q) {
+  let filtered = patients;
+  if(activeFilter!=='All') {
+    if(activeFilter==='High Risk') filtered = filtered.filter(p=>p.risk==='high');
+    if(activeFilter==='Active') filtered = filtered.filter(p=>p.status==='Active');
+    if(activeFilter==='Follow-up') filtered = filtered.filter(p=>p.status==='Follow-up');
+  }
+  if(q) filtered = filtered.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.condition.toLowerCase().includes(q.toLowerCase())||p.id.toLowerCase().includes(q.toLowerCase()));
+  renderTable(filtered);
+}
+
+function setFilter(btn, f) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterTable(document.querySelector('.search-input').value);
+}
+
+function openModal(id) {
+  const p = patients.find(x=>x.id===id);
+  document.getElementById('modal-name').textContent = p.name;
+  document.getElementById('modal-sub').textContent = `${p.id} · ${p.condition} · ${p.age}y ${p.sex==='M'?'Male':'Female'}`;
+  document.getElementById('modal-grid').innerHTML = `
+    <div class="modal-stat"><div class="modal-stat-label">Blood Pressure</div><div class="modal-stat-val">${p.bp} mmHg</div></div>
+    <div class="modal-stat"><div class="modal-stat-label">HbA1c</div><div class="modal-stat-val">${p.hba1c}</div></div>
+    <div class="modal-stat"><div class="modal-stat-label">Med Adherence</div><div class="modal-stat-val">${p.adherence}</div></div>
+    <div class="modal-stat"><div class="modal-stat-label">Days in Care</div><div class="modal-stat-val">${p.days} days</div></div>
+    <div class="modal-stat"><div class="modal-stat-label">Last Visit</div><div class="modal-stat-val">${p.visit}</div></div>
+    <div class="modal-stat"><div class="modal-stat-label">Risk Level</div><div class="modal-stat-val">${p.risk.charAt(0).toUpperCase()+p.risk.slice(1)}</div></div>
+  `;
+  const sumEl = document.getElementById('modal-summary');
+  sumEl.classList.add('typing-cursor');
+  sumEl.textContent = '';
+  document.getElementById('modal').classList.add('open');
+  const text = aiSummaries[id] || `${p.name} is currently ${p.status.toLowerCase()} with ${p.condition}. Medication adherence stands at ${p.adherence}. Blood pressure recorded at ${p.bp}. AI assessment: ${p.risk==='low'?'Patient is stable and progressing well. No immediate intervention required.':p.risk==='med'?'Moderate attention required. Review next visit plan and adherence support.':'Urgent clinical review recommended. Escalate to senior physician.'}`;
+  let idx = 0;
+  const iv = setInterval(()=>{
+    sumEl.textContent += text[idx++];
+    if(idx>=text.length){ clearInterval(iv); sumEl.classList.remove('typing-cursor'); }
+  }, 18);
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+function toggleCompare() {
+  const panel = document.getElementById('compare-panel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')) {
+    const top3 = patients.filter(p=>p.status==='Active').slice(0,3);
+    document.getElementById('compare-grid').innerHTML = top3.map(p=>`
+      <div class="compare-card">
+        <div class="compare-name">${p.name}</div>
+        <div class="compare-metric"><div class="compare-metric-label">Condition</div><div class="compare-metric-val">${p.condition}</div></div>
+        <div class="compare-metric"><div class="compare-metric-label">Blood Pressure</div><div class="compare-metric-val ${p.risk==='high'?'worst':p.risk==='low'?'best':''}">${p.bp}</div></div>
+        <div class="compare-metric"><div class="compare-metric-label">Adherence</div><div class="compare-metric-val ${parseInt(p.adherence)>85?'best':parseInt(p.adherence)<70?'worst':''}">${p.adherence}</div></div>
+        <div class="compare-metric"><div class="compare-metric-label">Risk</div><div class="compare-metric-val ${p.risk==='high'?'worst':p.risk==='low'?'best':''}">${p.risk.charAt(0).toUpperCase()+p.risk.slice(1)}</div></div>
+      </div>
+    `).join('');
+    showToast('⚖️','AI Comparison generated for top 3 active patients');
+  }
+}
+
+let aiHeadlines = [
+  'Diabetes cohort showing 12% HbA1c improvement vs last quarter',
+  '3 patients flagged for elevated cardiovascular risk by AI',
+  'Dengue cluster detected in Purulia — 3 cases in 48 hours',
+  'Medication adherence average: 81.4% across all active patients',
+  'AI projects 2 patients will require follow-up escalation this week'
+];
+let hi = 0;
+setInterval(()=>{
+  hi = (hi+1)%aiHeadlines.length;
+  const el = document.getElementById('ai-headline');
+  el.style.opacity='0';
+  setTimeout(()=>{ el.textContent=aiHeadlines[hi]; el.style.opacity='1'; el.style.transition='opacity 0.5s'; },300);
+},4500);
+
+function generateSummary() { showToast('🧠','AI summary generated for all 20 records'); }
+function detectAnomalies() {
+  showToast('🔍','AI detected 3 anomalies — PT-001, PT-011, PT-018');
+  activeFilter='High Risk';
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn')[1].classList.add('active');
+  filterTable('');
+}
+function autofillReports() { showToast('⚡','AI auto-filled report fields for 8 pending records'); }
+function exportReport() { showToast('📥','Export started — CSV & PDF will download shortly'); }
+
+function showToast(icon, msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+renderTable(patients);
+</script>
+</body>
+</html>

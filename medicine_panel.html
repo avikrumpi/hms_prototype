@@ -1,0 +1,2153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Medicine Master</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;
+  background-image:radial-gradient(ellipse 700px 500px at 80% 10%,rgba(61,191,160,0.06) 0%,transparent 70%),
+  radial-gradient(ellipse 500px 400px at 20% 85%,rgba(200,150,62,0.05) 0%,transparent 70%);}
+
+/* SIDEBAR */
+.sidebar{width:260px;position:fixed;top:0;left:0;height:100vh;background:var(--text-dark);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 40px rgba(0,0,0,0.15);}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo-mark{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;}
+.logo-mark span{color:var(--teal-glow);}
+.logo-sub{font-size:11px;color:var(--text-soft);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.sidebar-admin{padding:20px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.admin-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;}
+.admin-avatar::after{content:'';position:absolute;bottom:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#4ADE80;border:2px solid var(--text-dark);}
+.admin-name{font-weight:600;font-size:14px;color:#fff;}
+.admin-role{font-size:11px;color:var(--text-soft);}
+.nav-section{padding:16px 12px 8px;}
+.nav-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 12px 8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:2px;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);}
+.nav-item.active{background:linear-gradient(135deg,var(--teal),var(--teal-light));color:#fff;}
+.nav-item .icon{font-size:18px;width:22px;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.12);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);}
+.nav-badge.alert{background:var(--rose);color:#fff;}
+.sidebar-bottom{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06);}
+.date-pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:8px 14px;text-align:center;font-size:12px;color:var(--text-soft);font-family:'DM Mono',monospace;}
+
+.main{margin-left:260px;min-height:100vh;}
+.topbar{background:var(--glass);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 36px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.topbar-btn{padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+.topbar-btn:hover{border-color:var(--teal);color:var(--teal);}
+.topbar-btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+.topbar-btn.primary:hover{background:var(--teal-light);}
+.content{padding:32px 36px;}
+
+/* ALERT STRIP */
+.alert-strip{background:linear-gradient(135deg,#FFF7ED,#FFFBF0);border:1px solid #FED7AA;border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.alert-strip p{font-size:13px;color:#92400E;}
+.alert-strip strong{color:#78350F;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.03);transition:transform 0.2s;}
+.stat-card:hover{transform:translateY(-2px);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+.s-teal::before{background:linear-gradient(90deg,var(--teal),var(--teal-glow));}
+.s-gold::before{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.s-rose::before{background:linear-gradient(90deg,var(--rose),var(--rose-light));}
+.s-indigo::before{background:linear-gradient(90deg,var(--indigo),#6B82C8);}
+.s-green::before{background:linear-gradient(90deg,#16a34a,#4ADE80);}
+.stat-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px;}
+.stat-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;}
+.stat-sub{font-size:11px;color:var(--text-soft);margin-top:4px;}
+
+/* LAYOUT */
+.three-col{display:grid;grid-template-columns:1fr 1fr 340px;gap:24px;align-items:start;}
+
+/* ADD MEDICINE FORM */
+.card{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);}
+.card-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;}
+.card-body{padding:24px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+.form-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);font-weight:600;}
+.form-input{padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--text-dark);outline:none;transition:all 0.2s;background:#FAFAF8;}
+.form-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.08);background:#fff;}
+.form-input::placeholder{color:var(--text-soft);}
+select.form-input{cursor:pointer;}
+
+/* TAGS */
+.tag-select{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.ts-tag{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:var(--ivory);color:var(--text-mid);transition:all 0.15s;}
+.ts-tag.sel{border-color:var(--teal);background:rgba(26,107,90,0.08);color:var(--teal);}
+
+/* AI ROW */
+.ai-row{background:linear-gradient(135deg,rgba(26,107,90,0.04),rgba(61,191,160,0.06));border:1px solid rgba(26,107,90,0.15);border-radius:11px;padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.ai-row p{font-size:12px;color:var(--text-mid);}
+.ai-row strong{color:var(--teal);}
+
+.submit-btn{width:100%;padding:13px;border-radius:11px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,107,90,0.3);}
+
+/* MEDICINE TABLE */
+.search-row{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.search-mini{display:flex;align-items:center;background:var(--ivory);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;gap:8px;flex:1;min-width:200px;transition:all 0.2s;}
+.search-mini:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.07);}
+.search-mini input{background:none;border:none;outline:none;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-dark);width:100%;}
+.search-mini input::placeholder{color:var(--text-soft);}
+.filter-btn{padding:7px 12px;border-radius:9px;border:1px solid var(--border);background:#fff;color:var(--text-mid);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;}
+.ai-search-btn{padding:8px 14px;border-radius:9px;background:var(--teal);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;}
+
+/* FILTER DROPDOWNS */
+.filter-dropdown-wrap{position:relative;}
+.filter-dropdown{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1.5px solid var(--border);border-radius:11px;box-shadow:0 8px 28px rgba(0,0,0,0.12);z-index:90;min-width:170px;padding:6px;display:none;}
+.filter-dropdown-wrap.open .filter-dropdown{display:block;animation:fadeUp 0.18s ease;}
+.filter-dropdown-wrap.open .filter-btn{border-color:var(--teal);color:var(--teal);background:rgba(26,107,90,0.06);}
+.fdd-item{padding:8px 12px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--text-mid);transition:background 0.12s;}
+.fdd-item:hover{background:var(--ivory);}
+.fdd-item.fdd-active{background:rgba(26,107,90,0.08);color:var(--teal);font-weight:600;}
+.filter-btn.has-value{border-color:var(--teal);color:var(--teal);background:rgba(26,107,90,0.06);font-weight:600;}
+.active-filters{display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 10px;}
+.active-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:rgba(26,107,90,0.1);border:1px solid rgba(26,107,90,0.25);color:var(--teal);font-size:11.5px;font-weight:600;}
+.active-chip button{background:none;border:none;cursor:pointer;color:var(--teal);font-size:13px;line-height:1;padding:0;}
+.tag-row{display:flex;flex-wrap:wrap;gap:7px;padding:0 20px 14px;}
+.tag{padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);transition:all 0.15s;}
+.tag:hover,.tag.active{border-color:var(--teal);background:rgba(26,107,90,0.06);color:var(--teal);}
+.tag.warn{border-color:var(--gold-light);background:rgba(200,150,62,0.07);color:var(--gold);}
+
+table{width:100%;border-collapse:collapse;}
+thead th{padding:12px 18px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);background:#FAFAF8;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid #F5F0E8;transition:background 0.15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(26,107,90,0.02);}
+tbody td{padding:13px 18px;font-size:13px;color:var(--text-dark);}
+.med-name{font-weight:700;color:var(--text-dark);}
+.med-strength{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-mid);background:var(--ivory);padding:2px 8px;border-radius:6px;}
+.type-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.type-tablet{background:rgba(26,107,90,0.09);color:var(--teal);}
+.type-syrup{background:rgba(61,79,138,0.09);color:var(--indigo);}
+.type-injection{background:rgba(192,80,74,0.09);color:var(--rose);}
+.type-capsule{background:rgba(200,150,62,0.09);color:var(--gold);}
+.type-cream{background:rgba(160,82,45,0.09);color:#A0522D;}
+.stock-ok{color:#16a34a;font-weight:600;}
+.stock-low{color:var(--gold);font-weight:600;}
+.stock-out{color:var(--rose);font-weight:600;}
+.ai-flag{font-size:11px;padding:2px 8px;border-radius:6px;background:rgba(61,191,160,0.1);color:var(--teal-glow);font-weight:600;}
+.action-row{display:flex;gap:4px;}
+.a-btn{padding:4px 9px;border-radius:7px;border:1px solid var(--border);background:#fff;color:var(--text-mid);font-size:11px;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.a-btn:hover{border-color:var(--teal);color:var(--teal);}
+.a-btn.del:hover{border-color:var(--rose);color:var(--rose);}
+
+/* RIGHT PANEL */
+.right-panel{display:flex;flex-direction:column;gap:20px;}
+
+/* AI INSIGHTS */
+.ai-panel{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:16px;padding:20px;border:1px solid rgba(61,191,160,0.2);}
+.ai-panel h4{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--teal-glow);margin-bottom:14px;}
+.insight-item{padding:12px;border-radius:10px;background:rgba(255,255,255,0.05);margin-bottom:8px;border:1px solid rgba(255,255,255,0.06);}
+.insight-item:last-child{margin-bottom:0;}
+.ins-type{font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+.ins-type.warn{color:#FCD34D;}
+.ins-type.info{color:var(--teal-glow);}
+.ins-type.alert{color:#FDA4AF;}
+.ins-text{font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5;}
+
+/* CATEGORY CHART */
+.cat-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.03);}
+.cat-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.cat-label{font-size:12px;color:var(--text-mid);width:80px;flex-shrink:0;}
+.cat-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:8px;overflow:hidden;}
+.cat-bar{height:100%;border-radius:8px;}
+.cat-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;width:28px;text-align:right;color:var(--text-dark);}
+
+/* BULK UPLOAD */
+.bulk-card{background:linear-gradient(135deg,var(--teal),var(--teal-light));border-radius:16px;padding:20px;}
+.bulk-card h4{font-family:'Playfair Display',serif;font-size:18px;color:#fff;font-weight:700;}
+.bulk-card p{font-size:12px;color:rgba(255,255,255,0.7);margin-top:6px;line-height:1.5;}
+.bulk-btns{display:flex;gap:8px;margin-top:14px;}
+.bulk-btn{flex:1;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;font-size:12px;font-weight:600;cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.bulk-btn:hover{background:rgba(255,255,255,0.25);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.animate{animation:fadeUp 0.45s ease both;}
+.d1{animation-delay:0.05s;}.d2{animation-delay:0.1s;}.d3{animation-delay:0.15s;}.d4{animation-delay:0.2s;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:20px;padding:32px;max-width:500px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.2);animation:fadeUp 0.3s ease;}
+.modal h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:8px;}
+.modal p{font-size:14px;color:var(--text-mid);line-height:1.6;margin-bottom:20px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btn{flex:1;padding:11px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);}
+.modal-btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+
+/* ============== NEW AI FEATURE STYLES ============== */
+
+/* AI ACTION BUTTONS */
+.ai-action-btn {
+  flex:1;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;border:1.5px solid;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all 0.2s;position:relative;overflow:hidden;
+}
+.ai-action-btn.dosage-btn {
+  border-color:rgba(61,191,160,0.4);
+  background:linear-gradient(135deg,rgba(26,107,90,0.06),rgba(61,191,160,0.1));
+  color:var(--teal);
+}
+.ai-action-btn.dosage-btn:hover {
+  border-color:var(--teal);
+  background:linear-gradient(135deg,rgba(26,107,90,0.12),rgba(61,191,160,0.18));
+  transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,107,90,0.15);
+}
+.ai-action-btn.interact-btn {
+  border-color:rgba(61,79,138,0.3);
+  background:linear-gradient(135deg,rgba(61,79,138,0.05),rgba(107,130,200,0.1));
+  color:var(--indigo);
+}
+.ai-action-btn.interact-btn:hover {
+  border-color:var(--indigo);
+  background:linear-gradient(135deg,rgba(61,79,138,0.12),rgba(107,130,200,0.18));
+  transform:translateY(-1px);box-shadow:0 4px 16px rgba(61,79,138,0.15);
+}
+.ai-action-btn:disabled {
+  opacity:0.6;cursor:not-allowed;transform:none !important;
+}
+
+/* SPINNER */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner{width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+
+/* AI RESULT PANEL */
+.ai-result-panel {
+  margin-top:14px;border-radius:14px;overflow:hidden;
+  border:1.5px solid;animation:fadeUp 0.35s ease;
+}
+.ai-result-panel.dosage-result {
+  border-color:rgba(26,107,90,0.2);
+  background:linear-gradient(135deg,rgba(26,107,90,0.03),rgba(61,191,160,0.05));
+}
+.ai-result-panel.interact-result {
+  border-color:rgba(61,79,138,0.2);
+  background:linear-gradient(135deg,rgba(61,79,138,0.03),rgba(107,130,200,0.06));
+}
+.ai-result-header {
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(0,0,0,0.06);
+}
+.ai-result-header.dosage-header{background:rgba(26,107,90,0.07);}
+.ai-result-header.interact-header{background:rgba(61,79,138,0.07);}
+.ai-result-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.dosage-result .ai-result-label{color:var(--teal);}
+.interact-result .ai-result-label{color:var(--indigo);}
+.ai-result-close{background:none;border:none;cursor:pointer;font-size:14px;color:var(--text-soft);line-height:1;padding:2px 4px;border-radius:4px;}
+.ai-result-close:hover{background:rgba(0,0,0,0.06);}
+.ai-result-body{padding:14px 16px;font-size:13px;color:var(--text-dark);line-height:1.7;white-space:pre-wrap;}
+
+/* TYPING CURSOR */
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.typing-cursor::after{content:'|';animation:blink 1s infinite;font-weight:300;color:var(--teal-glow);}
+
+/* QUICK-ADD DATASET MODAL */
+.qa-modal {
+  background:#fff;border-radius:20px;padding:0;max-width:640px;width:94%;
+  box-shadow:0 24px 80px rgba(0,0,0,0.2);animation:fadeUp 0.3s ease;overflow:hidden;
+}
+.qa-header {
+  padding:22px 28px;background:linear-gradient(135deg,var(--teal),var(--teal-light));
+  display:flex;align-items:center;justify-content:space-between;
+}
+.qa-header h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;}
+.qa-header p{font-size:12px;color:rgba(255,255,255,0.75);margin-top:2px;}
+.qa-close{background:rgba(255,255,255,0.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.qa-search{padding:14px 20px;border-bottom:1px solid var(--border);}
+.qa-search input{width:100%;padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--ivory);transition:all 0.2s;}
+.qa-search input:focus{border-color:var(--teal);background:#fff;}
+.qa-list{max-height:340px;overflow-y:auto;padding:10px 14px;}
+.qa-item{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;
+  cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;margin-bottom:5px;
+}
+.qa-item:hover{background:rgba(26,107,90,0.04);border-color:rgba(26,107,90,0.15);}
+.qa-item.adding{background:rgba(61,191,160,0.1);border-color:var(--teal-glow);}
+.qa-item.added{background:rgba(22,163,74,0.06);border-color:rgba(22,163,74,0.3);}
+.qa-med-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.qa-med-name{font-weight:700;font-size:13.5px;}
+.qa-med-meta{font-size:11px;color:var(--text-soft);margin-top:1px;}
+.qa-add-btn{margin-left:auto;padding:5px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1.5px solid;transition:all 0.15s;flex-shrink:0;}
+.qa-add-btn.add{border-color:var(--teal);color:var(--teal);background:transparent;}
+.qa-add-btn.add:hover{background:var(--teal);color:#fff;}
+.qa-add-btn.done{border-color:#16a34a;color:#16a34a;background:rgba(22,163,74,0.08);cursor:default;}
+.qa-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.qa-count{font-size:12px;color:var(--text-soft);}
+
+/* AI FILL ASSIST GLOW */
+@keyframes aiPulse{0%,100%{box-shadow:0 0 0 0 rgba(61,191,160,0.4);}50%{box-shadow:0 0 0 8px rgba(61,191,160,0);}}
+.ai-fill-active{animation:aiPulse 2s infinite;}
+
+/* INTERACTION SEVERITY */
+.sev-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;margin-right:4px;}
+.sev-high{background:rgba(192,80,74,0.12);color:var(--rose);}
+.sev-med{background:rgba(200,150,62,0.12);color:var(--gold);}
+.sev-low{background:rgba(26,107,90,0.09);color:var(--teal);}
+
+/* GENAI QUICK ADD STRIP */
+.genai-strip {
+  background:linear-gradient(135deg,#1C2331,#2D3752);
+  border-radius:12px;padding:13px 18px;
+  display:flex;align-items:center;gap:14px;margin-bottom:16px;
+  border:1px solid rgba(61,191,160,0.25);
+}
+.genai-strip-text{flex:1;}
+.genai-strip-text p{font-size:12.5px;color:rgba(255,255,255,0.8);line-height:1.5;}
+.genai-strip-text strong{color:var(--teal-glow);}
+.genai-quick-btn{
+  padding:8px 14px;border-radius:8px;
+  background:linear-gradient(135deg,var(--teal-glow),var(--teal-light));
+  border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.2s;
+}
+.genai-quick-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(61,191,160,0.35);}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence Platform</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div>
+      <div class="admin-name">Admin Portal</div>
+      <div class="admin-role">Super Administrator</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Core</div>
+    <a href="admin_panel.html" class="nav-item"><span class="icon">🏥</span> Patients <span class="nav-badge">1001</span></a>
+    <a href="doctor_panel.html" class="nav-item"><span class="icon">👨‍⚕️</span> Doctors <span class="nav-badge">20</span></a>
+    <a href="ha_panel.html" class="nav-item"><span class="icon">👤</span> HA <span class="nav-badge">8</span></a>
+    <a href="cluster_panel.html" class="nav-item"><span class="icon">🏘</span> Clusters <span class="nav-badge">6</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Operations</div>
+    <a href="medicine_panel.html" class="nav-item active"><span class="icon">💊</span> Medicine <span class="nav-badge alert">3</span></a>
+    <a href="all_services.html" class="nav-item"><span class="icon">🩺</span> Services <span class="nav-badge">20</span></a>
+    <a href="inventory_panel.html" class="nav-item"><span class="icon">📦</span> Inventory</a>
+    <a href="billing.html" class="nav-item"><span class="icon">💰</span> Billing</a>
+    <a href="reports.html" class="nav-item"><span class="icon">📊</span> Reports</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="date-pill">📅 Apr 24, 2026 · 11:30 AM</div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div style="cursor:pointer;color:var(--text-soft);font-size:20px;margin-right:4px">←</div>
+    <div class="page-title">Medicine Master</div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="document.getElementById('aiModal').classList.add('show')">✦ AI Analysis</button>
+      <button class="topbar-btn" onclick="openQuickAdd()">⚡ Quick Add</button>
+      <button class="topbar-btn">⬇ Download</button>
+      <button class="topbar-btn primary">⬆ Bulk Upload</button>
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff">A</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- LOW STOCK ALERT -->
+    <div class="alert-strip animate d1">
+      <span style="font-size:20px">⚠️</span>
+      <p><strong>3 medicines running low on stock:</strong> Amoxicillin 500mg, ORS Sachet, Paracetamol 650mg. AI recommends reorder within <strong>5 days</strong> based on current consumption rate.</p>
+      <button style="margin-left:auto;padding:7px 14px;border-radius:8px;background:#FED7AA;border:none;color:#92400E;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Reorder Now</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row animate d2">
+      <div class="stat-card s-teal">
+        <div class="stat-lbl">Total Medicines</div>
+        <div class="stat-val" style="color:var(--teal)" id="statTotal">45</div>
+        <div class="stat-sub">In master catalog</div>
+      </div>
+      <div class="stat-card s-green">
+        <div class="stat-lbl">In Stock</div>
+        <div class="stat-val" style="color:#16a34a">17</div>
+        <div class="stat-sub">Sufficient supply</div>
+      </div>
+      <div class="stat-card s-gold">
+        <div class="stat-lbl">Low Stock</div>
+        <div class="stat-val" style="color:var(--gold)">3</div>
+        <div class="stat-sub">Action needed</div>
+      </div>
+      <div class="stat-card s-indigo">
+        <div class="stat-lbl">Companies</div>
+        <div class="stat-val" style="color:var(--indigo)">8</div>
+        <div class="stat-sub">Pharmaceutical</div>
+      </div>
+      <div class="stat-card s-rose">
+        <div class="stat-lbl">Types</div>
+        <div class="stat-val" style="color:var(--rose)">5</div>
+        <div class="stat-sub">Tablet/Syrup/Inj+</div>
+      </div>
+    </div>
+
+    <div class="three-col">
+      <!-- LEFT+MID: TABLE FULL WIDTH -->
+      <div style="grid-column:1/3">
+        <!-- SEARCH & TABLE -->
+        <div class="card animate d3">
+          <div class="search-row">
+            <div class="search-mini">
+              <span style="font-size:16px;color:var(--text-soft)">🔍</span>
+              <input type="text" placeholder="Search medicine name, company, type, strength..." id="tableSearch" oninput="applyFilters()">
+            </div>
+            <!-- TYPE DROPDOWN -->
+            <div class="filter-dropdown-wrap" id="typeDropWrap">
+              <div class="filter-btn" id="typeFilterBtn" onclick="toggleDropdown('typeDropWrap')">💊 Type ▾</div>
+              <div class="filter-dropdown" id="typeDropMenu">
+                <div class="fdd-item fdd-active" data-val="" onclick="setDropdown('type','','typeDropWrap','typeFilterBtn','💊 Type')">All Types</div>
+                <div class="fdd-item" data-val="Tablet" onclick="setDropdown('type','Tablet','typeDropWrap','typeFilterBtn','💊 Tablet')">💊 Tablet</div>
+                <div class="fdd-item" data-val="Syrup" onclick="setDropdown('type','Syrup','typeDropWrap','typeFilterBtn','🍶 Syrup')">🍶 Syrup</div>
+                <div class="fdd-item" data-val="Injection" onclick="setDropdown('type','Injection','typeDropWrap','typeFilterBtn','💉 Injection')">💉 Injection</div>
+                <div class="fdd-item" data-val="Capsule" onclick="setDropdown('type','Capsule','typeDropWrap','typeFilterBtn','💊 Capsule')">💊 Capsule</div>
+                <div class="fdd-item" data-val="Cream/Ointment" onclick="setDropdown('type','Cream/Ointment','typeDropWrap','typeFilterBtn','🧴 Cream/Ointment')">🧴 Cream/Ointment</div>
+                <div class="fdd-item" data-val="Inhaler" onclick="setDropdown('type','Inhaler','typeDropWrap','typeFilterBtn','💨 Inhaler')">💨 Inhaler</div>
+                <div class="fdd-item" data-val="Powder/Sachet" onclick="setDropdown('type','Powder/Sachet','typeDropWrap','typeFilterBtn','📦 Powder/Sachet')">📦 Powder/Sachet</div>
+              </div>
+            </div>
+            <!-- COMPANY DROPDOWN -->
+            <div class="filter-dropdown-wrap" id="compDropWrap">
+              <div class="filter-btn" id="compFilterBtn" onclick="toggleDropdown('compDropWrap')">🏭 Company ▾</div>
+              <div class="filter-dropdown" id="compDropMenu"></div>
+            </div>
+            <!-- STOCK DROPDOWN -->
+            <div class="filter-dropdown-wrap" id="stockDropWrap">
+              <div class="filter-btn" id="stockFilterBtn" onclick="toggleDropdown('stockDropWrap')">📦 Stock ▾</div>
+              <div class="filter-dropdown" id="stockDropMenu">
+                <div class="fdd-item fdd-active" data-val="" onclick="setDropdown('stock','','stockDropWrap','stockFilterBtn','📦 Stock')">All Stock</div>
+                <div class="fdd-item" data-val="ok" onclick="setDropdown('stock','ok','stockDropWrap','stockFilterBtn','✓ In Stock')">✓ In Stock</div>
+                <div class="fdd-item" data-val="low" onclick="setDropdown('stock','low','stockDropWrap','stockFilterBtn','⚠ Low Stock')">⚠ Low Stock</div>
+              </div>
+            </div>
+            <button class="ai-search-btn" onclick="openAISearch()">✦ AI Search</button>
+          </div>
+          <!-- AI SEARCH PANEL -->
+          <div id="aiSearchPanel" style="display:none;padding:0 20px 14px;">
+            <div style="background:linear-gradient(135deg,rgba(26,107,90,0.05),rgba(61,191,160,0.08));border:1.5px solid rgba(26,107,90,0.2);border-radius:12px;padding:14px 16px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <span style="font-size:18px">✦</span>
+                <span style="font-size:13px;font-weight:600;color:var(--teal)">AI Natural Language Search</span>
+                <button onclick="closeAISearch()" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-soft)">✕</button>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <input type="text" id="aiSearchInput" placeholder='e.g. "antibiotics low stock", "cardiac tablets by Cipla", "Schedule H injections"...'
+                  style="flex:1;padding:10px 13px;border:1.5px solid rgba(26,107,90,0.3);border-radius:9px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:#fff;"
+                  onkeydown="if(event.key==='Enter')runAISearch()" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='rgba(26,107,90,0.3)'">
+                <button onclick="runAISearch()" id="aiSearchRunBtn"
+                  style="padding:10px 18px;border-radius:9px;background:var(--teal);border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;">
+                  <span id="aiSearchBtnText">Search</span>
+                </button>
+              </div>
+              <div id="aiSearchResult" style="margin-top:10px;font-size:12px;color:var(--text-mid);"></div>
+            </div>
+          </div>
+          <div class="tag-row">
+            <span class="tag active">All</span>
+            <span class="tag">Tablet</span>
+            <span class="tag">Syrup</span>
+            <span class="tag">Injection</span>
+            <span class="tag">Capsule</span>
+            <span class="tag">Cream/Ointment</span>
+            <span class="tag warn">⚠ Low Stock</span>
+            <span class="tag">AI Flagged</span>
+            <span class="tag">Recently Added</span>
+          </div>
+          <div class="active-filters" id="activeFiltersRow" style="display:none;"></div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Medicine Name</th>
+                  <th>Strength</th>
+                  <th>Type</th>
+                  <th>Company</th>
+                  <th>Unit</th>
+                  <th>Stock</th>
+                  <th>AI Note</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="medTable"></tbody>
+            </table>
+          </div>
+          <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:13px;color:var(--text-soft)" id="tableCount">Showing 45 of 45 medicines</span>
+            <div style="display:flex;gap:6px">
+              <div style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-mid);font-size:12px;cursor:pointer">‹ Prev</div>
+              <div style="padding:6px 12px;border-radius:8px;border:1px solid var(--teal);background:var(--teal);color:#fff;font-size:12px;cursor:pointer">1</div>
+              <div style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-mid);font-size:12px;cursor:pointer">Next ›</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADD FORM BELOW TABLE -->
+        <div class="card animate d4" style="margin-top:24px">
+          <div class="card-head">
+            <div class="card-title">💊 Add New Medicine</div>
+            <button style="padding:7px 14px;border-radius:8px;background:rgba(61,191,160,0.1);border:1px solid rgba(61,191,160,0.3);color:var(--teal);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="openQuickAdd()">⚡ Quick Add from Dataset</button>
+          </div>
+          <div class="card-body">
+            
+            <!-- GENAI QUICK STRIP -->
+            <div class="genai-strip">
+              <span style="font-size:24px">🤖</span>
+              <div class="genai-strip-text">
+                <p><strong>GenAI Auto-Fill:</strong> Type any medicine name below — AI instantly suggests strength, type, standard dosage, and known interactions from our clinical database of 20 medicines.</p>
+              </div>
+              <button class="genai-quick-btn" onclick="openQuickAdd()">⚡ Quick Add 20 Medicines</button>
+            </div>
+
+            <div class="ai-row">
+              <span style="font-size:18px">✦</span>
+              <p><strong>AI Auto-Complete:</strong> Fill the medicine name then use <strong>AI Generate Dosage</strong> or <strong>Check Interactions</strong> for real-time clinical guidance powered by Claude AI.</p>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Medicine Name</label>
+                <input class="form-input" type="text" id="fName" placeholder="e.g. Amoxicillin" oninput="clearAIResults()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Strength</label>
+                <input class="form-input" type="text" id="fStrength" placeholder="e.g. 500mg, 250ml">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Type / Form</label>
+                <select class="form-input" id="fType">
+                  <option value="">Select type</option>
+                  <option>Tablet</option>
+                  <option>Capsule</option>
+                  <option>Syrup</option>
+                  <option>Injection</option>
+                  <option>Cream/Ointment</option>
+                  <option>Drops</option>
+                  <option>Inhaler</option>
+                  <option>Powder/Sachet</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Company Name</label>
+                <input class="form-input" type="text" id="fCompany" placeholder="e.g. Cipla, Sun Pharma">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Unit Name</label>
+                <select class="form-input" id="fUnit">
+                  <option>Strip (10 tablets)</option>
+                  <option>Bottle (100ml)</option>
+                  <option>Vial</option>
+                  <option>Tube</option>
+                  <option>Sachet</option>
+                  <option>Box</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Reorder Level (units)</label>
+                <input class="form-input" type="number" id="fReorder" placeholder="e.g. 50">
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Category / Tags</label>
+                <div class="tag-select">
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">Antibiotic</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">Analgesic</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">Antifungal</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">Vitamins</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">Antacid</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">Antiparasitic</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">Cardiac</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">Diabetes</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">TB Treatment</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">ORS/Rehydration</span>
+                  <span class="ts-tag" onclick="this.classList.toggle('sel')">Schedule H</span>
+                </div>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Standard Dosage / Notes</label>
+                <textarea class="form-input" id="fDosage" rows="2" placeholder="Click ✦ AI Generate Dosage to auto-fill standard guidelines..." style="resize:vertical"></textarea>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Interaction Notes (editable)</label>
+                <textarea class="form-input" id="fInteractions" rows="3" placeholder="Click 🔍 Check Interactions to prefill checks (you can edit before saving)..." style="resize:vertical"></textarea>
+              </div>
+            </div>
+
+            <!-- AI ACTION BUTTONS ROW -->
+            <div style="display:flex;gap:10px;margin-top:14px">
+              <button class="ai-action-btn dosage-btn" id="dosageBtn" onclick="generateDosage()">
+                <span id="dosageIcon">✦</span>
+                <span id="dosageBtnText">AI Generate Dosage</span>
+              </button>
+              <button class="ai-action-btn interact-btn" id="interactBtn" onclick="checkInteractions()">
+                <span id="interactIcon">🔍</span>
+                <span id="interactBtnText">Check Interactions</span>
+              </button>
+              <button class="submit-btn" style="flex:2;margin-top:0" onclick="addMedicineFromForm()">💊 Add Medicine</button>
+            </div>
+
+            <!-- AI RESULT PANELS (injected here) -->
+            <div id="dosageResult"></div>
+            <div id="interactResult"></div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel animate d3">
+        <!-- AI INSIGHTS -->
+        <div class="ai-panel">
+          <h4>✦ AI Pharma Intelligence</h4>
+          <div class="insight-item">
+            <div class="ins-type warn">⚠ Low Stock Alert</div>
+            <div class="ins-text">Amoxicillin 500mg will run out in ~<strong style="color:#FCD34D">8 days</strong> at current prescription rate. Order 200 strips immediately.</div>
+          </div>
+          <div class="insight-item">
+            <div class="ins-type info">💡 Usage Pattern</div>
+            <div class="ins-text">Paracetamol 500mg is the most prescribed medicine — 34% of all prescriptions. Consider stocking a 3-month buffer.</div>
+          </div>
+          <div class="insight-item">
+            <div class="ins-type alert">🔴 Expiry Watch</div>
+            <div class="ins-text">Metformin 500mg batch (Exp: Jun 2026) — <strong style="color:#FDA4AF">use priority queue</strong>. Rotate existing stock before new order.</div>
+          </div>
+          <div class="insight-item">
+            <div class="ins-type info">📊 Cluster Demand</div>
+            <div class="ins-text">WB-JRG cluster shows 40% higher antifungal demand this season. Suggest pre-positioning Fluconazole at local HA level.</div>
+          </div>
+        </div>
+
+        <!-- CATEGORY CHART -->
+        <div class="cat-card">
+          <div class="cat-title">💊 By Medicine Type</div>
+          <div id="catChart"></div>
+        </div>
+
+        <!-- BULK UPLOAD -->
+        <div class="bulk-card">
+          <h4>Bulk Upload</h4>
+          <p>Upload your formulary CSV/Excel to add 100s of medicines at once. AI will validate, deduplicate, and flag conflicts automatically.</p>
+          <div class="bulk-btns">
+            <div class="bulk-btn">⬆ Upload CSV</div>
+            <div class="bulk-btn">📄 Template</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- AI ANALYSIS MODAL -->
+<div class="modal-overlay" id="aiModal">
+  <div class="modal">
+    <h3>✦ AI Medicine Analysis</h3>
+    <p>Your medicine catalog analysis is complete. HealthOS AI has reviewed 20 medicines across 5 types and 8 companies.</p>
+    <div style="background:var(--ivory);border-radius:12px;padding:16px;margin-bottom:20px;font-size:13px;line-height:1.8;color:var(--text-mid)">
+      🟢 <strong>17 medicines</strong> adequately stocked<br>
+      🟡 <strong>3 medicines</strong> below reorder threshold<br>
+      🔴 <strong>1 batch</strong> nearing expiry (Jun 2026)<br>
+      💡 Top prescribed: Paracetamol, Amoxicillin, ORS<br>
+      📊 Estimated monthly cost saving: <strong>₹12,400</strong> with smart reordering
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="document.getElementById('aiModal').classList.remove('show')">Close</button>
+      <button class="modal-btn primary">Download Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK-ADD MODAL -->
+<div class="modal-overlay" id="qaModal">
+  <div class="qa-modal">
+    <div class="qa-header">
+      <div>
+        <h3>⚡ Quick Add Medicines</h3>
+        <p>GenAI-powered dataset of 20 essential medicines — click to instantly add to your catalog</p>
+      </div>
+      <button class="qa-close" onclick="closeQuickAdd()">✕</button>
+    </div>
+    <div class="qa-search">
+      <input type="text" id="qaSearch" placeholder="🔍 Search dataset..." oninput="filterQA()">
+    </div>
+    <div class="qa-list" id="qaList"></div>
+    <div class="qa-footer">
+      <span class="qa-count" id="qaCount">45 medicines in dataset</span>
+      <button style="padding:8px 16px;border-radius:8px;background:var(--teal);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="addAllMedicines()">➕ Add All Remaining</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// MEDICINE DATASET (45 medicines)
+// ============================================================
+const medicines = [
+  // ── Existing 20 ──────────────────────────────────────────────
+  {name:'Amoxicillin',strength:'500mg',type:'Tablet',company:'Cipla',unit:'Strip',stock:'low',ai:'Reorder soon',icon:'🔴',color:'#FEE2E2',tags:['Antibiotic','Schedule H']},
+  {name:'Paracetamol',strength:'500mg',type:'Tablet',company:'GlaxoSmithKline',unit:'Strip',stock:'ok',ai:'High demand',icon:'💚',color:'#F0FDF4',tags:['Analgesic']},
+  {name:'ORS Sachet',strength:'21.8g',type:'Powder/Sachet',company:'Electral',unit:'Box',stock:'low',ai:'Reorder soon',icon:'🟡',color:'#FEF9C3',tags:['ORS/Rehydration']},
+  {name:'Metformin',strength:'500mg',type:'Tablet',company:'Sun Pharma',unit:'Strip',stock:'ok',ai:'Exp: Jun 2026',icon:'⚠️',color:'#FFF7ED',tags:['Diabetes']},
+  {name:'Albendazole',strength:'400mg',type:'Tablet',company:'GSK',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F0FDF4',tags:['Antiparasitic']},
+  {name:'Iron Folic Acid',strength:'100mg',type:'Tablet',company:'Macleods',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FFF7ED',tags:['Vitamins']},
+  {name:'Vitamin B12',strength:'500mcg',type:'Injection',company:'Wyeth',unit:'Vial',stock:'ok',ai:'',icon:'💉',color:'#EFF6FF',tags:['Vitamins']},
+  {name:'Fluconazole',strength:'150mg',type:'Capsule',company:'Cipla',unit:'Strip',stock:'ok',ai:'↑ WB-JRG demand',icon:'🔵',color:'#EFF6FF',tags:['Antifungal','Schedule H']},
+  {name:'Salbutamol',strength:'100mcg',type:'Inhaler',company:'Cipla',unit:'Unit',stock:'ok',ai:'',icon:'💨',color:'#F0FDF4',tags:['Cardiac']},
+  {name:'Cetirizine',strength:'10mg',type:'Tablet',company:'UCB',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F5F3FF',tags:['Antihistamine']},
+  {name:'Omeprazole',strength:'20mg',type:'Capsule',company:'AstraZeneca',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FFF7ED',tags:['Antacid']},
+  {name:'Amlodipine',strength:'5mg',type:'Tablet',company:'Pfizer',unit:'Strip',stock:'ok',ai:'',icon:'❤️',color:'#FFF1F2',tags:['Cardiac']},
+  {name:'Atenolol',strength:'50mg',type:'Tablet',company:'Cipla',unit:'Strip',stock:'ok',ai:'',icon:'❤️',color:'#FFF1F2',tags:['Cardiac']},
+  {name:'Doxycycline',strength:'100mg',type:'Capsule',company:'Pfizer',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F0FDF4',tags:['Antibiotic','Schedule H']},
+  {name:'Clotrimazole',strength:'1%',type:'Cream/Ointment',company:'Bayer',unit:'Tube',stock:'ok',ai:'',icon:'🧴',color:'#FFF7ED',tags:['Antifungal']},
+  {name:'Paracetamol',strength:'650mg',type:'Tablet',company:'Cipla',unit:'Strip',stock:'low',ai:'↑ Fever cases',icon:'🟠',color:'#FEF3C7',tags:['Analgesic']},
+  {name:'Ranitidine',strength:'150mg',type:'Tablet',company:'Zydus',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F0FDF4',tags:['Antacid']},
+  {name:'Zinc Sulfate',strength:'20mg',type:'Tablet',company:'Mankind',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F5F3FF',tags:['Vitamins']},
+  {name:'Vitamin D3',strength:'60000IU',type:'Capsule',company:'Sun Pharma',unit:'Strip',stock:'ok',ai:'',icon:'☀️',color:'#FFFBEB',tags:['Vitamins']},
+  {name:'Normal Saline',strength:'0.9% 500ml',type:'Injection',company:'Baxter',unit:'Bottle',stock:'ok',ai:'',icon:'💉',color:'#EFF6FF',tags:[]},
+  // ── New 25 ───────────────────────────────────────────────────
+  {name:'Azithromycin',strength:'500mg',type:'Tablet',company:'Cipla',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F0FDF4',tags:['Antibiotic','Schedule H']},
+  {name:'Ciprofloxacin',strength:'500mg',type:'Tablet',company:'Bayer',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#EFF6FF',tags:['Antibiotic','Schedule H']},
+  {name:'Metronidazole',strength:'400mg',type:'Tablet',company:'Abbott',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F0FDF4',tags:['Antibiotic','Antiparasitic']},
+  {name:'Ibuprofen',strength:'400mg',type:'Tablet',company:'Mankind',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FFF7ED',tags:['Analgesic','Anti-inflammatory']},
+  {name:'Diclofenac',strength:'50mg',type:'Tablet',company:'Novartis',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FFF1F2',tags:['Analgesic','Anti-inflammatory']},
+  {name:'Pantoprazole',strength:'40mg',type:'Tablet',company:'Sun Pharma',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FFFBEB',tags:['Antacid']},
+  {name:'Losartan',strength:'50mg',type:'Tablet',company:'Cipla',unit:'Strip',stock:'ok',ai:'',icon:'❤️',color:'#FFF1F2',tags:['Cardiac','Antihypertensive']},
+  {name:'Atorvastatin',strength:'10mg',type:'Tablet',company:'Pfizer',unit:'Strip',stock:'ok',ai:'',icon:'❤️',color:'#FEE2E2',tags:['Cardiac']},
+  {name:'Glibenclamide',strength:'5mg',type:'Tablet',company:'Abbott',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FEF9C3',tags:['Diabetes']},
+  {name:'Insulin Regular',strength:'100 IU/ml',type:'Injection',company:'Novo Nordisk',unit:'Vial',stock:'ok',ai:'',icon:'💉',color:'#EFF6FF',tags:['Diabetes','Schedule H']},
+  {name:'Prednisolone',strength:'5mg',type:'Tablet',company:'Macleods',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FFF7ED',tags:['Steroid']},
+  {name:'Hydrocortisone',strength:'1%',type:'Cream/Ointment',company:'GSK',unit:'Tube',stock:'ok',ai:'',icon:'🧴',color:'#FFFBEB',tags:['Steroid','Topical']},
+  {name:'Chlorpheniramine',strength:'4mg',type:'Tablet',company:'Cipla',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F5F3FF',tags:['Antihistamine']},
+  {name:'Domperidone',strength:'10mg',type:'Tablet',company:'Johnson & Johnson',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F0FDF4',tags:['Antacid']},
+  {name:'Ondansetron',strength:'4mg',type:'Tablet',company:'GSK',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#EFF6FF',tags:['Antiemetic','Schedule H']},
+  {name:'Tramadol',strength:'50mg',type:'Capsule',company:'Mankind',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FEE2E2',tags:['Analgesic','Schedule H']},
+  {name:'Diazepam',strength:'5mg',type:'Tablet',company:'Roche',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F5F3FF',tags:['Schedule H']},
+  {name:'Phenobarbitone',strength:'60mg',type:'Tablet',company:'Nicholas',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FEF9C3',tags:['Schedule H']},
+  {name:'Cotrimoxazole',strength:'480mg',type:'Tablet',company:'Cipla',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F0FDF4',tags:['Antibiotic']},
+  {name:'Rifampicin',strength:'450mg',type:'Capsule',company:'Lupin',unit:'Strip',stock:'ok',ai:'',icon:'🔶',color:'#FEF3C7',tags:['TB Treatment','Schedule H']},
+  {name:'Isoniazid',strength:'300mg',type:'Tablet',company:'Lupin',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#F0FDF4',tags:['TB Treatment','Schedule H']},
+  {name:'Pyrazinamide',strength:'500mg',type:'Tablet',company:'Macleods',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FFFBEB',tags:['TB Treatment','Schedule H']},
+  {name:'Ethambutol',strength:'400mg',type:'Tablet',company:'Macleods',unit:'Strip',stock:'ok',ai:'',icon:'💊',color:'#FFF7ED',tags:['TB Treatment','Schedule H']},
+  {name:'Magnesium Sulfate',strength:'50% 10ml',type:'Injection',company:'Neon',unit:'Vial',stock:'ok',ai:'Eclampsia protocol',icon:'💉',color:'#EFF6FF',tags:['Obstetric','Schedule H']},
+  {name:'Oxytocin',strength:'10 IU/ml',type:'Injection',company:'Themis',unit:'Vial',stock:'ok',ai:'AMTSL protocol',icon:'💉',color:'#FFF1F2',tags:['Obstetric','Schedule H']},
+];
+
+const typeClass = {Tablet:'type-tablet','Powder/Sachet':'type-syrup',Injection:'type-injection',Capsule:'type-capsule','Cream/Ointment':'type-cream',Inhaler:'type-tablet'};
+
+// Track added medicines in quick-add
+const addedMeds = new Set();
+
+// ============================================================
+// TABLE RENDER
+// ============================================================
+function renderTable(data) {
+  const tbody = document.getElementById('medTable');
+  tbody.innerHTML = '';
+  data.forEach((m, i) => {
+    const sc = m.stock === 'ok' ? 'stock-ok' : 'stock-low';
+    const sl = m.stock === 'ok' ? '✓ In Stock' : '⚠ Low';
+    const tc = typeClass[m.type] || 'type-tablet';
+    tbody.innerHTML += `<tr>
+      <td style="color:var(--text-soft);font-family:'DM Mono',monospace;font-size:12px">${String(i+1).padStart(2,'0')}</td>
+      <td><span class="med-name">${m.name}</span></td>
+      <td><span class="med-strength">${m.strength}</span></td>
+      <td><span class="type-badge ${tc}">${m.type}</span></td>
+      <td style="font-size:12px;color:var(--text-mid)">${m.company}</td>
+      <td style="font-size:12px;color:var(--text-soft)">${m.unit}</td>
+      <td><span class="${sc}">${sl}</span></td>
+      <td>${m.ai ? `<span class="ai-flag">✦ ${m.ai}</span>` : '<span style="color:var(--text-soft);font-size:12px">—</span>'}</td>
+      <td><div class="action-row"><button class="a-btn">Edit</button><button class="a-btn del">✕</button></div></td>
+    </tr>`;
+  });
+  document.getElementById('tableCount').textContent = `Showing ${data.length} of ${medicines.length} medicines`;
+}
+renderTable(medicines);
+
+// filterTable is aliased to applyFilters below
+
+// ============================================================
+// CATEGORY CHART
+// ============================================================
+const cats = [
+  {label:'Tablet', count:25, color:'#1A6B5A'},
+  {label:'Capsule', count:8, color:'#3D4F8A'},
+  {label:'Injection', count:7, color:'#C0504A'},
+  {label:'Cream', count:2, color:'#A0522D'},
+  {label:'Other', count:3, color:'#C8963E'},
+];
+const maxC = Math.max(...cats.map(c=>c.count));
+const cc = document.getElementById('catChart');
+cats.forEach(c => {
+  cc.innerHTML += `<div class="cat-row">
+    <div class="cat-label">${c.label}</div>
+    <div class="cat-bar-wrap"><div class="cat-bar" style="width:${c.count/maxC*100}%;background:${c.color}"></div></div>
+    <div class="cat-val">${c.count}</div>
+  </div>`;
+});
+
+// ============================================================
+// ADVANCED FILTER STATE
+// ============================================================
+const filterState = { q: '', type: '', company: '', stock: '', activeTag: 'All', aiQuery: '' };
+
+// Tag clicks — now wire to actual filter
+document.querySelectorAll('.tag').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tag').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const txt = t.textContent.trim().replace(/^[⚠\s]+/, '');
+    filterState.activeTag = txt;
+    filterState.aiQuery = '';
+    applyFilters();
+  });
+});
+
+// ============================================================
+// UNIFIED APPLY FILTERS
+// ============================================================
+function applyFilters() {
+  filterState.q = (document.getElementById('tableSearch').value || '').toLowerCase().trim();
+
+  const result = medicines.filter(m => {
+    // 1. Text search (name, company, strength, type, tags)
+    if (filterState.q) {
+      const haystack = [m.name, m.company, m.strength, m.type, ...(m.tags||[])].join(' ').toLowerCase();
+      if (!haystack.includes(filterState.q)) return false;
+    }
+
+    // 2. Tag filter
+    const tag = filterState.activeTag;
+    if (tag && tag !== 'All') {
+      if (tag === 'Low Stock') {
+        if (m.stock !== 'low') return false;
+      } else if (tag === 'AI Flagged') {
+        if (!m.ai) return false;
+      } else if (tag === 'Recently Added') {
+        // last 25 in array = recently added
+        if (medicines.indexOf(m) < 20) return false;
+      } else {
+        // Match type
+        if (m.type.toLowerCase() !== tag.toLowerCase()) return false;
+      }
+    }
+
+    // 3. Dropdown: type
+    if (filterState.type && m.type !== filterState.type) return false;
+
+    // 4. Dropdown: company
+    if (filterState.company && m.company !== filterState.company) return false;
+
+    // 5. Dropdown: stock
+    if (filterState.stock && m.stock !== filterState.stock) return false;
+
+    // 6. AI natural-language query result
+    if (filterState.aiQuery) {
+      const q = filterState.aiQuery.toLowerCase();
+      // parse intent tokens from the AI query result applied as extra filter
+      // (the AI layer sets filterState.aiResultIds to a set of indices)
+      if (filterState.aiResultIds && !filterState.aiResultIds.has(medicines.indexOf(m))) return false;
+    }
+
+    return true;
+  });
+
+  renderTable(result);
+  updateActiveChips();
+}
+
+// Alias for backward compat
+function filterTable() { applyFilters(); }
+
+// ============================================================
+// DROPDOWN HELPERS
+// ============================================================
+// Build company dropdown dynamically from data
+function buildCompanyDropdown() {
+  const companies = [...new Set(medicines.map(m => m.company))].sort();
+  const menu = document.getElementById('compDropMenu');
+  menu.innerHTML = `<div class="fdd-item fdd-active" data-val="" onclick="setDropdown('company','','compDropWrap','compFilterBtn','🏭 Company')">All Companies</div>`;
+  companies.forEach(c => {
+    menu.innerHTML += `<div class="fdd-item" data-val="${c}" onclick="setDropdown('company','${c}','compDropWrap','compFilterBtn','🏭 ${c}')">${c}</div>`;
+  });
+}
+buildCompanyDropdown();
+
+function toggleDropdown(wrapId) {
+  const wrap = document.getElementById(wrapId);
+  const isOpen = wrap.classList.contains('open');
+  // close all
+  document.querySelectorAll('.filter-dropdown-wrap').forEach(w => w.classList.remove('open'));
+  if (!isOpen) wrap.classList.add('open');
+}
+
+function setDropdown(field, val, wrapId, btnId, label) {
+  filterState[field] = val;
+  const btn = document.getElementById(btnId);
+  btn.textContent = label + ' ▾';
+  btn.classList.toggle('has-value', !!val);
+  // mark active item
+  const wrap = document.getElementById(wrapId);
+  wrap.querySelectorAll('.fdd-item').forEach(item => {
+    item.classList.toggle('fdd-active', item.dataset.val === val);
+  });
+  wrap.classList.remove('open');
+  filterState.aiQuery = '';
+  applyFilters();
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.filter-dropdown-wrap')) {
+    document.querySelectorAll('.filter-dropdown-wrap').forEach(w => w.classList.remove('open'));
+  }
+});
+
+// ============================================================
+// ACTIVE FILTER CHIPS
+// ============================================================
+function updateActiveChips() {
+  const row = document.getElementById('activeFiltersRow');
+  const chips = [];
+
+  if (filterState.q) chips.push({ label: `🔍 "${filterState.q}"`, clear: () => { document.getElementById('tableSearch').value=''; filterState.q=''; applyFilters(); }});
+  if (filterState.activeTag && filterState.activeTag !== 'All') chips.push({ label: `🏷 ${filterState.activeTag}`, clear: () => { filterState.activeTag='All'; document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active')); document.querySelector('.tag').classList.add('active'); applyFilters(); }});
+  if (filterState.type) chips.push({ label: `💊 ${filterState.type}`, clear: () => setDropdown('type','','typeDropWrap','typeFilterBtn','💊 Type')});
+  if (filterState.company) chips.push({ label: `🏭 ${filterState.company}`, clear: () => setDropdown('company','','compDropWrap','compFilterBtn','🏭 Company')});
+  if (filterState.stock) chips.push({ label: filterState.stock==='ok'?'✓ In Stock':'⚠ Low Stock', clear: () => setDropdown('stock','','stockDropWrap','stockFilterBtn','📦 Stock')});
+  if (filterState.aiQuery) chips.push({ label: `✦ AI: ${filterState.aiQuery}`, clear: () => { filterState.aiQuery=''; filterState.aiResultIds=null; document.getElementById('aiSearchInput').value=''; document.getElementById('aiSearchResult').textContent=''; applyFilters(); }});
+
+  if (chips.length === 0) { row.style.display='none'; return; }
+  row.style.display='flex';
+  row.innerHTML = chips.map((c,i) => `<span class="active-chip">${c.label}<button onclick="clearChip(${i})">×</button></span>`).join('') +
+    `<span style="font-size:12px;color:var(--text-soft);padding:4px 6px;cursor:pointer;text-decoration:underline;" onclick="clearAllFilters()">Clear all</span>`;
+  // store clear fns
+  row._chips = chips;
+}
+
+function clearChip(i) { document.getElementById('activeFiltersRow')._chips[i].clear(); }
+function clearAllFilters() {
+  filterState.q=''; filterState.type=''; filterState.company=''; filterState.stock=''; filterState.activeTag='All'; filterState.aiQuery=''; filterState.aiResultIds=null;
+  document.getElementById('tableSearch').value='';
+  document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.tag').classList.add('active');
+  ['typeFilterBtn','compFilterBtn','stockFilterBtn'].forEach(id => { const b=document.getElementById(id); if(b){b.classList.remove('has-value');} });
+  document.getElementById('typeFilterBtn').textContent='💊 Type ▾';
+  document.getElementById('compFilterBtn').textContent='🏭 Company ▾';
+  document.getElementById('stockFilterBtn').textContent='📦 Stock ▾';
+  document.querySelectorAll('.filter-dropdown .fdd-item').forEach(i=>i.classList.remove('fdd-active'));
+  document.querySelectorAll('.filter-dropdown .fdd-item[data-val=""]').forEach(i=>i.classList.add('fdd-active'));
+  if(document.getElementById('aiSearchInput')) document.getElementById('aiSearchInput').value='';
+  if(document.getElementById('aiSearchResult')) document.getElementById('aiSearchResult').textContent='';
+  applyFilters();
+}
+
+// ============================================================
+// AI NATURAL LANGUAGE SEARCH
+// ============================================================
+function openAISearch() {
+  const panel = document.getElementById('aiSearchPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block') document.getElementById('aiSearchInput').focus();
+}
+function closeAISearch() {
+  document.getElementById('aiSearchPanel').style.display = 'none';
+}
+
+async function runAISearch() {
+  const query = document.getElementById('aiSearchInput').value.trim();
+  if (!query) return;
+  const btn = document.getElementById('aiSearchRunBtn');
+  const resultEl = document.getElementById('aiSearchResult');
+  btn.disabled = true;
+  document.getElementById('aiSearchBtnText').textContent = '...';
+  resultEl.innerHTML = '<span style="color:var(--text-soft)">✦ Analyzing your query...</span>';
+
+  // Build medicine list summary for Claude
+  const medSummary = medicines.map((m,i) => `${i}:${m.name}|${m.type}|${m.company}|${m.stock}|${(m.tags||[]).join(',')}|${m.ai}`).join('\n');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a medicine search assistant. Given a medicine catalog and a natural language query, return a JSON object with:
+- "indices": array of matching medicine indices (0-based integers)
+- "explanation": brief 1-sentence explanation of what you matched and why
+- "filters": object with optional keys "type", "company", "stock" if the query implies a specific filter
+
+Respond ONLY with valid JSON, no markdown, no extra text.
+
+Medicine catalog (index:name|type|company|stock|tags|aiNote):
+${medSummary}`,
+        messages: [{ role: 'user', content: `Query: "${query}"` }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content.map(b => b.text||'').join('');
+    const parsed = JSON.parse(text);
+
+    filterState.aiQuery = query;
+    filterState.aiResultIds = new Set(parsed.indices || []);
+
+    // Apply any additional structured filters the AI detected
+    if (parsed.filters) {
+      if (parsed.filters.type) { filterState.type = parsed.filters.type; }
+      if (parsed.filters.company) { filterState.company = parsed.filters.company; }
+      if (parsed.filters.stock) { filterState.stock = parsed.filters.stock; }
+    }
+
+    resultEl.innerHTML = `<span style="color:var(--teal);font-weight:600">✦</span> ${parsed.explanation || ''} — <strong>${(parsed.indices||[]).length} result(s)</strong>`;
+    applyFilters();
+  } catch(e) {
+    resultEl.innerHTML = `<span style="color:var(--rose)">Search failed: ${e.message}</span>`;
+  } finally {
+    btn.disabled = false;
+    document.getElementById('aiSearchBtnText').textContent = 'Search';
+  }
+}
+
+// ============================================================
+// QUICK-ADD MODAL
+// ============================================================
+function renderQAList(filter='') {
+  const list = document.getElementById('qaList');
+  const q = filter.toLowerCase();
+  const filtered = medicines.filter(m =>
+    m.name.toLowerCase().includes(q) ||
+    m.type.toLowerCase().includes(q) ||
+    m.company.toLowerCase().includes(q)
+  );
+  list.innerHTML = '';
+  filtered.forEach((m, i) => {
+    const key = m.name+'_'+m.strength;
+    const isAdded = addedMeds.has(key);
+    list.innerHTML += `
+      <div class="qa-item ${isAdded ? 'added' : ''}" id="qaItem_${i}">
+        <div class="qa-med-icon" style="background:${m.color}">${m.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="qa-med-name">${m.name} <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-soft);font-weight:400">${m.strength}</span></div>
+          <div class="qa-med-meta">${m.type} · ${m.company} · ${m.unit}${m.tags.length ? ' · <span style="color:var(--teal)">' + m.tags.join(', ') + '</span>' : ''}</div>
+        </div>
+        ${isAdded
+          ? `<span class="qa-add-btn done">✓ Added</span>`
+          : `<button class="qa-add-btn add" onclick="quickAddMed(${medicines.indexOf(m)}, this)">+ Add</button>`
+        }
+      </div>`;
+  });
+  document.getElementById('qaCount').textContent = `${filtered.length} of ${medicines.length} medicines`;
+}
+
+function openQuickAdd() {
+  document.getElementById('qaModal').classList.add('show');
+  renderQAList();
+}
+function closeQuickAdd() {
+  document.getElementById('qaModal').classList.remove('show');
+}
+function filterQA() {
+  renderQAList(document.getElementById('qaSearch').value);
+}
+
+function quickAddMed(idx, btn) {
+  const m = medicines[idx];
+  const key = m.name+'_'+m.strength;
+  
+  // Fill form fields
+  document.getElementById('fName').value = m.name;
+  document.getElementById('fStrength').value = m.strength;
+  document.getElementById('fCompany').value = m.company;
+  // Match type option
+  const typeEl = document.getElementById('fType');
+  for(let o of typeEl.options) { if(o.value === m.type) { typeEl.value = m.type; break; } }
+  
+  // Mark tags
+  document.querySelectorAll('.ts-tag').forEach(tag => {
+    if(m.tags && m.tags.some(t => tag.textContent.trim() === t)) tag.classList.add('sel');
+  });
+
+  // Mark added
+  addedMeds.add(key);
+  btn.textContent = '✓ Added';
+  btn.classList.remove('add');
+  btn.classList.add('done');
+  btn.disabled = true;
+  btn.closest('.qa-item').classList.add('added');
+
+  // Flash form
+  const form = document.querySelector('.card-body');
+  form.style.transition = 'background 0.3s';
+  form.style.background = 'rgba(61,191,160,0.06)';
+  setTimeout(() => form.style.background = '', 800);
+  
+  // Auto-trigger dosage generation after a short delay
+  setTimeout(() => {
+    closeQuickAdd();
+    generateDosage();
+  }, 400);
+}
+
+function addAllMedicines() {
+  medicines.forEach((m, i) => {
+    const key = m.name+'_'+m.strength;
+    addedMeds.add(key);
+  });
+  renderQAList(document.getElementById('qaSearch').value);
+  
+  // Show success toast
+  showToast('✓ All 20 medicines marked — review each entry in the form');
+}
+
+
+// ============================================================
+// OFFLINE DOSAGE + INTERACTION DATABASE (45 medicines, no API)
+// ============================================================
+const DOSAGE_DB = {
+  'amoxicillin': { tags:['Antibiotic','Schedule H'], dosage:`AMOXICILLIN 500mg — Dosage Guidelines
+ADULT: 250–500mg every 8h (3×/day)
+PEDIATRIC: 25–50mg/kg/day divided every 8h
+ROUTE: Oral (tablet/capsule/syrup)
+DURATION: 5–7 days (up to 14 days severe)
+MAX: 3g/day
+INDICATIONS: RTI, UTI, ENT infections, skin infections, H. pylori (with PPI)
+⚠ WARNING: Contraindicated in penicillin allergy. Complete full course. Use with caution in renal impairment.` },
+
+  'paracetamol': { tags:['Analgesic'], dosage:`PARACETAMOL 500/650mg — Dosage Guidelines
+ADULT: 500–1000mg every 4–6h as needed
+PEDIATRIC: 10–15mg/kg/dose every 4–6h (max 5 doses/24h)
+ROUTE: Oral (tablet/syrup) or rectal
+DURATION: PRN; max 5 days fever, 3 days pain
+MAX: Adults 4g/day; Children 75mg/kg/day
+INDICATIONS: Fever, mild-to-moderate pain, post-vaccination fever
+⚠ WARNING: Do NOT exceed recommended dose. Avoid in severe hepatic impairment. Check all medications for hidden paracetamol.` },
+
+  'ors sachet': { tags:['ORS/Rehydration'], dosage:`ORS SACHET — Dosage Guidelines
+ADULT: 200–400mL after each loose stool
+PEDIATRIC (<2yr): 50–100mL after each loose stool
+PEDIATRIC (2–10yr): 100–200mL after each loose stool
+ROUTE: Oral — dissolve 1 sachet (21.8g) in 1 litre clean water
+DURATION: Until diarrhoea stops
+INDICATIONS: Acute diarrhoea, dehydration, cholera, gastroenteritis
+⚠ WARNING: Do NOT add extra sugar or salt. Discard unused solution after 24h. Seek IV fluids if vomiting persists or severe dehydration.` },
+
+  'metformin': { tags:['Diabetes'], dosage:`METFORMIN 500mg — Dosage Guidelines
+ADULT: 500mg twice daily with meals (titrate to 1000mg BD)
+PEDIATRIC (≥10yr): 500mg OD increasing slowly; max 2000mg/day
+ROUTE: Oral — always with food to reduce GI effects
+DURATION: Long-term (chronic diabetes management)
+MAX: 3g/day divided doses
+INDICATIONS: Type 2 Diabetes Mellitus, pre-diabetes, PCOS
+⚠ WARNING: Stop 48h before iodinated contrast. Contraindicated eGFR<30. Monitor renal function annually.` },
+
+  'albendazole': { tags:['Antiparasitic'], dosage:`ALBENDAZOLE 400mg — Dosage Guidelines
+ADULT: 400mg single dose (intestinal); 400mg BD ×3 days (tissue)
+PEDIATRIC (≥2yr): 400mg single dose; (1–2yr): 200mg single dose
+ROUTE: Oral — chew or swallow; take with fatty meal for systemic
+DURATION: Single dose deworming; 3–28 days systemic infections
+INDICATIONS: Ascariasis, hookworm, enterobiasis, giardia, neurocysticercosis
+⚠ WARNING: Contraindicated in pregnancy (teratogenic). Avoid <1 year. For neurocysticercosis use with corticosteroids and anti-epileptics.` },
+
+  'iron folic acid': { tags:['Vitamins','Anaemia'], dosage:`IRON FOLIC ACID — Dosage Guidelines
+ADULT: 1 tablet daily (Iron 100mg + FA 0.5mg)
+ANTENATAL: 1 tablet daily from 1st trimester; continue 6 months postpartum
+ADOLESCENT (WIFS): 1 weekly tablet (Iron 60mg + FA 0.5mg)
+CHILDREN (6–59 months): 1mL syrup daily (20mg elemental iron)
+ROUTE: Oral — best on empty stomach; take with Vitamin C
+INDICATIONS: Iron-deficiency anaemia, nutritional anaemia, pregnancy prophylaxis
+⚠ WARNING: Dark stools, constipation, nausea possible. Take 2h apart from antacids/tea/milk. Iron overdose is dangerous — keep away from children.` },
+
+  'vitamin b12': { tags:['Vitamins'], dosage:`VITAMIN B12 (Cyanocobalamin) — Dosage Guidelines
+ADULT DEFICIENCY: 1000mcg IM daily ×7 days, then weekly ×4, then monthly
+MAINTENANCE: 1000mcg IM monthly OR 500mcg oral daily
+PEDIATRIC: 1mcg/kg/day IM for deficiency
+ROUTE: Intramuscular injection (preferred) or oral
+DURATION: 1 month loading; lifelong maintenance if irreversible cause
+INDICATIONS: B12 deficiency, pernicious anaemia, peripheral neuropathy, vegans
+⚠ WARNING: Hypokalaemia may occur on initiation. Contains benzyl alcohol — avoid in neonates IV route. Check folate simultaneously.` },
+
+  'fluconazole': { tags:['Antifungal','Schedule H'], dosage:`FLUCONAZOLE 150mg — Dosage Guidelines
+ADULT (Vaginal Candidiasis): 150mg single oral dose
+ADULT (Oral Thrush): 50–100mg OD ×7–14 days
+ADULT (Systemic): 200–400mg OD (loading 400mg Day 1)
+PEDIATRIC: 3–6mg/kg/day (max 400mg/day)
+ROUTE: Oral capsule or IV
+DURATION: 1 dose to 6 weeks depending on indication
+INDICATIONS: Candida infections (oral, vaginal, systemic), Cryptococcal meningitis
+⚠ WARNING: Strong CYP3A4 inhibitor — many drug interactions. Hepatotoxic on long courses. Contraindicated in pregnancy. QT prolongation risk.` },
+
+  'salbutamol': { tags:['Respiratory'], dosage:`SALBUTAMOL 100mcg INHALER — Dosage Guidelines
+ADULT INHALER: 100–200mcg (1–2 puffs) PRN up to 4×/day
+CHILDREN INHALER: 100mcg (1 puff) PRN — use spacer <5yr
+NEBULISATION: 2.5mg in 2.5mL NS, 3×/day (acute asthma)
+ORAL (if inhaler unavailable): 2–4mg TDS–QID
+ROUTE: Inhalation preferred — actuate during slow deep breath
+INDICATIONS: Acute bronchospasm, asthma reliever, COPD exacerbation
+⚠ WARNING: Overuse causes tachycardia, tremor, hypokalaemia. Reliever only — not for maintenance. If using >3×/week escalate to preventer therapy.` },
+
+  'cetirizine': { tags:['Antihistamine'], dosage:`CETIRIZINE 10mg — Dosage Guidelines
+ADULT: 10mg once daily (evening preferred)
+PEDIATRIC (6–12yr): 5mg BD or 10mg OD
+PEDIATRIC (2–6yr): 2.5mg BD (syrup)
+PEDIATRIC (<2yr): Not recommended
+ROUTE: Oral — with or without food
+DURATION: PRN or as prescribed; avoid prolonged unsupervised use
+INDICATIONS: Allergic rhinitis, urticaria, hay fever, atopic dermatitis, pruritus
+⚠ WARNING: Causes drowsiness in some — avoid driving/machinery. Caution in renal impairment. Avoid alcohol. Not for acute asthma attacks.` },
+
+  'omeprazole': { tags:['Antacid'], dosage:`OMEPRAZOLE 20mg — Dosage Guidelines
+ADULT (GERD/PUD): 20mg OD before breakfast ×4–8 weeks
+ADULT (H. pylori): 20mg BD + antibiotics ×7–14 days
+ADULT (Stress ulcer): 40mg OD IV/oral
+PEDIATRIC (≥1yr): 0.7–3.5mg/kg/day OD
+ROUTE: Oral — swallow whole on empty stomach 30min before food
+DURATION: 4–8 weeks acute; long-term only if indicated
+INDICATIONS: Peptic ulcer, GERD, H. pylori, NSAID gastropathy, Zollinger-Ellison
+⚠ WARNING: Long-term risks: hypomagnesaemia, B12 deficiency, C. difficile, osteoporosis. Do not crush capsule. Review long-term therapy regularly.` },
+
+  'amlodipine': { tags:['Cardiac','Antihypertensive'], dosage:`AMLODIPINE 5mg — Dosage Guidelines
+ADULT (Hypertension): 5mg OD; may increase to 10mg OD after 4 weeks
+ADULT (Angina): 5–10mg OD
+PEDIATRIC (6–17yr): 2.5–5mg OD
+ROUTE: Oral — with or without food; same time daily
+DURATION: Long-term (chronic condition management)
+INDICATIONS: Hypertension, stable/vasospastic angina, coronary artery disease
+⚠ WARNING: Ankle oedema common (not heart failure). Avoid grapefruit juice. Do NOT stop abruptly in angina. Hepatic impairment — start 2.5mg.` },
+
+  'atenolol': { tags:['Cardiac','Beta-blocker'], dosage:`ATENOLOL 50mg — Dosage Guidelines
+ADULT (Hypertension): 25–50mg OD; max 100mg OD
+ADULT (Angina): 50mg OD; may increase to 100mg OD
+ADULT (Post-MI): 50mg BD ×6–9 days, then 100mg OD
+PEDIATRIC: 0.5–1mg/kg/day OD (max 2mg/kg/day)
+ROUTE: Oral — same time daily; do not crush
+DURATION: Long-term; do NOT stop abruptly
+INDICATIONS: Hypertension, angina, post-MI, arrhythmia, migraine prophylaxis
+⚠ WARNING: NEVER stop abruptly — rebound angina/MI risk. Contraindicated in asthma, bradycardia (<50bpm), cardiogenic shock. Masks hypoglycaemia in diabetics.` },
+
+  'doxycycline': { tags:['Antibiotic','Schedule H'], dosage:`DOXYCYCLINE 100mg — Dosage Guidelines
+ADULT: 100mg BD on Day 1, then 100mg OD (or 50mg BD)
+ADULT (Severe): 200mg/day throughout
+PEDIATRIC (>8yr only): 2.2mg/kg BD Day 1, then 2.2mg/kg OD
+ROUTE: Oral — full glass of water; remain upright 30min after
+DURATION: 7–14 days (up to 6 weeks for acne)
+INDICATIONS: RTI, atypical pneumonia, STIs, malaria prophylaxis, leptospirosis, rickettsial fever
+⚠ WARNING: Contraindicated <8 years (teeth/bone damage) and pregnancy. Photosensitivity — use sunscreen. Take 2h before/after antacids/iron/dairy.` },
+
+  'clotrimazole': { tags:['Antifungal','Topical'], dosage:`CLOTRIMAZOLE 1% CREAM — Dosage Guidelines
+ADULT: Apply thin layer to affected area 2–3 times daily
+PEDIATRIC (>3yr): Same as adult dose
+ROUTE: Topical — clean and dry area before application
+DURATION: 2–4 weeks tinea infections; 1–2 weeks candidiasis; continue 2 weeks after clearing
+INDICATIONS: Tinea pedis, tinea corporis, tinea cruris, cutaneous candidiasis, pityriasis versicolor
+⚠ WARNING: External use only. Avoid eyes/mucous membranes. No improvement in 4 weeks — reassess diagnosis. Sensitivity reactions possible.` },
+
+  'ranitidine': { tags:['Antacid'], dosage:`RANITIDINE 150mg — Dosage Guidelines
+ADULT (PUD/GERD): 150mg BD or 300mg nocte
+ADULT (Maintenance): 150mg at bedtime
+ADULT (IV): 50mg every 6–8h
+PEDIATRIC: 2–4mg/kg BD (max 150mg BD)
+ROUTE: Oral — with or without food
+DURATION: 4–8 weeks acute; 150mg nocte long-term if needed
+INDICATIONS: Peptic ulcer, GERD, Zollinger-Ellison, stress ulcer prophylaxis
+⚠ WARNING: Reduce dose in renal impairment. May mask gastric cancer symptoms. Check for NDMA contamination in older stock (recall history).` },
+
+  'zinc sulfate': { tags:['Vitamins','Micronutrient'], dosage:`ZINC SULFATE 20mg — Dosage Guidelines
+ADULT (Deficiency): 45mg elemental zinc/day ×3–6 months
+DIARRHOEA (6 months–5yr): 20mg/day ×14 days
+DIARRHOEA (<6 months): 10mg/day ×14 days
+PREVENTIVE: 10mg/day in high-risk areas
+ROUTE: Oral — with food if GI upset
+DURATION: 14 days for diarrhoea; 3–6 months deficiency
+INDICATIONS: Zinc deficiency, adjunct in diarrhoea (with ORS), growth faltering, immune support
+⚠ WARNING: GI upset common. Excess zinc interferes with copper absorption. Do not exceed recommended dose.` },
+
+  'vitamin d3': { tags:['Vitamins'], dosage:`VITAMIN D3 60,000 IU — Dosage Guidelines
+ADULT (Deficiency): 60,000 IU once weekly ×8–12 weeks, then maintenance
+ADULT MAINTENANCE: 60,000 IU once monthly OR 1000–2000 IU daily
+PEDIATRIC (Prophylaxis): 400 IU/day from birth to 1 year
+PEDIATRIC (Rickets): 60,000 IU/week ×6 weeks (supervised)
+ROUTE: Oral capsule/sachet — with fatty meal for best absorption
+INDICATIONS: Vitamin D deficiency, rickets, osteoporosis prophylaxis, immune support
+⚠ WARNING: Toxicity with prolonged high doses. Hypercalcaemia risk: nausea, polyuria, confusion. Thiazides increase hypercalcaemia risk. Monitor calcium.` },
+
+  'normal saline': { tags:[], dosage:`NORMAL SALINE 0.9% 500mL — Dosage Guidelines
+ADULT (Resuscitation): 500mL–1L bolus IV over 15–30 min; reassess
+ADULT MAINTENANCE: 1–2L/day IV (clinical assessment)
+PEDIATRIC (Bolus): 10–20mL/kg IV over 15–20 min; reassess
+NEONATAL: 10mL/kg bolus — use caution, monitor closely
+ROUTE: Intravenous infusion — sterile technique mandatory
+DURATION: As clinically indicated; reassess after each bolus
+INDICATIONS: Dehydration, hypovolaemia, drug dilution, wound irrigation, IV line maintenance
+⚠ WARNING: Hyperchloraemic acidosis risk with large volumes. Caution in heart failure, renal failure, hypertension. Discard cloudy/particulate solutions.` },
+
+  'azithromycin': { tags:['Antibiotic','Schedule H'], dosage:`AZITHROMYCIN 500mg — Dosage Guidelines
+ADULT: 500mg OD ×3 days OR 500mg Day 1, then 250mg OD Days 2–5
+PEDIATRIC: 10mg/kg OD ×3 days (max 500mg/day)
+ROUTE: Oral — 1h before or 2h after meals (or with food to reduce GI upset)
+DURATION: 3–5 days (azithromycin has prolonged tissue half-life — 3 days sufficient for most)
+INDICATIONS: Community-acquired pneumonia, atypical RTI, STIs (chlamydia), typhoid, MAC prophylaxis
+⚠ WARNING: QT prolongation — avoid with other QT-prolonging drugs. Drug interactions via CYP3A4. Contraindicated in hepatic disease. Not first-line for sepsis.` },
+
+  'ciprofloxacin': { tags:['Antibiotic','Schedule H'], dosage:`CIPROFLOXACIN 500mg — Dosage Guidelines
+ADULT: 500mg BD ×5–14 days (depending on indication)
+ADULT (Severe): 750mg BD
+PEDIATRIC: Generally avoided; 10–20mg/kg BD if essential (max 750mg BD)
+ROUTE: Oral — 2h before or 6h after antacids/iron/zinc/dairy
+DURATION: UTI 3–7 days; chest 7–14 days; typhoid 10–14 days
+INDICATIONS: UTI, GI infections (typhoid, cholera), RTI, STIs, anthrax, bone/joint infections
+⚠ WARNING: Avoid in children/pregnant/breastfeeding (affects cartilage). Tendon rupture risk (especially with steroids). QT prolongation. Avoid concomitant antacids/iron.` },
+
+  'metronidazole': { tags:['Antibiotic','Antiparasitic'], dosage:`METRONIDAZOLE 400mg — Dosage Guidelines
+ADULT: 400mg TDS ×5–7 days (anaerobic infections); 2g single dose (trichomoniasis)
+ADULT (Amoebiasis): 400–800mg TDS ×5–10 days
+PEDIATRIC: 7.5mg/kg TDS (max 400mg/dose)
+ROUTE: Oral with food or IV infusion
+DURATION: 5–10 days depending on indication
+INDICATIONS: Anaerobic infections, amoebiasis, giardiasis, trichomoniasis, H. pylori, C. difficile
+⚠ WARNING: AVOID alcohol during and 48h after (disulfiram-like reaction). Peripheral neuropathy with prolonged use. Metallic taste common. Avoid in 1st trimester pregnancy.` },
+
+  'ibuprofen': { tags:['Analgesic','Anti-inflammatory'], dosage:`IBUPROFEN 400mg — Dosage Guidelines
+ADULT: 400mg TDS–QID with food; max 2.4g/day OTC
+ADULT (Prescription): Up to 3.2g/day in divided doses
+PEDIATRIC (>3 months): 5–10mg/kg every 6–8h (max 40mg/kg/day)
+ROUTE: Oral — always with food or milk to reduce GI effects
+DURATION: PRN; limit continuous use to 5 days (pain), 3 days (fever)
+INDICATIONS: Mild-to-moderate pain, fever, inflammatory conditions, dysmenorrhoea, arthritis
+⚠ WARNING: Avoid in renal impairment, peptic ulcer, heart failure, last trimester pregnancy. Increases cardiovascular risk. Avoid in asthma if NSAID-sensitive. Use lowest effective dose.` },
+
+  'diclofenac': { tags:['Analgesic','Anti-inflammatory'], dosage:`DICLOFENAC 50mg — Dosage Guidelines
+ADULT: 50mg BD–TDS with food; max 150mg/day
+PEDIATRIC (>1yr): 0.5–1mg/kg BD–TDS (max 3mg/kg/day)
+ROUTE: Oral (with food), IM injection, topical gel, suppository
+DURATION: Short-term; review need after 2 weeks for chronic use
+INDICATIONS: Moderate pain, postoperative pain, arthritis, dysmenorrhoea, musculoskeletal pain
+⚠ WARNING: Highest cardiovascular risk among NSAIDs. Avoid post-MI, heart failure, severe renal/hepatic impairment, peptic ulcer. NEVER give IM to children. Diclofenac gel — local use only.` },
+
+  'pantoprazole': { tags:['Antacid'], dosage:`PANTOPRAZOLE 40mg — Dosage Guidelines
+ADULT: 40mg OD before breakfast (GERD/PUD); 40mg BD (Zollinger-Ellison)
+ADULT (IV): 40mg IV OD (stress ulcer prophylaxis ICU)
+PEDIATRIC (≥5yr): 20mg OD (<40kg); 40mg OD (≥40kg)
+ROUTE: Oral — swallow whole 30–60min before food; do not crush
+DURATION: 4–8 weeks acute; review long-term need
+INDICATIONS: GERD, peptic ulcer, H. pylori (triple therapy), NSAID gastropathy, stress ulcer ICU
+⚠ WARNING: Preferred PPI with clopidogrel (less CYP2C19 inhibition vs omeprazole). Long-term: hypomagnesaemia, B12 deficiency, C. diff risk. Do not crush/chew tablet.` },
+
+  'losartan': { tags:['Cardiac','Antihypertensive'], dosage:`LOSARTAN 50mg — Dosage Guidelines
+ADULT (Hypertension): 50mg OD; may increase to 100mg OD
+ADULT (Heart failure/nephropathy): Start 12.5–25mg OD; titrate to 50–100mg OD
+PEDIATRIC (6–16yr): 0.7mg/kg OD (max 50mg OD)
+ROUTE: Oral — with or without food; same time daily
+DURATION: Long-term (chronic condition management)
+INDICATIONS: Hypertension, diabetic nephropathy (type 2 DM), heart failure, post-MI LV dysfunction
+⚠ WARNING: CONTRAINDICATED in pregnancy (fetotoxic). Monitor K+ — risk of hyperkalaemia with ACE inhibitors/K-sparing diuretics. Avoid bilateral renal artery stenosis. Monitor renal function.` },
+
+  'atorvastatin': { tags:['Cardiac'], dosage:`ATORVASTATIN 10mg — Dosage Guidelines
+ADULT (Primary prevention): 10–20mg OD
+ADULT (High risk/Secondary prevention): 40–80mg OD
+PEDIATRIC (10–17yr): 10mg OD (familial hypercholesterolaemia; supervised)
+ROUTE: Oral — any time of day; can be taken with or without food
+DURATION: Long-term (chronic condition management)
+INDICATIONS: Hypercholesterolaemia, mixed dyslipidaemia, CVD risk reduction, post-MI/stroke
+⚠ WARNING: Monitor LFTs at baseline. Myopathy/rhabdomyolysis risk — stop if unexplained muscle pain. Avoid grapefruit juice. Interactions with CYP3A4 inhibitors (fluconazole, erythromycin). Contraindicated in pregnancy.` },
+
+  'glibenclamide': { tags:['Diabetes'], dosage:`GLIBENCLAMIDE 5mg — Dosage Guidelines
+ADULT: 2.5–5mg OD with breakfast; titrate up to 15mg/day in divided doses
+ELDERLY/RENAL: Start 1.25mg OD (high hypoglycaemia risk — avoid if possible in elderly)
+ROUTE: Oral — with or immediately before meals
+DURATION: Long-term; review glycaemic control every 3 months
+INDICATIONS: Type 2 Diabetes Mellitus (when metformin alone insufficient)
+⚠ WARNING: HIGH hypoglycaemia risk — especially elderly, renal impairment, missed meals. Avoid in severe renal/hepatic disease, G6PD deficiency. Cross-sensitivity with sulfonamides. Monitor blood glucose regularly.` },
+
+  'insulin regular': { tags:['Diabetes','Schedule H'], dosage:`INSULIN REGULAR 100 IU/mL — Dosage Guidelines
+ADULT (DKA): 0.1 IU/kg IV bolus, then 0.1 IU/kg/hr infusion; titrate to glucose
+ADULT (Subcutaneous): 0.5–1 IU/kg/day total; adjust per glucose monitoring
+ADULT (Pre-meal): 4–10 IU SC 30min before meals (individualise)
+PEDIATRIC: 0.5–1 IU/kg/day SC in divided doses (endocrinologist supervised)
+ROUTE: Subcutaneous (abdomen preferred) or IV (only Regular insulin IV)
+DURATION: Lifelong in Type 1; as required in Type 2
+INDICATIONS: Type 1 DM, Type 2 DM (inadequate oral control), DKA, hyperosmolar state, gestational DM
+⚠ WARNING: Hypoglycaemia is main risk. Store 2–8°C (opened vial room temp 28 days). Rotate injection sites. Do not shake. IV insulin only in hospital. Dose adjustments needed in illness/surgery.` },
+
+  'prednisolone': { tags:['Steroid'], dosage:`PREDNISOLONE 5mg — Dosage Guidelines
+ADULT (Anti-inflammatory): 5–60mg/day OD–BD depending on condition
+ADULT (Asthma exacerbation): 40mg OD ×5 days
+PEDIATRIC: 1–2mg/kg/day (max 60mg/day)
+ROUTE: Oral — with food to reduce GI irritation
+DURATION: Short course (≤7 days) — no taper needed; long-term — taper slowly
+INDICATIONS: Asthma, COPD exacerbation, allergic reactions, inflammatory conditions, SLE, nephrotic syndrome, TB (with anti-TB drugs)
+⚠ WARNING: Immunosuppression — screen for latent TB, hepatitis before long-term use. Causes hyperglycaemia, hypertension, osteoporosis, adrenal suppression. Never stop abruptly if >3 weeks use. Cushingoid features with long-term use.` },
+
+  'hydrocortisone': { tags:['Steroid','Topical'], dosage:`HYDROCORTISONE 1% CREAM — Dosage Guidelines
+ADULT: Apply thin layer BD–TDS to affected area
+PEDIATRIC (>1yr): Apply sparingly OD–BD; avoid face/flexures if possible
+ROUTE: Topical — apply to clean, slightly moist skin
+DURATION: Max 7 days on face; 2–4 weeks body; longer under supervision
+INDICATIONS: Mild eczema, contact dermatitis, nappy rash, insect bites, mild psoriasis (non-scalp)
+⚠ WARNING: Do NOT use on infected skin (treat infection first), acne, rosacea, perioral dermatitis. Avoid eyes. Prolonged use causes skin thinning, telangiectasia. Occlusive dressings increase absorption significantly.` },
+
+  'chlorpheniramine': { tags:['Antihistamine'], dosage:`CHLORPHENIRAMINE 4mg — Dosage Guidelines
+ADULT: 4mg every 4–6h; max 24mg/day
+PEDIATRIC (6–12yr): 2mg every 4–6h; max 12mg/day
+PEDIATRIC (2–6yr): 1mg every 4–6h; max 6mg/day
+ROUTE: Oral — with or without food
+DURATION: Short-term PRN; max 7 days unsupervised
+INDICATIONS: Allergic rhinitis, urticaria, hay fever, allergic conjunctivitis, drug/insect bite reactions
+⚠ WARNING: Significant sedation — avoid driving/machinery. Anticholinergic effects: dry mouth, urinary retention, constipation. Avoid in glaucoma, BPH, elderly (Beers list). Avoid alcohol.` },
+
+  'domperidone': { tags:['Antiemetic'], dosage:`DOMPERIDONE 10mg — Dosage Guidelines
+ADULT: 10mg TDS–QID before meals and at bedtime; max 30mg/day
+PEDIATRIC: 0.25mg/kg TDS before meals (max 0.75mg/kg/day)
+ROUTE: Oral — 15–30 min before meals
+DURATION: Short-term ≤1 week; max 2 weeks (QT risk)
+INDICATIONS: Nausea/vomiting, gastroparesis, GERD (as prokinetic), chemotherapy-induced nausea
+⚠ WARNING: Risk of QT prolongation and ventricular arrhythmia — use lowest effective dose for shortest time. Avoid in hepatic impairment, QT-prolonging drugs, cardiac disease. EMA restricts to short-term use only.` },
+
+  'ondansetron': { tags:['Antiemetic','Schedule H'], dosage:`ONDANSETRON 4mg — Dosage Guidelines
+ADULT: 4–8mg BD–TDS; or 8mg IV slowly before chemotherapy
+PEDIATRIC (1 month–18yr): 0.1mg/kg (max 4mg) per dose; max TDS
+ROUTE: Oral (tablet/dispersible), IV (slow over ≥15 min), IM, buccal
+DURATION: As needed; chemotherapy-associated: give before and continue 24–48h after
+INDICATIONS: Post-operative nausea/vomiting, chemotherapy-induced N&V, radiation-induced N&V
+⚠ WARNING: QT prolongation — avoid with other QT-prolonging drugs. Contraindicated with apomorphine. Serotonin syndrome with SSRIs. Constipation common. 4mg dose preferred for children and elderly.` },
+
+  'tramadol': { tags:['Analgesic','Schedule H'], dosage:`TRAMADOL 50mg — Dosage Guidelines
+ADULT: 50–100mg every 4–6h; max 400mg/day
+ELDERLY: Start 50mg; max 300mg/day
+PEDIATRIC (<12yr): NOT recommended
+ROUTE: Oral (capsule/tablet), IV, IM
+DURATION: Short-term acute pain; review after 3 days
+INDICATIONS: Moderate-to-severe pain (postoperative, cancer, musculoskeletal)
+⚠ WARNING: Seizure risk — especially with antidepressants (SSRIs, tricyclics). Serotonin syndrome risk. Respiratory depression. High addiction potential — restrict use. Avoid in epilepsy, suicidal patients. Withdrawal on sudden stop.` },
+
+  'diazepam': { tags:['Schedule H'], dosage:`DIAZEPAM 5mg — Dosage Guidelines
+ADULT (Anxiety): 2–10mg BD–QID
+ADULT (Acute seizure — PR/IV): 10–20mg IV slowly; or 5–10mg PR; repeat once after 15 min if needed
+PEDIATRIC (Seizure): 0.2–0.5mg/kg IV/PR (max 10mg)
+ROUTE: Oral, IV (slow — not IM preferred), PR (rectal tube)
+DURATION: Anxiety — short-term ≤4 weeks; acute seizure — single doses
+INDICATIONS: Anxiety, muscle spasm, alcohol withdrawal, acute seizures, procedural sedation
+⚠ WARNING: High dependence/tolerance risk. CNS depression — avoid alcohol, other CNS depressants. Respiratory depression. Schedule H — prescribe minimum. Avoid driving. Taper on discontinuation. Neonatal withdrawal if used in pregnancy.` },
+
+  'phenobarbitone': { tags:['Schedule H'], dosage:`PHENOBARBITONE 60mg — Dosage Guidelines
+ADULT (Epilepsy): 60–180mg nocte (single dose at bedtime)
+PEDIATRIC (Epilepsy): 3–5mg/kg/day (may give as single nocte dose)
+ADULT (Status epilepticus): 15–20mg/kg IV slowly at ≤60mg/min
+ROUTE: Oral (tablet), IV (emergency — slow infusion only)
+DURATION: Long-term epilepsy; do NOT stop abruptly
+INDICATIONS: Epilepsy (tonic-clonic, focal), status epilepticus, neonatal seizures
+⚠ WARNING: NEVER stop abruptly — severe withdrawal seizures. Sedation, cognitive effects. Enzyme inducer — many drug interactions (OCP, warfarin, antiretrovirals). Teratogenic — supplement folate in women of childbearing age.` },
+
+  'cotrimoxazole': { tags:['Antibiotic'], dosage:`COTRIMOXAZOLE 480mg (TMP 80mg + SMX 400mg) — Dosage Guidelines
+ADULT: 2 tablets (960mg) BD ×5–14 days
+ADULT (PCP prophylaxis): 1 tablet OD
+PEDIATRIC: 36mg/kg/day (TMP+SMX combined) in 2 divided doses
+ROUTE: Oral — with plenty of water; with food to reduce GI upset
+DURATION: UTI 3–5 days; chest/other infections 5–14 days; PCP prophylaxis ongoing
+INDICATIONS: UTI, RTI, PCP prophylaxis (HIV), toxoplasmosis, typhoid, shigellosis, nocardiosis
+⚠ WARNING: Stevens-Johnson syndrome risk (rare but severe — stop immediately if rash). Avoid in severe renal/hepatic impairment, blood dyscrasias. Folate deficiency with prolonged use. Contraindicated in G6PD deficiency, 1st trimester and near term.` },
+
+  'rifampicin': { tags:['TB Treatment','Schedule H'], dosage:`RIFAMPICIN 450mg — Dosage Guidelines
+ADULT (<50kg): 450mg OD; (≥50kg): 600mg OD
+PEDIATRIC: 10–20mg/kg/day OD (max 600mg)
+ROUTE: Oral — empty stomach (30–60 min before breakfast) for best absorption
+DURATION: 6 months (2HRZE + 4HR for new PTB); per RNTCP/NTEP protocol
+INDICATIONS: Pulmonary TB, extrapulmonary TB, leprosy, prophylaxis (meningococcal, H. influenzae)
+⚠ WARNING: Powerful enzyme inducer — reduces efficacy of OCP, warfarin, antiretrovirals, antifungals. Colours body fluids orange-red (warn patient). Monitor LFTs. Hepatotoxic especially with INH. Never use as monotherapy for TB.` },
+
+  'isoniazid': { tags:['TB Treatment','Schedule H'], dosage:`ISONIAZID 300mg — Dosage Guidelines
+ADULT: 5mg/kg OD (max 300mg); combined in FDC per NTEP protocol
+PEDIATRIC: 10mg/kg OD (max 300mg)
+ROUTE: Oral — empty stomach preferred; or with food if GI intolerance
+DURATION: 6–9 months (as part of multi-drug TB regimen)
+INDICATIONS: Active TB (always in combination), latent TB prophylaxis (6–9 months)
+⚠ WARNING: Give Pyridoxine (Vitamin B6) 25–50mg/day to prevent peripheral neuropathy. Hepatotoxic — monitor LFTs monthly (especially with alcohol users). Slow acetylators at higher toxicity risk. Drug interactions: phenytoin toxicity increased.` },
+
+  'pyrazinamide': { tags:['TB Treatment','Schedule H'], dosage:`PYRAZINAMIDE 500mg — Dosage Guidelines
+ADULT (<50kg): 1500mg OD; (50–74kg): 2000mg OD; (≥75kg): 2500mg OD
+PEDIATRIC: 35mg/kg/day OD (max 2000mg)
+ROUTE: Oral — with or without food; give with anti-emetic if GI upset
+DURATION: Intensive phase only — first 2 months of TB treatment (2HRZE)
+INDICATIONS: Active tuberculosis (intensive phase, in combination with other anti-TB drugs)
+⚠ WARNING: Hyperuricaemia — may precipitate gout (monitor uric acid). Hepatotoxic — monitor LFTs. Arthralgia common (manage with analgesics). Avoid in severe hepatic impairment. Photosensitivity reported.` },
+
+  'ethambutol': { tags:['TB Treatment','Schedule H'], dosage:`ETHAMBUTOL 400mg — Dosage Guidelines
+ADULT: 15–25mg/kg OD (max 1600mg/day)
+PEDIATRIC (>5yr): 15–25mg/kg OD
+ROUTE: Oral — with or without food; single daily dose
+DURATION: First 2 months of TB treatment (intensive phase 2HRZE)
+INDICATIONS: Active tuberculosis (in combination); retreatment cases
+⚠ WARNING: Optic neuritis — test visual acuity and colour vision BEFORE starting and monthly. Stop IMMEDIATELY if visual changes occur — may be irreversible. Avoid in <5 years (unable to report visual changes). Reduce dose in renal impairment.` },
+
+  'magnesium sulfate': { tags:['Obstetric','Schedule H'], dosage:`MAGNESIUM SULFATE 50% — Dosage Guidelines
+ADULT (Eclampsia loading): 4g IV over 15–20 min (dilute to 20% solution)
+ADULT (Maintenance): 1–2g/hr IV infusion; or 5g IM (each buttock) every 4h
+ADULT (Severe pre-eclampsia): Same as eclampsia protocol
+ROUTE: IV (loading + maintenance) or deep IM (Pritchard regime)
+DURATION: Continue 24h after last fit or delivery (whichever is later)
+INDICATIONS: Eclampsia, severe pre-eclampsia seizure prophylaxis, preterm labour tocolysis
+⚠ WARNING: TOXIC in overdose — monitor urine output (≥30mL/hr), respiratory rate (≥16/min), patellar reflexes (must be present). Keep Calcium Gluconate 10% as antidote. Avoid in myasthenia gravis, renal failure.` },
+
+  'oxytocin': { tags:['Obstetric','Schedule H'], dosage:`OXYTOCIN 10 IU/mL — Dosage Guidelines
+ADULT (AMTSL): 10 IU IM within 1 min of baby delivery (PPH prevention)
+ADULT (Labour induction): 1–2 mIU/min IV infusion; titrate up every 30 min to max 20 mIU/min
+ADULT (PPH treatment): 20–40 IU in 500mL NS IV infusion over 4h; or 10 IU IM
+ROUTE: IM (AMTSL/PPH), IV infusion (induction) — NEVER rapid IV bolus
+DURATION: As clinically indicated; induction until active labour established
+INDICATIONS: Prevention/treatment of PPH, induction/augmentation of labour, incomplete abortion
+⚠ WARNING: NEVER give as undiluted IV bolus (cardiovascular collapse risk). Uterine hyperstimulation — monitor CTG in induction. Water intoxication with large doses. Contraindicated in obstructed labour, fetal distress (without delivery imminent).` },
+
+  'default': { tags:[], dosage:`MEDICINE — Standard Dosage Guidelines
+
+Detailed dosage data not found in the local database for this medicine.
+
+GENERAL GUIDANCE:
+• Refer to the National Formulary of India (NFI) — latest edition
+• Verify with the product package insert / SmPC
+• Consult WHO Model Formulary or CIMS India
+• For Schedule H/X drugs: prescription and pharmacist verification mandatory
+
+⚠ WARNING: Do not administer any medicine without confirming correct dose, route, frequency and duration for the individual patient.` }
+};
+
+const INTERACTION_DB = {
+  'amoxicillin': [
+    {drug:'Warfarin',severity:'MODERATE',note:'May enhance anticoagulant effect; monitor INR closely during and after antibiotic course.'},
+    {drug:'Oral Contraceptives',severity:'MODERATE',note:'May reduce OCP efficacy by altering gut flora; advise additional contraception during course.'},
+    {drug:'Methotrexate',severity:'HIGH',note:'Reduces renal tubular secretion of methotrexate — significant toxicity risk; monitor closely or avoid.'},
+    {drug:'Allopurinol',severity:'MODERATE',note:'Markedly increases risk of ampicillin-type skin rash — consider alternative antibiotic.'},
+    {drug:'Probenecid',severity:'MODERATE',note:'Increases serum amoxicillin levels by reducing renal excretion — may be intentional (probenicid-augmented dosing) or toxic.'},
+    {drug:'Metformin',severity:'LOW',note:'Minor interaction; infections can worsen glycaemic control — monitor blood glucose throughout course.'}
+  ],
+  'paracetamol': [
+    {drug:'Warfarin',severity:'MODERATE',note:'Regular high-dose paracetamol enhances anticoagulant effect — monitor INR; limit to ≤2g/day with warfarin.'},
+    {drug:'Alcohol',severity:'HIGH',note:'Severe hepatotoxicity risk with regular alcohol use — advise strict abstinence during treatment.'},
+    {drug:'Rifampicin / Isoniazid',severity:'MODERATE',note:'Enzyme inducers increase hepatotoxic metabolite production — reduce paracetamol dose, avoid prolonged use.'},
+    {drug:'Carbamazepine / Phenobarbitone',severity:'MODERATE',note:'Enzyme inducers increase hepatotoxic NAPQI metabolite — use minimum effective dose with LFT monitoring.'},
+    {drug:'Domperidone / Metoclopramide',severity:'LOW',note:'Increases rate of paracetamol absorption — beneficial in acute pain; monitor for faster peak effects.'},
+    {drug:'Omeprazole',severity:'NONE',note:'No clinically significant interaction; safe to co-prescribe.'}
+  ],
+  'metformin': [
+    {drug:'Contrast Dye (Iodinated)',severity:'HIGH',note:'Risk of lactic acidosis — STOP metformin 48h before contrast procedures; restart only after renal function confirmed normal.'},
+    {drug:'Alcohol',severity:'HIGH',note:'Significantly increases lactic acidosis risk; strongly advise alcohol avoidance throughout treatment.'},
+    {drug:'Atenolol / Beta-blockers',severity:'MODERATE',note:'Beta-blockers mask hypoglycaemia symptoms (tachycardia) and may prolong hypoglycaemic episodes.'},
+    {drug:'Furosemide / Diuretics',severity:'MODERATE',note:'May increase metformin plasma levels and reduce renal clearance; monitor renal function regularly.'},
+    {drug:'Ciprofloxacin',severity:'MODERATE',note:'Some fluoroquinolones can cause hypoglycaemia or hyperglycaemia — monitor blood glucose carefully.'},
+    {drug:'Omeprazole',severity:'LOW',note:'Minor pharmacokinetic interaction; no clinically significant effect at standard doses.'}
+  ],
+  'albendazole': [
+    {drug:'Corticosteroids / Prednisolone',severity:'MODERATE',note:'Steroids increase albendazole plasma levels by ~50% — beneficial in neurocysticercosis but monitor for toxicity.'},
+    {drug:'Praziquantel',severity:'MODERATE',note:'Praziquantel increases albendazole levels — enhanced effect but also increased adverse effects.'},
+    {drug:'Phenobarbitone / Phenytoin',severity:'MODERATE',note:'Enzyme inducers reduce albendazole levels, potentially reducing efficacy against tissue infections.'},
+    {drug:'Cimetidine / Ranitidine',severity:'LOW',note:'H2-blockers may modestly increase albendazole sulfoxide (active metabolite) levels.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Rifampicin reduces albendazole levels via enzyme induction — may reduce efficacy for systemic infections.'},
+    {drug:'Iron Folic Acid',severity:'NONE',note:'No known pharmacokinetic interaction at standard deworming doses; safe to give simultaneously.'}
+  ],
+  'iron folic acid': [
+    {drug:'Doxycycline',severity:'HIGH',note:'Divalent ions chelate doxycycline and reduce antibiotic absorption by up to 80% — take 2 hours apart.'},
+    {drug:'Ciprofloxacin / Fluoroquinolones',severity:'HIGH',note:'Iron chelates fluoroquinolones — significantly reduces antibiotic absorption; take 2h before or 4h after iron.'},
+    {drug:'Zinc Sulfate',severity:'MODERATE',note:'Iron and zinc compete for intestinal absorption; separate doses by at least 1–2 hours for best efficacy.'},
+    {drug:'Omeprazole / Antacids',severity:'MODERATE',note:'Acid suppression and antacids significantly reduce non-haem iron absorption — take iron on empty stomach 1h before PPI.'},
+    {drug:'Cotrimoxazole',severity:'MODERATE',note:'Both methotrexate and cotrimoxazole are folate antagonists — combined use may worsen folate deficiency.'},
+    {drug:'Vitamin C',severity:'LOW',note:'Beneficial interaction — Vitamin C significantly enhances non-haem iron absorption; recommend taking together.'}
+  ],
+  'vitamin b12': [
+    {drug:'Metformin',severity:'MODERATE',note:'Metformin reduces B12 absorption via ileal receptor inhibition — check serum B12 annually in long-term metformin users.'},
+    {drug:'Omeprazole / PPIs',severity:'MODERATE',note:'Long-term PPI use impairs food-bound B12 absorption — monitor B12 levels annually in elderly on chronic PPIs.'},
+    {drug:'Isoniazid',severity:'MODERATE',note:'INH may impair B12 metabolism in some patients — pyridoxine supplementation also recommended with INH.'},
+    {drug:'Cotrimoxazole',severity:'MODERATE',note:'Folate antagonism effect may worsen combined B12/folate deficiency — monitor haematological parameters.'},
+    {drug:'Colchicine',severity:'MODERATE',note:'Reduces ileal B12 absorption — monitor B12 levels with long-term colchicine therapy.'},
+    {drug:'Iron Folic Acid',severity:'LOW',note:'Beneficial combination in megaloblastic anaemia — give both when coexisting deficiencies confirmed.'}
+  ],
+  'fluconazole': [
+    {drug:'Warfarin',severity:'HIGH',note:'Major CYP2C9 inhibitor — dramatically increases warfarin levels; serious bleeding risk. Monitor INR daily initially.'},
+    {drug:'Phenytoin',severity:'HIGH',note:'Increases phenytoin levels significantly — risk of toxicity (ataxia, nystagmus); monitor drug levels closely.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Rifampicin reduces fluconazole levels by ~75% via enzyme induction — consider higher fluconazole dose or alternative.'},
+    {drug:'Amlodipine',severity:'MODERATE',note:'CYP3A4 inhibition raises amlodipine exposure — monitor BP carefully, watch for ankle oedema and flushing.'},
+    {drug:'Prednisolone / Steroids',severity:'MODERATE',note:'Fluconazole increases steroid levels via CYP3A4 inhibition — may enhance steroid side effects.'},
+    {drug:'Omeprazole',severity:'MODERATE',note:'CYP2C19 inhibition increases omeprazole exposure; additive QT prolongation risk — monitor ECG if co-prescribed.'}
+  ],
+  'salbutamol': [
+    {drug:'Atenolol / Beta-blockers',severity:'HIGH',note:'Beta-blockers directly antagonise bronchodilator effect — CONTRAINDICATED in asthma; life-threatening bronchospasm risk.'},
+    {drug:'Furosemide / Loop Diuretics',severity:'MODERATE',note:'Additive hypokalaemia — monitor serum potassium especially with nebulised/high-dose salbutamol.'},
+    {drug:'Theophylline',severity:'MODERATE',note:'Additive hypokalaemia and tachycardia; increased arrhythmia risk — monitor ECG and potassium levels.'},
+    {drug:'MAOIs',severity:'HIGH',note:'Severe hypertension, tachycardia, and arrhythmia risk — avoid combination; adequate washout period required.'},
+    {drug:'Digoxin',severity:'MODERATE',note:'Salbutamol-induced hypokalaemia increases digoxin toxicity risk — monitor potassium and digoxin levels regularly.'},
+    {drug:'Prednisolone',severity:'LOW',note:'Steroids and beta-agonists together increase hypokalaemia risk — monitor potassium in acute severe asthma.'}
+  ],
+  'cetirizine': [
+    {drug:'Alcohol',severity:'HIGH',note:'Additive CNS depression causing severe sedation, impaired coordination — strictly avoid combination.'},
+    {drug:'Fluconazole',severity:'MODERATE',note:'May cause additive QT prolongation — monitor ECG if both prescribed simultaneously in high-risk patients.'},
+    {drug:'Benzodiazepines / Diazepam',severity:'MODERATE',note:'Additive sedation and CNS depression — use with caution; warn patient about enhanced drowsiness.'},
+    {drug:'Theophylline',severity:'MODERATE',note:'High-dose theophylline reduces cetirizine clearance by ~16%; monitor at high theophylline doses.'},
+    {drug:'Domperidone',severity:'MODERATE',note:'Additive QT prolongation risk — monitor ECG particularly in patients with cardiac disease.'},
+    {drug:'Metformin',severity:'NONE',note:'No clinically significant pharmacokinetic interaction; safe to co-prescribe.'}
+  ],
+  'omeprazole': [
+    {drug:'Clopidogrel',severity:'HIGH',note:'CYP2C19 inhibition reduces clopidogrel activation by up to 40% — use pantoprazole instead in cardiac stent patients.'},
+    {drug:'Methotrexate',severity:'HIGH',note:'Reduces methotrexate excretion — risk of methotrexate toxicity even at low doses; avoid or monitor closely.'},
+    {drug:'Iron Folic Acid',severity:'MODERATE',note:'Acid suppression reduces non-haem iron absorption by up to 50% — separate doses by 2 hours.'},
+    {drug:'Vitamin B12',severity:'MODERATE',note:'Long-term PPI use impairs food-bound B12 absorption — monitor B12 in elderly on long-term therapy.'},
+    {drug:'Fluconazole',severity:'MODERATE',note:'CYP2C19 inhibition by fluconazole increases omeprazole exposure — monitor for omeprazole adverse effects.'},
+    {drug:'Atazanavir (antiretroviral)',severity:'HIGH',note:'PPIs significantly reduce atazanavir absorption — contraindicated with ritonavir-boosted atazanavir.'}
+  ],
+  'amlodipine': [
+    {drug:'Rifampicin',severity:'HIGH',note:'Strong CYP3A4 inducer reduces amlodipine levels by up to 90% — avoid or use alternative antihypertensive.'},
+    {drug:'Simvastatin',severity:'MODERATE',note:'Amlodipine increases simvastatin levels by up to 77% — limit simvastatin to 20mg/day; switch to atorvastatin.'},
+    {drug:'Fluconazole',severity:'MODERATE',note:'CYP3A4 inhibition increases amlodipine exposure — monitor BP closely and reduce dose if needed.'},
+    {drug:'Atenolol',severity:'MODERATE',note:'Additive BP and heart rate lowering — monitor for excessive hypotension and bradycardia, especially on initiation.'},
+    {drug:'Grapefruit Juice',severity:'MODERATE',note:'CYP3A4 inhibition in gut wall increases amlodipine bioavailability — advise patients to avoid grapefruit.'},
+    {drug:'Metformin',severity:'LOW',note:'Calcium channel blockers may mildly impair insulin secretion — monitor blood glucose in diabetic patients.'}
+  ],
+  'atenolol': [
+    {drug:'Salbutamol / Beta-agonists',severity:'HIGH',note:'Beta-blocker directly blocks bronchodilation — AVOID in asthma/COPD; severe bronchospasm and respiratory failure risk.'},
+    {drug:'Verapamil / Diltiazem (IV)',severity:'HIGH',note:'Risk of severe bradycardia, AV block, and cardiac arrest — never give IV verapamil to patients on beta-blockers.'},
+    {drug:'Insulin / Glibenclamide',severity:'MODERATE',note:'Prolongs hypoglycaemia and masks tachycardia warning sign — increase glucose monitoring frequency.'},
+    {drug:'Amlodipine',severity:'MODERATE',note:'Additive antihypertensive and negative chronotropic effects — monitor for hypotension and bradycardia.'},
+    {drug:'NSAIDs / Ibuprofen / Diclofenac',severity:'MODERATE',note:'NSAIDs blunt antihypertensive effect of atenolol — use paracetamol for analgesia wherever possible.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Rifampicin reduces atenolol bioavailability via enzyme induction — monitor BP and adjust dose accordingly.'}
+  ],
+  'doxycycline': [
+    {drug:'Iron Folic Acid',severity:'HIGH',note:'Divalent iron ions chelate doxycycline reducing absorption by up to 80% — administer 2 hours apart.'},
+    {drug:'Zinc Sulfate',severity:'HIGH',note:'Zinc chelation significantly reduces doxycycline absorption — administer at least 2–3 hours apart.'},
+    {drug:'Antacids / Omeprazole',severity:'MODERATE',note:'Antacids and acid suppressants reduce doxycycline absorption — take on empty stomach at least 1h before.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Rifampicin induces doxycycline metabolism, reducing plasma levels and potentially reducing efficacy.'},
+    {drug:'Phenobarbitone / Carbamazepine',severity:'MODERATE',note:'Enzyme inducers reduce doxycycline half-life significantly — consider alternative antibiotic.'},
+    {drug:'Warfarin',severity:'MODERATE',note:'May enhance anticoagulant effect by reducing gut vitamin K-producing bacteria — monitor INR.'}
+  ],
+  'clotrimazole': [
+    {drug:'Latex Condoms/Diaphragms',severity:'HIGH',note:'Clotrimazole cream degrades latex — do NOT use latex barrier contraceptives during vaginal treatment course.'},
+    {drug:'Tacrolimus / Ciclosporin',severity:'MODERATE',note:'Extensive topical use may inhibit CYP3A4 systemically — monitor immunosuppressant levels if large area treated.'},
+    {drug:'Amphotericin B',severity:'MODERATE',note:'Pharmacological antagonism — azoles may reduce amphotericin B efficacy if used concurrently; avoid combination.'},
+    {drug:'Warfarin',severity:'LOW',note:'Minimal systemic absorption from standard topical use — negligible interaction in normal clinical use.'},
+    {drug:'Fluconazole (oral)',severity:'LOW',note:'No significant pharmacodynamic interaction — combination may be used for recalcitrant infections under supervision.'},
+    {drug:'Prednisolone / Steroids (topical)',severity:'LOW',note:'Combined antifungal-steroid preparations exist clinically; use brief courses only to avoid skin atrophy.'}
+  ],
+  'ranitidine': [
+    {drug:'Metformin',severity:'MODERATE',note:'Ranitidine competes for renal tubular secretion with metformin — may increase metformin plasma levels; monitor renal function.'},
+    {drug:'Warfarin',severity:'MODERATE',note:'May enhance anticoagulant effect at high doses — monitor INR closely.'},
+    {drug:'Iron Folic Acid',severity:'MODERATE',note:'Reduced gastric acid impairs non-haem iron absorption — administer iron 2 hours before ranitidine.'},
+    {drug:'Sucralfate',severity:'MODERATE',note:'Sucralfate reduces ranitidine absorption by ~33% — give ranitidine at least 2 hours before sucralfate.'},
+    {drug:'Omeprazole',severity:'LOW',note:'Additive acid suppression — generally avoid combination unless specifically clinically indicated.'},
+    {drug:'Antacids',severity:'LOW',note:'Antacids may reduce ranitidine absorption — take ranitidine 1 hour before or 2 hours after antacids.'}
+  ],
+  'zinc sulfate': [
+    {drug:'Doxycycline',severity:'HIGH',note:'Zinc chelates doxycycline, reducing antibiotic absorption by up to 50% — separate doses by 2–3 hours.'},
+    {drug:'Ciprofloxacin / Fluoroquinolones',severity:'HIGH',note:'Zinc chelation reduces fluoroquinolone absorption dramatically — take antibiotic 2h before or 4h after zinc.'},
+    {drug:'Penicillamine',severity:'HIGH',note:'Zinc reduces penicillamine absorption dramatically — avoid concurrent use; separate by at least 2h if essential.'},
+    {drug:'Iron Folic Acid',severity:'MODERATE',note:'Iron and zinc compete for the same intestinal transporter — separate doses by 1–2 hours for maximum absorption.'},
+    {drug:'Copper Supplements',severity:'MODERATE',note:'High-dose zinc chronically inhibits copper absorption — risk of copper deficiency anaemia with long-term high-dose zinc.'},
+    {drug:'ORS Sachet',severity:'NONE',note:'Standard combination for paediatric diarrhoea management — safe and WHO-recommended to give together.'}
+  ],
+  'vitamin d3': [
+    {drug:'Calcium Supplements',severity:'MODERATE',note:'Combined supplementation significantly increases hypercalcaemia risk — monitor serum calcium and urine calcium.'},
+    {drug:'Thiazide Diuretics',severity:'MODERATE',note:'Thiazides reduce renal calcium excretion — hypercalcaemia risk is amplified with vitamin D supplementation.'},
+    {drug:'Digoxin',severity:'MODERATE',note:'Hypercalcaemia from excess Vitamin D increases sensitivity to digoxin toxicity — monitor calcium and digoxin levels.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Enzyme induction increases Vitamin D catabolism, reducing serum 25-OH-D levels — may need higher supplementation doses.'},
+    {drug:'Corticosteroids / Prednisolone',severity:'MODERATE',note:'Long-term steroids impair Vitamin D activation and increase osteoporosis risk — supplement proactively with calcium + D3.'},
+    {drug:'Orlistat',severity:'MODERATE',note:'Reduces absorption of fat-soluble vitamins including D3 — separate doses by at least 2 hours; monitor 25-OH-D levels.'}
+  ],
+  'normal saline': [
+    {drug:'All IV Medications',severity:'LOW',note:'Check compatibility chart before mixing any drug in NS — some (e.g. amphotericin B, phenytoin) precipitate or are inactivated.'},
+    {drug:'Potassium Chloride (IV)',severity:'MODERATE',note:'Large NS volumes + KCl can cause hyperchloraemic acidosis and hyperkalaemia — monitor electrolytes frequently.'},
+    {drug:'Loop Diuretics / Furosemide',severity:'MODERATE',note:'Clinically used in combination (resuscitation then diuresis) but over-diuresis with aggressive NS is possible — careful titration needed.'},
+    {drug:'Lithium',severity:'MODERATE',note:'NS can affect lithium excretion kinetics — ensure adequate hydration but avoid excessive NS in lithium-treated patients.'},
+    {drug:'NSAIDs',severity:'LOW',note:'NSAIDs reduce renal perfusion; combined with aggressive NS resuscitation may precipitate AKI — monitor creatinine.'},
+    {drug:'Corticosteroids',severity:'LOW',note:'Additive sodium retention risk in patients on long-term corticosteroids — monitor BP and fluid balance carefully.'}
+  ],
+  'azithromycin': [
+    {drug:'Warfarin',severity:'HIGH',note:'Inhibits CYP1A2/3A4, significantly increasing warfarin levels — INR can rise dramatically; monitor daily on initiation.'},
+    {drug:'Digoxin',severity:'HIGH',note:'Azithromycin inhibits P-glycoprotein, raising digoxin levels substantially — risk of digoxin toxicity; monitor levels.'},
+    {drug:'Ondansetron',severity:'HIGH',note:'Both prolong QT interval — potentially fatal cardiac arrhythmia risk; avoid combination or monitor ECG closely.'},
+    {drug:'Domperidone',severity:'HIGH',note:'Additive QT prolongation risk — avoid combination; use alternative antiemetic.'},
+    {drug:'Fluconazole',severity:'MODERATE',note:'Additive QT prolongation and CYP3A4 inhibition — increased azithromycin/antifungal exposure; monitor ECG.'},
+    {drug:'Antacids (Aluminium/Magnesium)',severity:'MODERATE',note:'May delay azithromycin absorption — administer at least 1 hour before or 2 hours after antacids.'}
+  ],
+  'ciprofloxacin': [
+    {drug:'Iron Folic Acid',severity:'HIGH',note:'Iron chelates ciprofloxacin, reducing antibiotic absorption by up to 50% — take ciprofloxacin 2h before or 4h after iron.'},
+    {drug:'Zinc Sulfate',severity:'HIGH',note:'Zinc chelation dramatically reduces ciprofloxacin bioavailability — separate administration by at least 2 hours.'},
+    {drug:'Theophylline',severity:'HIGH',note:'Ciprofloxacin inhibits CYP1A2 — theophylline toxicity (seizures, arrhythmias); reduce theophylline dose by 50% and monitor levels.'},
+    {drug:'Warfarin',severity:'HIGH',note:'Significantly increases warfarin effect — INR can double within days; monitor INR every 2–3 days during course.'},
+    {drug:'Metformin',severity:'MODERATE',note:'Fluoroquinolones can cause dysglycaemia (hypo or hyperglycaemia) in diabetic patients — monitor blood glucose.'},
+    {drug:'NSAIDs / Ibuprofen',severity:'MODERATE',note:'Additive CNS excitatory effects increase seizure risk — avoid combination, especially in patients with epilepsy.'}
+  ],
+  'metronidazole': [
+    {drug:'Alcohol',severity:'HIGH',note:'Disulfiram-like reaction — severe flushing, nausea, vomiting, hypotension; avoid alcohol during and 48h after treatment.'},
+    {drug:'Warfarin',severity:'HIGH',note:'Inhibits CYP2C9 — warfarin levels double or more; risk of serious bleeding. Monitor INR every 2–3 days.'},
+    {drug:'Phenobarbitone / Phenytoin',severity:'MODERATE',note:'Enzyme inducers reduce metronidazole levels, potentially reducing efficacy; monitor clinical response.'},
+    {drug:'Lithium',severity:'MODERATE',note:'Metronidazole may increase lithium levels by reducing renal clearance — monitor lithium levels.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Rifampicin increases metronidazole metabolism, reducing plasma levels and potentially reducing efficacy.'},
+    {drug:'Disulfiram',severity:'HIGH',note:'Both produce disulfiram-like reactions — combination causes psychosis and confusional states; avoid entirely.'}
+  ],
+  'ibuprofen': [
+    {drug:'Aspirin',severity:'HIGH',note:'Ibuprofen reduces cardioprotective effect of low-dose aspirin — take ibuprofen at least 8h after aspirin (or use paracetamol).'},
+    {drug:'Warfarin / Anticoagulants',severity:'HIGH',note:'NSAIDs increase GI bleeding risk and may affect coagulation — avoid combination; use paracetamol instead.'},
+    {drug:'Methotrexate',severity:'HIGH',note:'NSAIDs reduce renal methotrexate excretion — risk of severe methotrexate toxicity even at low weekly doses.'},
+    {drug:'Atenolol / Antihypertensives',severity:'MODERATE',note:'NSAIDs reduce antihypertensive efficacy by causing sodium retention and vasoconstriction — monitor BP.'},
+    {drug:'Metformin',severity:'MODERATE',note:'NSAIDs reduce renal perfusion — risk of renal impairment and lactic acidosis; monitor renal function.'},
+    {drug:'Prednisolone / Corticosteroids',severity:'MODERATE',note:'Additive GI ulceration and bleeding risk — always prescribe PPI cover if this combination is unavoidable.'}
+  ],
+  'diclofenac': [
+    {drug:'Warfarin / Anticoagulants',severity:'HIGH',note:'Additive bleeding risk from GI ulceration and platelet inhibition — avoid combination; use paracetamol.'},
+    {drug:'Methotrexate',severity:'HIGH',note:'Reduces methotrexate renal clearance — life-threatening toxicity even at low weekly doses; avoid combination.'},
+    {drug:'Lithium',severity:'HIGH',note:'NSAIDs reduce renal lithium clearance — lithium toxicity; monitor lithium levels if combination unavoidable.'},
+    {drug:'Atenolol / Antihypertensives',severity:'MODERATE',note:'Blunts antihypertensive effect via sodium retention; worsens heart failure — monitor BP regularly.'},
+    {drug:'Prednisolone',severity:'MODERATE',note:'Additive GI mucosal damage — risk of peptic ulcer and GI bleed; prescribe PPI cover if combination necessary.'},
+    {drug:'Ciprofloxacin',severity:'MODERATE',note:'Combined use increases seizure risk via additive CNS excitation — avoid in patients with seizure history.'}
+  ],
+  'pantoprazole': [
+    {drug:'Methotrexate',severity:'HIGH',note:'Reduces methotrexate excretion — risk of serious toxicity; consider withholding PPI during high-dose MTX.'},
+    {drug:'Atazanavir / Antiretrovirals',severity:'HIGH',note:'PPIs significantly reduce atazanavir absorption — avoid; preferred PPI choice for other antiretroviral regimens.'},
+    {drug:'Iron Folic Acid',severity:'MODERATE',note:'Acid suppression reduces non-haem iron absorption by up to 50% — separate doses by 2 hours.'},
+    {drug:'Vitamin B12',severity:'MODERATE',note:'Long-term PPI use impairs food-bound B12 absorption — monitor B12 annually in elderly on long-term therapy.'},
+    {drug:'Clopidogrel',severity:'LOW',note:'Pantoprazole has the least CYP2C19 inhibition of all PPIs — preferred choice when PPI needed with clopidogrel.'},
+    {drug:'Metformin',severity:'LOW',note:'Minor pharmacokinetic interaction; no clinically significant effect requiring dose adjustment.'}
+  ],
+  'losartan': [
+    {drug:'ACE Inhibitors (Enalapril)',severity:'HIGH',note:'Dual RAAS blockade — hyperkalaemia, hypotension, acute kidney injury; generally contraindicated to combine.'},
+    {drug:'Potassium-sparing Diuretics',severity:'HIGH',note:'Additive hyperkalaemia risk — can be life-threatening; monitor potassium levels weekly initially.'},
+    {drug:'NSAIDs / Ibuprofen / Diclofenac',severity:'MODERATE',note:'NSAIDs reduce antihypertensive efficacy and increase risk of acute kidney injury with ARBs — avoid combination.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Enzyme induction reduces losartan and active metabolite (E3174) levels by ~40% — BP may be poorly controlled.'},
+    {drug:'Fluconazole',severity:'MODERATE',note:'CYP2C9 inhibition reduces conversion to active metabolite E3174 — may reduce antihypertensive efficacy.'},
+    {drug:'Lithium',severity:'MODERATE',note:'ARBs reduce renal lithium excretion — lithium toxicity risk; monitor lithium levels carefully.'}
+  ],
+  'atorvastatin': [
+    {drug:'Fluconazole / Azole Antifungals',severity:'HIGH',note:'Strong CYP3A4 inhibition dramatically increases atorvastatin levels — rhabdomyolysis risk; consider dose reduction or temporary suspension.'},
+    {drug:'Rifampicin',severity:'HIGH',note:'Enzyme induction reduces atorvastatin levels by up to 80% — paradoxically may also transiently increase levels; monitor LFTs.'},
+    {drug:'Amlodipine',severity:'MODERATE',note:'Amlodipine increases atorvastatin levels by ~18% — use lowest effective atorvastatin dose; monitor for myopathy.'},
+    {drug:'Ciprofloxacin',severity:'MODERATE',note:'May modestly increase statin levels via CYP3A4 inhibition — monitor for muscle aches during antibiotic course.'},
+    {drug:'Metformin',severity:'NONE',note:'No significant pharmacokinetic interaction; both commonly co-prescribed in metabolic syndrome.'},
+    {drug:'Prednisolone',severity:'LOW',note:'Steroids may worsen dyslipidaemia and reduce statin efficacy — monitor lipid profile during steroid courses.'}
+  ],
+  'glibenclamide': [
+    {drug:'Ciprofloxacin / Fluoroquinolones',severity:'HIGH',note:'Fluoroquinolones cause severe hypoglycaemia with sulphonylureas — potentially life-threatening; monitor glucose 4-hourly.'},
+    {drug:'Fluconazole',severity:'HIGH',note:'CYP2C9 inhibition increases glibenclamide levels significantly — severe prolonged hypoglycaemia risk; consider alternative antifungal.'},
+    {drug:'Metformin',severity:'LOW',note:'Standard additive combination in type 2 DM — no harmful interaction; complementary mechanisms, monitor glucose.'},
+    {drug:'Atenolol / Beta-blockers',severity:'MODERATE',note:'Masks hypoglycaemia warning signs (tachycardia, tremor) — increase glucose monitoring; educate patient on sweating as key symptom.'},
+    {drug:'NSAIDs / Ibuprofen',severity:'MODERATE',note:'NSAIDs may enhance hypoglycaemic effect of sulphonylureas — monitor blood glucose closely.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Enzyme induction increases glibenclamide metabolism — blood glucose may be poorly controlled; increase dose monitoring.'}
+  ],
+  'insulin regular': [
+    {drug:'Atenolol / Beta-blockers',severity:'HIGH',note:'Masks hypoglycaemia warning signs (particularly tachycardia) — severe unrecognised hypoglycaemia risk; educate patient on sweating as remaining symptom.'},
+    {drug:'Alcohol',severity:'HIGH',note:'Inhibits hepatic gluconeogenesis — severe and prolonged hypoglycaemia; strictly advise against heavy alcohol use.'},
+    {drug:'Prednisolone / Corticosteroids',severity:'HIGH',note:'Steroids cause profound hyperglycaemia requiring insulin dose increases of 20–50% or more — monitor glucose 4-hourly.'},
+    {drug:'Salbutamol (high dose)',severity:'MODERATE',note:'Beta-agonists cause hyperglycaemia via glycogenolysis — insulin requirements may increase during acute nebulisation treatment.'},
+    {drug:'Ciprofloxacin',severity:'MODERATE',note:'Fluoroquinolones cause unpredictable dysglycaemia — monitor glucose more frequently when prescribing antibiotics to insulin-treated patients.'},
+    {drug:'Metformin',severity:'LOW',note:'Beneficial combination — metformin reduces insulin resistance; monitor for hypoglycaemia as combination increases hypoglycaemic risk.'}
+  ],
+  'prednisolone': [
+    {drug:'Insulin / Glibenclamide',severity:'HIGH',note:'Steroids cause profound hyperglycaemia — insulin/OHA dose requirements increase substantially (20–50%); monitor glucose 4-hourly.'},
+    {drug:'NSAIDs / Ibuprofen / Diclofenac',severity:'HIGH',note:'Additive GI mucosal damage — significantly increased peptic ulcer and GI haemorrhage risk; always co-prescribe PPI.'},
+    {drug:'Rifampicin',severity:'HIGH',note:'Enzyme induction reduces prednisolone bioavailability by 45–70% — substantially higher steroid doses required; adjust and monitor carefully.'},
+    {drug:'Aspirin / Warfarin',severity:'MODERATE',note:'Additive GI bleeding risk; steroids may also alter warfarin requirements — monitor INR and provide gastroprotection.'},
+    {drug:'Isoniazid',severity:'MODERATE',note:'Steroids reduce isoniazid efficacy in TB; conversely INH may increase prednisolone levels — monitor clinical response.'},
+    {drug:'Fluconazole',severity:'MODERATE',note:'CYP3A4 inhibition increases prednisolone levels — enhanced steroid side effects (Cushingoid features, hyperglycaemia).'}
+  ],
+  'hydrocortisone': [
+    {drug:'Insulin / Oral Hypoglycaemics',severity:'MODERATE',note:'Even topical steroids can cause systemic hyperglycaemia with extensive use or occlusion — monitor glucose in diabetic patients.'},
+    {drug:'Other Topical Steroids',severity:'MODERATE',note:'Do not apply multiple topical corticosteroids simultaneously — cumulative HPA axis suppression risk with extensive use.'},
+    {drug:'Antifungals (Clotrimazole)',severity:'LOW',note:'Combined antifungal-steroid preparations exist for short-term use — avoid prolonged use; risk of skin atrophy and fungal spread.'},
+    {drug:'Immunosuppressants',severity:'LOW',note:'Additive immunosuppression with extensive topical use — clinically relevant mainly with large surface area application.'},
+    {drug:'CYP3A4 Inhibitors (Fluconazole)',severity:'LOW',note:'Systemic absorption from topical hydrocortisone is minimal; CYP3A4 interactions clinically insignificant at recommended doses.'},
+    {drug:'Salicylates',severity:'NONE',note:'No clinically significant interaction at standard topical hydrocortisone doses.'}
+  ],
+  'chlorpheniramine': [
+    {drug:'Alcohol',severity:'HIGH',note:'Severe additive CNS depression — profound sedation, respiratory depression risk; strict avoidance required.'},
+    {drug:'Diazepam / Benzodiazepines',severity:'HIGH',note:'Additive CNS and respiratory depression — risk of oversedation, falls, respiratory failure; avoid combination.'},
+    {drug:'Tramadol',severity:'MODERATE',note:'Additive CNS sedation and anticholinergic effects — use with caution; monitor for excessive sedation.'},
+    {drug:'MAOIs',severity:'HIGH',note:'Increased anticholinergic effects and CNS excitation — severe adverse reactions possible; contraindicated within 14 days of MAOI.'},
+    {drug:'Domperidone',severity:'MODERATE',note:'Additive QT prolongation risk — monitor ECG in elderly or cardiac disease patients.'},
+    {drug:'Metformin',severity:'NONE',note:'No clinically significant interaction; safe to co-prescribe.'}
+  ],
+  'domperidone': [
+    {drug:'Azithromycin',severity:'HIGH',note:'Both prolong QT interval — potentially fatal ventricular arrhythmia (Torsades de Pointes) risk; avoid combination.'},
+    {drug:'Fluconazole',severity:'HIGH',note:'CYP3A4 inhibition increases domperidone levels dramatically — serious QT prolongation risk; avoid combination.'},
+    {drug:'Ketoconazole / Azole Antifungals',severity:'HIGH',note:'Strong CYP3A4 inhibitors dramatically increase domperidone levels — cardiac arrhythmia risk; contraindicated.'},
+    {drug:'Cetirizine',severity:'MODERATE',note:'Additive QT prolongation risk — ECG monitoring recommended if both prescribed together.'},
+    {drug:'Chlorpheniramine',severity:'MODERATE',note:'Additive QT prolongation; anticholinergic effects may counteract prokinetic action — avoid combination.'},
+    {drug:'Metoclopramide',severity:'MODERATE',note:'Additive dopamine antagonism — no additive clinical benefit; increased risk of extrapyramidal effects; avoid combination.'}
+  ],
+  'ondansetron': [
+    {drug:'Azithromycin',severity:'HIGH',note:'Both prolong QT interval — potentially fatal arrhythmia risk (Torsades de Pointes); avoid combination or monitor ECG closely.'},
+    {drug:'Tramadol',severity:'HIGH',note:'Ondansetron blocks serotonin 5-HT3 receptors — reduces tramadol analgesic efficacy by ~50%; and serotonin syndrome risk with high doses.'},
+    {drug:'Fluconazole',severity:'MODERATE',note:'CYP3A4 inhibition increases ondansetron levels; additive QT prolongation — monitor ECG.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Enzyme induction reduces ondansetron levels significantly — antiemetic efficacy may be substantially reduced.'},
+    {drug:'Dexamethasone',severity:'LOW',note:'Additive antiemetic effect in chemotherapy — standard beneficial combination; no harmful interaction.'},
+    {drug:'Domperidone',severity:'HIGH',note:'Both prolong QT — avoid concurrent use; choose one antiemetic.'}
+  ],
+  'tramadol': [
+    {drug:'MAOIs',severity:'HIGH',note:'Life-threatening serotonin syndrome and hypertensive crisis — absolute contraindication; 14-day washout required before tramadol.'},
+    {drug:'SSRIs / Antidepressants',severity:'HIGH',note:'Serotonin syndrome risk — agitation, hyperthermia, tachycardia, clonus; monitor closely or avoid combination.'},
+    {drug:'Ondansetron',severity:'HIGH',note:'Ondansetron blocks 5-HT3 receptors, reducing tramadol analgesia by ~50% and may precipitate serotonin syndrome.'},
+    {drug:'Diazepam / Benzodiazepines',severity:'HIGH',note:'Additive CNS and respiratory depression — risk of fatal respiratory depression; strictly avoid concurrent use.'},
+    {drug:'Phenobarbitone',severity:'MODERATE',note:'Enzyme induction reduces tramadol levels; phenobarbitone also lowers seizure threshold — double concern.'},
+    {drug:'Chlorpheniramine',severity:'MODERATE',note:'Additive CNS sedation and anticholinergic effects — use with extreme caution and monitor for over-sedation.'}
+  ],
+  'diazepam': [
+    {drug:'Tramadol / Opioids',severity:'HIGH',note:'Additive CNS and respiratory depression — potentially fatal combination; strictly avoid; if unavoidable monitor continuously.'},
+    {drug:'Alcohol',severity:'HIGH',note:'Profound CNS and respiratory depression — potentially lethal; absolute contraindication.'},
+    {drug:'Chlorpheniramine',severity:'HIGH',note:'Additive sedation and respiratory depression — avoid combination especially in elderly.'},
+    {drug:'Fluconazole',severity:'MODERATE',note:'CYP3A4 inhibition increases diazepam levels and prolonged sedation — reduce diazepam dose significantly.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Enzyme induction reduces diazepam levels significantly — may render anxiolytic/antiepileptic doses ineffective.'},
+    {drug:'Omeprazole',severity:'LOW',note:'CYP2C19 inhibition may mildly increase diazepam levels — monitor for prolonged sedation in susceptible patients.'}
+  ],
+  'phenobarbitone': [
+    {drug:'Oral Contraceptives',severity:'HIGH',note:'Enzyme induction reduces OCP efficacy by up to 50% — risk of unintended pregnancy; use alternative/additional contraception.'},
+    {drug:'Warfarin',severity:'HIGH',note:'Enzyme induction significantly reduces warfarin levels — INR falls; substantial dose increase required; monitor INR 3× weekly on initiation.'},
+    {drug:'Rifampicin',severity:'HIGH',note:'Additive enzyme induction causing complex interactions — both reduce each other\'s levels; monitor drug levels carefully.'},
+    {drug:'Tramadol',severity:'MODERATE',note:'Enzyme induction reduces tramadol efficacy; tramadol also lowers seizure threshold — monitor seizure control.'},
+    {drug:'Metronidazole',severity:'MODERATE',note:'Enzyme induction reduces metronidazole efficacy — may need higher antibiotic dose; monitor clinical response.'},
+    {drug:'Prednisolone',severity:'HIGH',note:'Enzyme induction reduces prednisolone levels by up to 45% — significantly higher steroid doses may be required.'}
+  ],
+  'cotrimoxazole': [
+    {drug:'Warfarin',severity:'HIGH',note:'Inhibits CYP2C9 — warfarin levels rise dramatically; significant bleeding risk. Monitor INR every 2–3 days during course.'},
+    {drug:'Methotrexate',severity:'HIGH',note:'Additive folate antagonism and reduced renal methotrexate excretion — severe pancytopenia risk; avoid combination.'},
+    {drug:'Phenytoin',severity:'HIGH',note:'Inhibits phenytoin metabolism — phenytoin toxicity (ataxia, nystagmus, mental changes); monitor drug levels.'},
+    {drug:'Metformin',severity:'MODERATE',note:'Competes for renal tubular secretion — may modestly increase metformin plasma levels; monitor renal function.'},
+    {drug:'Rifampicin',severity:'LOW',note:'Used in combination for specific infections (Nocardia, Brucellosis) — generally safe combination; complementary spectrum.'},
+    {drug:'ACE Inhibitors / Losartan',severity:'MODERATE',note:'Cotrimoxazole blocks renal K+ excretion — risk of life-threatening hyperkalaemia with RAAS blockers; monitor potassium.'}
+  ],
+  'rifampicin': [
+    {drug:'Oral Contraceptives',severity:'HIGH',note:'Potent enzyme induction reduces OCP efficacy — risk of unintended pregnancy; use barrier contraception throughout and 4 weeks after.'},
+    {drug:'Warfarin',severity:'HIGH',note:'Dramatic enzyme induction reduces warfarin levels — INR can halve within days; increase dose substantially and monitor 3× weekly.'},
+    {drug:'Antiretrovirals (Protease Inhibitors)',severity:'HIGH',note:'Reduces antiretroviral levels by 75–90% — treatment failure and resistance risk; use rifabutin instead if available.'},
+    {drug:'Fluconazole',severity:'MODERATE',note:'Rifampicin reduces fluconazole levels by ~75% — antifungal efficacy significantly reduced; increase dose or use alternative.'},
+    {drug:'Isoniazid',severity:'MODERATE',note:'Additive hepatotoxicity with INH and rifampicin — monitor LFTs monthly; avoid alcohol; stop both if LFTs >3× ULN.'},
+    {drug:'Prednisolone',severity:'HIGH',note:'Reduces prednisolone bioavailability by 45–70% — must substantially increase steroid dose in TB patients on steroids.'}
+  ],
+  'isoniazid': [
+    {drug:'Rifampicin',severity:'MODERATE',note:'Additive hepatotoxicity — monitor LFTs monthly; combined hepatotoxicity can be severe; counsel against alcohol.'},
+    {drug:'Phenytoin',severity:'HIGH',note:'INH inhibits CYP2C9 — phenytoin levels rise 3–5-fold; toxicity (ataxia, nystagmus, mental changes); monitor drug levels weekly initially.'},
+    {drug:'Carbamazepine',severity:'MODERATE',note:'INH inhibits CYP3A4 — carbamazepine toxicity; monitor drug levels and clinical signs.'},
+    {drug:'Prednisolone',severity:'MODERATE',note:'Steroids reduce INH bioavailability and may worsen TB outcome — monitor sputum conversion; INH dose may need increasing.'},
+    {drug:'Pyrazinamide',severity:'MODERATE',note:'Additive hepatotoxicity in standard TB regimen — monthly LFT monitoring essential; stop if symptomatic hepatitis develops.'},
+    {drug:'Paracetamol',severity:'MODERATE',note:'INH (enzyme inducer in some pathways) increases hepatotoxic NAPQI metabolite of paracetamol — limit paracetamol dose in TB patients.'}
+  ],
+  'pyrazinamide': [
+    {drug:'Isoniazid',severity:'MODERATE',note:'Additive hepatotoxicity in intensive TB phase — monitor LFTs monthly; most hepatotoxicity occurs in first 2 months.'},
+    {drug:'Rifampicin',severity:'MODERATE',note:'Additive hepatotoxicity — the 3-drug combination INH+RIF+PZA has highest liver risk; LFTs monthly mandatory.'},
+    {drug:'Allopurinol',severity:'MODERATE',note:'Pyrazinamide inhibits uric acid excretion — gout may be precipitated; monitor uric acid; allopurinol less effective during PZA therapy.'},
+    {drug:'Probenecid',severity:'MODERATE',note:'PZA blocks uricosuric effect of probenecid — probenecid cannot adequately treat PZA-induced hyperuricaemia.'},
+    {drug:'Antacids',severity:'LOW',note:'Antacids may reduce pyrazinamide absorption slightly — take PZA 1h before or 2h after antacids.'},
+    {drug:'Ethambutol',severity:'LOW',note:'Standard combination in TB intensive phase — no significant pharmacokinetic interaction; both may cause nausea.'}
+  ],
+  'ethambutol': [
+    {drug:'Antacids (Aluminium hydroxide)',severity:'MODERATE',note:'Aluminium antacids significantly reduce ethambutol absorption — administer ethambutol at least 1h before antacids.'},
+    {drug:'Isoniazid',severity:'LOW',note:'Standard TB combination — no clinically significant pharmacokinetic interaction; both well tolerated together.'},
+    {drug:'Rifampicin',severity:'LOW',note:'Standard TB combination — no significant interaction; rifampicin does not affect ethambutol levels substantially.'},
+    {drug:'Pyrazinamide',severity:'LOW',note:'Standard intensive phase combination — no harmful pharmacokinetic interaction; monitor LFTs for additive hepatotoxicity.'},
+    {drug:'Zinc Sulfate',severity:'MODERATE',note:'Zinc chelation may reduce ethambutol absorption — avoid concurrent supplementation during TB treatment if possible.'},
+    {drug:'Prednisolone',severity:'MODERATE',note:'Steroids reduce ethambutol efficacy in TB and may mask hypersensitivity reactions — monitor sputum conversion closely.'}
+  ],
+  'magnesium sulfate': [
+    {drug:'Calcium Channel Blockers (Nifedipine)',severity:'HIGH',note:'Additive neuromuscular blockade — profound hypotension and neuromuscular paralysis risk; use with extreme caution in preterm labour.'},
+    {drug:'Atenolol / Beta-blockers',severity:'MODERATE',note:'Additive cardiovascular depression — hypotension, bradycardia; monitor BP and HR continuously.'},
+    {drug:'Aminoglycosides',severity:'HIGH',note:'Additive neuromuscular blockade — respiratory paralysis risk; avoid combination; if essential monitor closely.'},
+    {drug:'Neuromuscular Blocking Agents',severity:'HIGH',note:'Magnesium potentiates neuromuscular blockade markedly — reduce anaesthetic agent doses; monitor neuromuscular function.'},
+    {drug:'Insulin',severity:'LOW',note:'Magnesium may have minor effect on insulin secretion — monitor glucose in diabetic patients receiving MgSO4 infusions.'},
+    {drug:'Normal Saline (diluent)',severity:'NONE',note:'NS is the recommended diluent for MgSO4 infusions — compatible; always dilute before IV administration.'}
+  ],
+  'oxytocin': [
+    {drug:'Prostaglandins (Misoprostol)',severity:'HIGH',note:'Additive uterotonic effect — risk of uterine hyperstimulation, rupture, and fetal distress; do NOT combine; use sequentially only.'},
+    {drug:'Ergometrine',severity:'HIGH',note:'Additive uterotonic effect — risk of severe sustained uterine contraction and cardiovascular complications; sequential use only with caution.'},
+    {drug:'Adrenaline / Sympathomimetics',severity:'MODERATE',note:'Sympathomimetics may reduce oxytocin effect and cause cardiovascular reactions — monitor BP and uterine activity.'},
+    {drug:'Anaesthetic Agents (Inhalational)',severity:'MODERATE',note:'Halogenated agents reduce uterine sensitivity to oxytocin — higher oxytocin doses may be needed during general anaesthesia.'},
+    {drug:'Magnesium Sulfate',severity:'MODERATE',note:'Magnesium may reduce uterine sensitivity to oxytocin — may need higher oxytocin doses; monitor uterine response carefully.'},
+    {drug:'Normal Saline',severity:'NONE',note:'NS is the standard diluent for oxytocin infusions — compatible; always use infusion pump for accurate dosing.'}
+  ]
+};
+
+function lookupDosage(name) {
+  const key = name.toLowerCase().trim();
+  if (DOSAGE_DB[key]) return DOSAGE_DB[key];
+  for (const k of Object.keys(DOSAGE_DB)) {
+    if (k !== 'default' && (key.includes(k) || k.includes(key))) return DOSAGE_DB[k];
+  }
+  return DOSAGE_DB['default'];
+}
+
+function lookupInteractions(name) {
+  const key = name.toLowerCase().trim();
+  if (INTERACTION_DB[key]) return INTERACTION_DB[key];
+  for (const k of Object.keys(INTERACTION_DB)) {
+    if (key.includes(k) || k.includes(key)) return INTERACTION_DB[k];
+  }
+  return null;
+}
+
+// ============================================================
+// AI GENERATE DOSAGE (offline — instant, no API key)
+// ============================================================
+function generateDosage() {
+  const name = document.getElementById('fName').value.trim();
+  const strength = document.getElementById('fStrength').value.trim();
+
+  if (!name) {
+    showToast('⚠ Please enter a medicine name first');
+    document.getElementById('fName').focus();
+    return;
+  }
+
+  const btn = document.getElementById('dosageBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>&nbsp;Looking up…';
+  document.getElementById('dosageResult').innerHTML = '';
+  document.getElementById('interactResult').innerHTML = '';
+
+  setTimeout(() => {
+    try {
+      const data = lookupDosage(name);
+
+      setPrefilledEditable('fDosage', data.dosage);
+
+      if (data.tags && data.tags.length) {
+        document.querySelectorAll('.ts-tag').forEach(tag => {
+          if (data.tags.includes(tag.textContent.trim())) tag.classList.add('sel');
+        });
+      }
+
+      const panel = document.createElement('div');
+      panel.className = 'ai-result-panel dosage-result';
+      panel.style.marginTop = '14px';
+      const header = document.createElement('div');
+      header.className = 'ai-result-header dosage-header';
+      header.innerHTML = '<span class="ai-result-label">✦ Dosage — ' + escapeHtml(name.toUpperCase()) + (strength ? ' ' + escapeHtml(strength) : '') + '</span>'
+        + '<button class="ai-result-close" onclick="document.getElementById(\'dosageResult\').innerHTML=\'\'">✕</button>';
+      const body = document.createElement('div');
+      body.className = 'ai-result-body';
+      body.textContent = data.dosage;
+      panel.appendChild(header);
+      panel.appendChild(body);
+      document.getElementById('dosageResult').appendChild(panel);
+
+    } catch(e) {
+      document.getElementById('dosageResult').innerHTML =
+        '<div class="ai-result-panel dosage-result" style="margin-top:14px">'
+        + '<div class="ai-result-header dosage-header"><span class="ai-result-label">✦ Error</span></div>'
+        + '<div class="ai-result-body" style="color:var(--rose)">Lookup failed: ' + escapeHtml(e.message) + '</div></div>';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>✦</span>&nbsp;AI Generate Dosage';
+    }
+  }, 480);
+}
+
+// ============================================================
+// CHECK INTERACTIONS (offline — instant, no API key)
+// ============================================================
+function checkInteractions() {
+  const name = document.getElementById('fName').value.trim();
+  const strength = document.getElementById('fStrength').value.trim();
+
+  if (!name) {
+    showToast('⚠ Please enter a medicine name first');
+    document.getElementById('fName').focus();
+    return;
+  }
+
+  const btn = document.getElementById('interactBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>&nbsp;Checking…';
+  document.getElementById('interactResult').innerHTML = '';
+
+  setTimeout(() => {
+    try {
+      const interactions = lookupInteractions(name);
+      const interactionText = formatInteractionsText(name, strength, interactions);
+      setPrefilledEditable('fInteractions', interactionText);
+
+      const panel = document.createElement('div');
+      panel.className = 'ai-result-panel interact-result';
+      panel.style.marginTop = '14px';
+      const header = document.createElement('div');
+      header.className = 'ai-result-header interact-header';
+      header.innerHTML = '<span class="ai-result-label">🔍 Interactions — ' + escapeHtml(name.toUpperCase()) + (strength ? ' ' + escapeHtml(strength) : '') + ' vs Formulary</span>'
+        + '<button class="ai-result-close" onclick="document.getElementById(\'interactResult\').innerHTML=\'\'">✕</button>';
+      panel.appendChild(header);
+
+      const body = document.createElement('div');
+      body.className = 'ai-result-body';
+      body.style.padding = '0';
+
+      if (!interactions) {
+        body.style.padding = '14px 16px';
+        body.innerHTML = '<span style="color:var(--text-soft)">No specific interaction data found for <strong>' + escapeHtml(name) + '</strong>.<br><br>Consult the National Formulary of India or a clinical pharmacist.</span>';
+      } else {
+        const order = {HIGH:0,MODERATE:1,LOW:2,NONE:3};
+        const sorted = [...interactions].sort((a,b) => (order[a.severity]??9)-(order[b.severity]??9));
+        const counts = {HIGH:0,MODERATE:0,LOW:0,NONE:0};
+        sorted.forEach(i => { if (counts[i.severity]!==undefined) counts[i.severity]++; });
+
+        const summaryBar = document.createElement('div');
+        summaryBar.style.cssText = 'display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid rgba(0,0,0,0.06);flex-wrap:wrap;align-items:center;';
+        summaryBar.innerHTML = '<span style="font-size:11px;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;margin-right:4px;">Summary:</span>'
+          + (counts.HIGH ? '<span class="sev-badge sev-high">🔴 '+counts.HIGH+' HIGH</span>' : '')
+          + (counts.MODERATE ? '<span class="sev-badge sev-med">🟡 '+counts.MODERATE+' MODERATE</span>' : '')
+          + (counts.LOW ? '<span class="sev-badge sev-low">🟢 '+counts.LOW+' LOW</span>' : '')
+          + (counts.NONE ? '<span class="sev-badge sev-low">✓ '+counts.NONE+' NONE</span>' : '');
+        body.appendChild(summaryBar);
+
+        sorted.forEach((item, idx) => {
+          const sevClass = item.severity==='HIGH'?'sev-high':item.severity==='MODERATE'?'sev-med':'sev-low';
+          const sevEmoji = item.severity==='HIGH'?'🔴':item.severity==='MODERATE'?'🟡':item.severity==='NONE'?'✓':'🟢';
+          const row = document.createElement('div');
+          row.style.cssText = 'padding:11px 16px;' + (idx<sorted.length-1?'border-bottom:1px solid rgba(0,0,0,0.04);':'');
+          row.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'
+            + '<span class="sev-badge '+sevClass+'">'+sevEmoji+' '+item.severity+'</span>'
+            + '<span style="font-weight:700;font-size:13px;">'+escapeHtml(item.drug)+'</span>'
+            + '</div>'
+            + '<div style="font-size:12.5px;color:var(--text-mid);line-height:1.55;padding-left:2px;">'+escapeHtml(item.note)+'</div>';
+          body.appendChild(row);
+        });
+      }
+
+      panel.appendChild(body);
+      document.getElementById('interactResult').appendChild(panel);
+
+    } catch(e) {
+      document.getElementById('interactResult').innerHTML =
+        '<div class="ai-result-panel interact-result" style="margin-top:14px">'
+        + '<div class="ai-result-header interact-header"><span class="ai-result-label">🔍 Error</span></div>'
+        + '<div class="ai-result-body" style="color:var(--rose)">Lookup failed: ' + escapeHtml(e.message) + '</div></div>';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>🔍</span>&nbsp;Check Interactions';
+    }
+  }, 520);
+}
+
+function setPrefilledEditable(textareaId, value) {
+  const el = document.getElementById(textareaId);
+  if (!el) return;
+  el.removeAttribute('readonly');
+  el.removeAttribute('disabled');
+  el.value = value || '';
+  // Put cursor at end for quick edits
+  try {
+    el.focus();
+    const end = el.value.length;
+    el.setSelectionRange(end, end);
+  } catch {}
+}
+
+function formatInteractionsText(name, strength, interactions) {
+  const title = `INTERACTION CHECK — ${String(name || '').toUpperCase()}${strength ? ' ' + strength : ''}`;
+  if (!interactions || !Array.isArray(interactions) || interactions.length === 0) {
+    return `${title}\n\nNo specific interaction data found in local formulary.\nNotes:\n- Review NFI / local protocol\n- Consider renal/hepatic impairment, pregnancy, age\n- Ask about OTC meds / supplements\n`;
+  }
+  const order = {HIGH:0,MODERATE:1,LOW:2,NONE:3};
+  const sorted = [...interactions].sort((a,b) => (order[a.severity]??9)-(order[b.severity]??9));
+  const lines = [title, '', 'Summary:', ...['HIGH','MODERATE','LOW','NONE'].map(k => `- ${k}: ${sorted.filter(x => x.severity === k).length}`), '', 'Details:'];
+  sorted.forEach((i, idx) => {
+    lines.push('');
+    lines.push(`${idx+1}. [${i.severity}] ${i.drug}`);
+    lines.push(`   ${i.note}`);
+  });
+  lines.push('', 'Clinician edits:', '- ');
+  return lines.join('\n');
+}
+
+
+// ============================================================
+// ADD MEDICINE FROM FORM
+// ============================================================
+function addMedicineFromForm() {
+  const name = document.getElementById('fName').value.trim();
+  const strength = document.getElementById('fStrength').value.trim();
+  const type = document.getElementById('fType').value;
+  const company = document.getElementById('fCompany').value.trim();
+  const unitEl = document.getElementById('fUnit');
+  const unit = unitEl.options[unitEl.selectedIndex].value.split(' ')[0];
+  const dosage = document.getElementById('fDosage').value.trim();
+  const interactionsNote = document.getElementById('fInteractions')?.value?.trim() || '';
+
+  if (!name) { showToast('⚠ Medicine name is required'); return; }
+
+  medicines.push({
+    name, strength: strength||'—', type: type||'Tablet',
+    company: company||'—', unit: unit||'Strip', stock:'ok',
+    ai: (dosage || interactionsNote) ? '✦ AI Notes' : ''
+  });
+  renderTable(medicines);
+  document.getElementById('statTotal').textContent = medicines.length;
+
+  // Clear form
+  ['fName','fStrength','fCompany','fDosage','fInteractions','fReorder'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('fType').selectedIndex = 0;
+  document.querySelectorAll('.ts-tag.sel').forEach(t => t.classList.remove('sel'));
+  clearAIResults();
+
+  showToast(`✓ ${name} added to medicine catalog`);
+}
+
+function clearAIResults() {
+  // Only clear if empty (don't clear if user has typed a name)
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let toastTimer;
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = `position:fixed;bottom:30px;right:30px;background:var(--text-dark);color:#fff;
+      padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;
+      box-shadow:0 8px 24px rgba(0,0,0,0.2);transition:opacity 0.3s;font-family:'DM Sans',sans-serif;
+      max-width:320px;`;
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.opacity = '0', 3500);
+}
+
+// Close modals on overlay click
+document.getElementById('aiModal').addEventListener('click', function(e) {
+  if(e.target === this) this.classList.remove('show');
+});
+document.getElementById('qaModal').addEventListener('click', function(e) {
+  if(e.target === this) closeQuickAdd();
+});
+</script>
+</body>
+</html>

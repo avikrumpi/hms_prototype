@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Prescription Workbench v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF8F4;--ivory:#F5F0E8;--teal:#1A6B5A;--teal-light:#2A9076;
+  --teal-glow:#3DBFA0;--gold:#C8963E;--gold-light:#E8B96A;
+  --rose:#C0504A;--rose-light:#E8857F;--indigo:#3D4F8A;
+  --text-dark:#1C2331;--text-mid:#4A5568;--text-soft:#8896A5;
+  --border:#E2D9CC;--glass:rgba(255,255,255,0.72);
+  --shadow:0 4px 32px rgba(26,107,90,0.10);--shadow-lg:0 12px 48px rgba(26,107,90,0.16);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;
+  background-image:radial-gradient(ellipse 800px 600px at 90% 10%,rgba(61,191,160,0.06) 0%,transparent 70%),
+    radial-gradient(ellipse 600px 500px at 10% 80%,rgba(200,150,62,0.05) 0%,transparent 70%)}
+
+/* SIDEBAR */
+.sidebar{width:260px;position:fixed;top:0;left:0;height:100vh;background:var(--text-dark);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 40px rgba(0,0,0,0.15)}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.logo-mark{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.logo-mark span{color:var(--teal-glow)}
+.logo-sub{font-size:11px;color:var(--text-soft);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.sidebar-admin{padding:20px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.admin-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:18px;position:relative}
+.admin-avatar::after{content:'';position:absolute;bottom:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#4ADE80;border:2px solid var(--text-dark)}
+.admin-name{font-weight:600;font-size:14px;color:#fff}
+.admin-role{font-size:11px;color:var(--text-soft)}
+.nav-section{padding:16px 12px 8px}
+.nav-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 12px 8px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:2px}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9)}
+.nav-item.active{background:linear-gradient(135deg,var(--teal),var(--teal-light));color:#fff}
+.nav-item .icon{font-size:18px;width:22px}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.12);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7)}
+.nav-badge.alert{background:var(--rose);color:#fff}
+.sidebar-bottom{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.date-pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:8px 14px;text-align:center;font-size:12px;color:var(--text-soft);font-family:'DM Mono',monospace}
+
+/* MAIN */
+.main{margin-left:260px;min-height:100vh}
+.topbar{background:var(--glass);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 36px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--text-dark)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.notif-btn{width:38px;height:38px;border-radius:10px;background:var(--ivory);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative}
+.notif-btn::after{content:'3';position:absolute;top:-4px;right:-4px;background:var(--rose);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+.content{padding:32px 36px}
+
+/* HERO */
+.register-hero{background:linear-gradient(135deg,var(--teal) 0%,var(--teal-light) 50%,#2DBFA0 100%);border-radius:20px;padding:28px 36px;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.register-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none}
+.register-text h2{font-family:'Playfair Display',serif;font-size:26px;color:#fff;font-weight:700}
+.register-text p{font-size:14px;color:rgba(255,255,255,0.75);margin-top:4px}
+
+/* AI INSIGHT BANNER */
+.ai-insight{background:linear-gradient(135deg,#1C2331 0%,#2D3A52 100%);border-radius:16px;padding:18px 24px;display:flex;align-items:flex-start;gap:16px;margin-bottom:28px;border:1px solid rgba(61,191,160,0.2)}
+.ai-icon{width:40px;height:40px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--teal-glow),var(--teal));display:flex;align-items:center;justify-content:center;font-size:20px}
+.ai-text h4{font-size:13px;font-weight:600;color:var(--teal-glow);letter-spacing:0.5px}
+.ai-text p{font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px;line-height:1.5}
+.ai-text strong{color:rgba(255,255,255,0.9)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:transform 0.2s,box-shadow 0.2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.stat-card.teal::before{background:linear-gradient(90deg,var(--teal),var(--teal-glow))}
+.stat-card.gold::before{background:linear-gradient(90deg,var(--gold),var(--gold-light))}
+.stat-card.rose::before{background:linear-gradient(90deg,var(--rose),var(--rose-light))}
+.stat-card.indigo::before{background:linear-gradient(90deg,var(--indigo),#6B82C8)}
+.stat-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:10px}
+.stat-value{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--text-dark);line-height:1}
+.stat-sub{font-size:12px;color:var(--text-soft);margin-top:6px}
+.stat-trend{font-size:12px;font-weight:600}
+.stat-trend.up{color:#16a34a}
+.stat-trend.down{color:var(--rose)}
+.stat-icon{position:absolute;top:16px;right:16px;font-size:28px;opacity:0.12}
+
+/* SEARCH */
+.search-block{margin-bottom:28px}
+.search-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);margin-bottom:10px}
+.search-wrap{background:#fff;border:1.5px solid var(--border);border-radius:16px;display:flex;align-items:center;overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;box-shadow:0 2px 16px rgba(0,0,0,0.04);position:relative}
+.search-wrap:focus-within{border-color:var(--teal);box-shadow:0 0 0 4px rgba(26,107,90,0.08)}
+.search-icon{padding:0 16px;color:var(--text-soft);font-size:18px}
+.search-input{flex:1;padding:14px 0;font-size:14px;font-family:'DM Sans',sans-serif;border:none;outline:none;background:transparent;color:var(--text-dark)}
+.search-input::placeholder{color:var(--text-soft)}
+.search-divider{width:1px;height:28px;background:var(--border);margin:0 4px}
+.search-filter{padding:8px 14px;margin:6px;border-radius:10px;border:1px solid var(--border);background:var(--ivory);font-size:13px;color:var(--text-mid);cursor:pointer;display:flex;align-items:center;gap:6px;position:relative;user-select:none}
+.search-filter.active-filter{border-color:var(--teal);background:rgba(26,107,90,0.07);color:var(--teal)}
+.dd-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1.5px solid var(--border);border-radius:13px;box-shadow:0 8px 32px rgba(0,0,0,0.12);min-width:180px;z-index:500;overflow:hidden;animation:fadeUp 0.15s ease}
+.dd-menu.open{display:block}
+.dd-item{padding:10px 16px;font-size:13px;color:var(--text-mid);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.12s}
+.dd-item:hover{background:var(--ivory);color:var(--text-dark)}
+.dd-item.selected{background:rgba(26,107,90,0.07);color:var(--teal);font-weight:600}
+.dd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dd-divider{height:1px;background:var(--border);margin:4px 0}
+.dd-clear{padding:8px 16px;font-size:12px;color:var(--rose);cursor:pointer;border-top:1px solid var(--border)}
+.dd-clear:hover{background:rgba(192,80,74,0.05)}
+.ai-search-btn{margin:6px;padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap}
+.ai-search-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,107,90,0.25)}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.tag{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);transition:all 0.15s}
+.tag:hover,.tag.active{border-color:var(--teal);background:rgba(26,107,90,0.06);color:var(--teal)}
+.tag.status-green{border-color:#4ADE80;background:rgba(74,222,128,0.08);color:#16a34a}
+.tag.status-red{border-color:var(--rose-light);background:rgba(192,80,74,0.08);color:var(--rose)}
+.tag.status-yellow{border-color:var(--gold-light);background:rgba(200,150,62,0.08);color:var(--gold)}
+
+/* Live search suggestions */
+.search-suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--teal);border-top:none;border-radius:0 0 16px 16px;box-shadow:0 12px 32px rgba(0,0,0,0.1);z-index:400;display:none;max-height:260px;overflow-y:auto}
+.search-suggestions.open{display:block}
+.sug-item{padding:10px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--ivory);transition:background 0.1s}
+.sug-item:hover{background:rgba(26,107,90,0.04)}
+.sug-item:last-child{border-bottom:none}
+.sug-avatar{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sug-info{flex:1;min-width:0}
+.sug-name{font-size:13px;font-weight:600;color:var(--text-dark)}
+.sug-meta{font-size:11px;color:var(--text-soft);margin-top:1px}
+.sug-risk{font-size:11px;font-weight:600;margin-left:auto}
+
+/* PATIENT CARDS */
+.patients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+.patient-card{background:#fff;border:1.5px solid var(--border);border-radius:18px;padding:20px;cursor:pointer;transition:all 0.22s;position:relative;overflow:hidden}
+.patient-card:hover{border-color:var(--teal);box-shadow:var(--shadow);transform:translateY(-2px)}
+.patient-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:18px 18px 0 0;background:linear-gradient(90deg,var(--teal),var(--teal-glow));opacity:0;transition:opacity 0.2s}
+.patient-card:hover::before{opacity:1}
+.pc-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.pc-avatar{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pc-info h3{font-size:15px;font-weight:600;color:var(--text-dark);margin-bottom:3px}
+.pc-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-soft)}
+.pc-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.pc-badge{padding:3px 8px;border-radius:8px;font-size:11px;font-weight:500}
+.pc-badge.condition{background:rgba(61,79,138,0.08);color:var(--indigo);border:1px solid rgba(61,79,138,0.15)}
+.pc-badge.allergy{background:rgba(192,80,74,0.08);color:var(--rose);border:1px solid rgba(192,80,74,0.15)}
+.pc-badge.age{background:rgba(200,150,62,0.08);color:var(--gold);border:1px solid rgba(200,150,62,0.15)}
+.pc-meta{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-soft);border-top:1px solid var(--ivory);padding-top:12px}
+.pc-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.pc-status::before{content:'';width:5px;height:5px;border-radius:50%}
+.status-registered{background:rgba(74,222,128,0.1);color:#16a34a}.status-registered::before{background:#4ADE80}
+.status-allocated{background:rgba(192,80,74,0.1);color:var(--rose)}.status-allocated::before{background:var(--rose)}
+.status-released{background:rgba(200,150,62,0.1);color:var(--gold)}.status-released::before{background:var(--gold-light)}
+.status-pending{background:rgba(61,79,138,0.1);color:var(--indigo)}.status-pending::before{background:var(--indigo)}
+/* AI hover overlay on patient card */
+.pc-ai-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,107,90,0.95),rgba(42,144,118,0.97));border-radius:18px;padding:18px;display:none;flex-direction:column;justify-content:center;z-index:10;animation:fadeUp 0.2s ease}
+.patient-card:hover .pc-ai-overlay.preloaded{display:flex}
+
+/* RX STEP */
+#step-rx{display:none;animation:fadeUp 0.4s ease}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-soft);margin-bottom:24px}
+.breadcrumb a{color:var(--teal);cursor:pointer;text-decoration:none}
+.rx-grid{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+
+/* Patient summary card */
+.pat-summary{background:#fff;border:1.5px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);position:sticky;top:84px}
+.pat-summary-header{background:linear-gradient(135deg,var(--teal),var(--teal-light));padding:20px;position:relative;overflow:hidden}
+.pat-summary-header::before{content:'';position:absolute;bottom:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.06)}
+.pat-sum-avatar{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px;border:2px solid rgba(255,255,255,0.3)}
+.pat-sum-name{font-family:'Playfair Display',serif;font-size:20px;color:#fff;font-weight:700}
+.pat-sum-id{font-size:12px;color:rgba(255,255,255,0.7);font-family:'DM Mono',monospace}
+.pat-summary-body{padding:18px}
+.sum-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--ivory);font-size:13px}
+.sum-row:last-child{border-bottom:none}
+.sum-label{color:var(--text-soft);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.sum-val{color:var(--text-dark);font-weight:500;text-align:right}
+.allergy-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.allergy-tag{padding:3px 9px;border-radius:8px;background:rgba(192,80,74,0.08);color:var(--rose);border:1px solid rgba(192,80,74,0.15);font-size:11px;font-weight:500}
+.cond-tag{padding:3px 9px;border-radius:8px;background:rgba(61,79,138,0.08);color:var(--indigo);border:1px solid rgba(61,79,138,0.15);font-size:11px;font-weight:500}
+.risk-meter{display:flex;align-items:center;gap:8px;margin-top:6px}
+.risk-bar{flex:1;height:6px;border-radius:6px;background:var(--border);overflow:hidden}
+.risk-fill{height:100%;border-radius:6px;transition:width 0.5s ease}
+
+/* Vitals Quick Entry */
+.vitals-panel{background:var(--ivory);border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:14px}
+.vitals-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vital-item{display:flex;flex-direction:column;gap:3px}
+.vital-label{font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px}
+.vital-input{padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:'DM Mono',monospace;color:var(--text-dark);background:#fff;outline:none;transition:border-color 0.2s;width:100%}
+.vital-input:focus{border-color:var(--teal)}
+.vital-input.out-range{border-color:var(--rose);background:rgba(192,80,74,0.04)}
+
+/* Prescription Completeness Meter */
+.rx-completeness{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:18px}
+.comp-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.comp-bar-wrap{height:8px;background:var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.comp-bar{height:100%;border-radius:8px;transition:width 0.4s ease,background 0.4s ease;background:var(--rose)}
+.comp-checks{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.comp-check{font-size:11px;color:var(--text-soft);display:flex;align-items:center;gap:5px}
+.comp-check.done{color:#16a34a}
+.comp-check.done::before{content:'✓';font-weight:700}
+.comp-check:not(.done)::before{content:'○';opacity:0.4}
+
+/* AI Companion */
+.ai-companion{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:16px;padding:18px;border:1px solid rgba(61,191,160,0.25);margin-top:14px}
+.ai-comp-title{font-size:12px;font-weight:600;color:var(--teal-glow);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ai-comp-btn{width:100%;padding:9px 14px;border-radius:10px;border:1px solid rgba(61,191,160,0.3);background:rgba(61,191,160,0.08);color:var(--teal-glow);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:7px;margin-bottom:7px;text-align:left}
+.ai-comp-btn:hover{background:rgba(61,191,160,0.16);transform:translateX(2px)}
+.ai-comp-btn.gold-btn{border-color:rgba(200,150,62,0.4);background:rgba(200,150,62,0.08);color:var(--gold-light)}
+.ai-comp-btn.rose-btn{border-color:rgba(192,80,74,0.4);background:rgba(192,80,74,0.08);color:var(--rose-light)}
+.ai-comp-btn.purple-btn{border-color:rgba(61,79,138,0.4);background:rgba(61,79,138,0.08);color:#8B9FD4}
+.ai-result{background:rgba(0,0,0,0.25);border:1px solid rgba(61,191,160,0.2);border-radius:10px;padding:12px;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.8);line-height:1.7;display:none;max-height:220px;overflow-y:auto}
+.ai-result.visible{display:block}
+.ai-result strong{color:var(--teal-glow)}
+
+/* RX FORM CARD */
+.rx-form-card{background:#fff;border:1.5px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04)}
+.rx-form-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.rx-form-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600}
+.rx-form-body{padding:24px}
+.form-row{display:grid;gap:14px;margin-bottom:16px}
+.form-row.cols2{grid-template-columns:1fr 1fr}
+.form-row.cols4{grid-template-columns:1fr 1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:5px;position:relative}
+.form-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.form-label .ai-link{font-size:10px;color:var(--teal-glow);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:500}
+.form-label .ai-link:hover{text-decoration:underline}
+.form-input{padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-dark);background:#fff;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.form-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.07)}
+.form-input.autofilled{border-color:var(--teal-glow);background:rgba(61,191,160,0.04)}
+.form-input.warn{border-color:var(--gold);background:rgba(200,150,62,0.04)}
+.form-input.danger{border-color:var(--rose);background:rgba(192,80,74,0.04)}
+.form-select{padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-dark);background:#fff;outline:none;cursor:pointer;transition:border-color 0.2s}
+.form-select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.07)}
+.form-select.autofilled{border-color:var(--teal-glow);background:rgba(61,191,160,0.04)}
+
+/* Autofill indicator */
+.autofill-badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--teal-glow);background:rgba(61,191,160,0.1);padding:2px 7px;border-radius:6px;font-weight:600;pointer-events:none;display:none}
+
+/* Type Pills */
+.type-pills{display:flex;gap:6px;flex-wrap:wrap}
+.type-pill{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:500;cursor:pointer;color:var(--text-mid);transition:all 0.15s;display:flex;align-items:center;gap:5px}
+.type-pill:hover,.type-pill.active{border-color:var(--teal);background:rgba(26,107,90,0.06);color:var(--teal)}
+
+/* Medicine autocomplete */
+.med-name-wrap{position:relative}
+.med-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--teal);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:200;max-height:220px;overflow-y:auto;display:none}
+.med-dropdown.open{display:block}
+.med-opt{padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text-dark);border-bottom:1px solid var(--ivory);display:flex;align-items:center;justify-content:space-between}
+.med-opt:hover{background:rgba(26,107,90,0.04);color:var(--teal)}
+.med-opt:last-child{border-bottom:none}
+.med-opt-hint{font-size:11px;color:var(--text-soft)}
+.dose-hint-banner{font-size:11px;color:var(--teal);margin-top:5px;padding:5px 10px;background:rgba(26,107,90,0.06);border-radius:8px;border-left:2px solid var(--teal-glow);line-height:1.5;display:none}
+.dose-hint-banner.show{display:block}
+
+/* Duplicate medicine warning */
+.dup-warn{background:rgba(200,150,62,0.1);border:1px solid rgba(200,150,62,0.3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--gold);margin-top:6px;display:none}
+.dup-warn.show{display:block}
+
+/* Dose time grid */
+.dose-time-group{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.dose-time-item{display:flex;flex-direction:column;gap:6px;align-items:center}
+.dose-time-icon{font-size:20px;text-align:center}
+
+/* Medicine table */
+.med-table-wrap{background:var(--ivory);border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-bottom:20px}
+.med-table-empty{padding:36px;text-align:center;color:var(--text-soft);font-size:14px}
+table.med-table{width:100%;border-collapse:collapse}
+table.med-table thead th{padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);background:#FAFAF8;border-bottom:1px solid var(--border)}
+table.med-table tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s}
+table.med-table tbody tr:last-child{border-bottom:none}
+table.med-table tbody tr:hover{background:rgba(26,107,90,0.025)}
+table.med-table tbody td{padding:10px 12px;font-size:13px}
+.med-name-cell{font-weight:600;color:var(--teal)}
+.med-dose-cell{font-family:'DM Mono',monospace;font-size:12px}
+.btn-delete{padding:4px 11px;border-radius:8px;background:rgba(192,80,74,0.08);border:1px solid rgba(192,80,74,0.2);color:var(--rose);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.btn-delete:hover{background:var(--rose);color:#fff}
+.med-age-warn{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:6px;background:rgba(200,150,62,0.1);border:1px solid rgba(200,150,62,0.2);color:var(--gold);font-size:10px;font-weight:600;margin-top:2px}
+
+/* Next medicine suggestion strip */
+.next-med-strip{background:linear-gradient(135deg,rgba(26,107,90,0.06),rgba(61,191,160,0.08));border:1px solid rgba(26,107,90,0.12);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:none}
+.next-med-strip.show{display:block}
+.next-med-title{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.next-med-chips{display:flex;flex-wrap:wrap;gap:7px}
+.next-med-chip{padding:5px 12px;border-radius:20px;background:#fff;border:1.5px solid rgba(26,107,90,0.2);color:var(--teal);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px}
+.next-med-chip:hover{background:rgba(26,107,90,0.06);border-color:var(--teal)}
+
+/* Drug interaction badge */
+.interaction-badge{display:none;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;margin-bottom:12px;line-height:1.5;display:flex;align-items:flex-start;gap:8px}
+.interaction-badge.show{display:flex}
+.interaction-badge.warn{background:rgba(200,150,62,0.1);border:1px solid rgba(200,150,62,0.3);color:var(--gold)}
+.interaction-badge.danger{background:rgba(192,80,74,0.1);border:1px solid rgba(192,80,74,0.3);color:var(--rose)}
+.interaction-badge.safe{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:#16a34a}
+
+/* ICD-11 */
+.section-head{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--text-dark);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section-head::after{content:'';flex:1;height:1px;background:var(--border)}
+.icd-section{margin-bottom:20px}
+.icd-selected-tags{min-height:48px;background:var(--ivory);border:1.5px solid var(--border);border-radius:12px 12px 0 0;padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;cursor:pointer;transition:border-color 0.2s}
+.icd-selected-tags.open-state{border-color:var(--teal);border-radius:12px 12px 0 0}
+.icd-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;background:rgba(26,107,90,0.12);color:var(--teal);border:1px solid rgba(26,107,90,0.2);font-size:12px;font-weight:500}
+.icd-tag .tx{cursor:pointer;font-size:14px;line-height:1}
+.icd-tag .tx:hover{color:var(--rose)}
+.icd-placeholder{color:var(--text-soft);font-size:13px}
+.icd-dropdown-panel{background:#fff;border:1.5px solid var(--teal);border-top:none;border-radius:0 0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.08);display:none}
+.icd-dropdown-panel.open{display:block}
+.icd-search-input{width:100%;padding:10px 14px;border:none;border-bottom:1px solid var(--border);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;color:var(--text-dark)}
+.icd-checkbox-list{max-height:200px;overflow-y:auto}
+.icd-check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--ivory);transition:background 0.1s}
+.icd-check-item:hover{background:var(--ivory)}
+.icd-check-item input[type=checkbox]{margin-top:2px;accent-color:var(--teal);cursor:pointer;width:14px;height:14px}
+.icd-check-label{font-size:13px;color:var(--text-dark);line-height:1.4}
+.icd-check-code{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-soft);margin-top:2px}
+.icd-suggested-banner{background:rgba(61,191,160,0.06);border-bottom:1px solid rgba(61,191,160,0.15);padding:8px 14px}
+.icd-suggested-title{font-size:10px;font-weight:700;color:var(--teal-glow);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.icd-suggested-chips{display:flex;flex-wrap:wrap;gap:5px}
+.icd-sug-chip{padding:4px 10px;border-radius:20px;background:rgba(26,107,90,0.1);color:var(--teal);border:1px solid rgba(26,107,90,0.2);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s}
+.icd-sug-chip:hover{background:rgba(26,107,90,0.18)}
+
+/* AI ICD panel */
+.ai-icd-panel{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:14px;padding:16px;border:1px solid rgba(61,191,160,0.2);display:none;margin-bottom:16px}
+.ai-icd-panel.show{display:block}
+
+/* Follow-up section */
+.followup-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.followup-chips{display:flex;flex-wrap:wrap;gap:6px}
+.fu-chip{padding:6px 13px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:500;cursor:pointer;color:var(--text-mid);transition:all 0.15s}
+.fu-chip:hover,.fu-chip.active{border-color:var(--teal);background:rgba(26,107,90,0.06);color:var(--teal)}
+
+/* Textareas */
+.form-textarea{width:100%;min-height:80px;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-dark);resize:vertical;outline:none;transition:border-color 0.2s}
+.form-textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.07)}
+.form-textarea.autofilled{border-color:var(--teal-glow);background:rgba(61,191,160,0.02)}
+
+/* Buttons */
+.btn-add{padding:12px 28px;background:var(--text-dark);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.btn-add:hover{background:var(--teal);transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,107,90,0.3)}
+.btn-primary{padding:13px 28px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,107,90,0.3)}
+.btn-secondary{padding:13px 20px;background:#fff;border:1.5px solid var(--border);border-radius:12px;color:var(--text-mid);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.btn-secondary:hover{border-color:var(--teal);color:var(--teal)}
+.btn-ai{padding:13px 20px;background:linear-gradient(135deg,#1C2331,#2D3A52);border:1px solid rgba(61,191,160,0.3);border-radius:12px;color:var(--teal-glow);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.btn-ai:hover{border-color:var(--teal-glow);box-shadow:0 0 20px rgba(61,191,160,0.15);transform:translateY(-1px)}
+.rx-actions{display:flex;align-items:center;gap:12px;margin-top:24px;flex-wrap:wrap}
+.badge-ai{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;background:linear-gradient(135deg,rgba(61,191,160,0.15),rgba(26,107,90,0.15));border:1px solid rgba(61,191,160,0.25);color:var(--teal-glow);font-size:11px;font-weight:600;letter-spacing:0.5px}
+
+/* Templates */
+.templates-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.tpl-btn{padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--ivory);font-size:12px;font-weight:500;cursor:pointer;text-align:left;color:var(--text-mid);font-family:'DM Sans',sans-serif;transition:all 0.15s;line-height:1.3}
+.tpl-btn:hover{border-color:var(--teal);background:rgba(26,107,90,0.04);color:var(--teal)}
+
+/* ═══════════ FLOATING AI CHAT ═══════════ */
+#ai-chat-fab{position:fixed;bottom:28px;right:28px;z-index:9000;cursor:pointer}
+.fab-btn{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 20px rgba(26,107,90,0.4);cursor:pointer;transition:all 0.2s;position:relative}
+.fab-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(26,107,90,0.5)}
+.fab-pulse{position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--teal-glow);opacity:0.5;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.15);opacity:0}}
+.fab-badge{position:absolute;top:-2px;right:-2px;width:16px;height:16px;background:var(--rose);border-radius:50%;border:2px solid var(--cream);font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
+#ai-chat-panel{position:fixed;bottom:94px;right:28px;width:360px;background:#fff;border-radius:20px;box-shadow:0 16px 60px rgba(0,0,0,0.18);border:1px solid var(--border);z-index:8999;display:none;flex-direction:column;max-height:520px;overflow:hidden;animation:fadeUp 0.3s ease}
+#ai-chat-panel.open{display:flex}
+.chat-header{background:linear-gradient(135deg,#1C2331,#2D3A52);padding:16px 18px;display:flex;align-items:center;gap:12px;border-radius:20px 20px 0 0}
+.chat-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal-glow),var(--teal));display:flex;align-items:center;justify-content:center;font-size:18px}
+.chat-title{font-family:'Playfair Display',serif;font-size:15px;color:#fff;font-weight:700}
+.chat-subtitle{font-size:11px;color:rgba(255,255,255,0.5)}
+.chat-close{margin-left:auto;background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.6;animation:fadeUp 0.2s ease}
+.chat-msg.ai{background:var(--ivory);color:var(--text-dark);border-radius:4px 14px 14px 14px;align-self:flex-start}
+.chat-msg.user{background:linear-gradient(135deg,var(--teal),var(--teal-light));color:#fff;border-radius:14px 4px 14px 14px;align-self:flex-end}
+.chat-msg.thinking{background:var(--ivory);color:var(--text-soft);font-style:italic;font-size:12px}
+.chat-input-row{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px}
+.chat-input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;color:var(--text-dark);resize:none;height:40px;overflow:hidden}
+.chat-input:focus{border-color:var(--teal)}
+.chat-send{width:38px;height:38px;background:var(--teal);border:none;border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.15s;flex-shrink:0}
+.chat-send:hover{background:var(--teal-light)}
+.chat-quick-prompts{padding:0 12px 10px;display:flex;flex-wrap:wrap;gap:5px}
+.chat-qp{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--ivory);font-size:11px;color:var(--text-mid);cursor:pointer;transition:all 0.12s}
+.chat-qp:hover{border-color:var(--teal);color:var(--teal);background:rgba(26,107,90,0.05)}
+
+/* Spinner & animations */
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite}
+.spinner-teal{border-color:rgba(61,191,160,0.2);border-top-color:var(--teal-glow)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeUp 0.5s ease both}
+.d1{animation-delay:0.05s}.d2{animation-delay:0.1s}.d3{animation-delay:0.15s}.d4{animation-delay:0.2s}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence Platform</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div>
+      <div class="admin-name">Dr. Priya Sharma</div>
+      <div class="admin-role">Senior Physician · WB-BRH</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Core</div>
+    <a href="admin_panel.html" class="nav-item"><span class="icon">🏥</span> Patients <span class="nav-badge">1,001</span></a>
+    <a href="doctor_panel.html" class="nav-item"><span class="icon">👨‍⚕️</span> Doctors <span class="nav-badge">2</span></a>
+    <a href="ha_panel.html" class="nav-item"><span class="icon">👤</span> HA <span class="nav-badge">8</span></a>
+    <a href="cluster_panel.html" class="nav-item"><span class="icon">🏘</span> Clusters <span class="nav-badge">6</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Operations</div>
+    <a href="prescription_workbench.html" class="nav-item active"><span class="icon">📝</span> Prescriptions <span class="nav-badge">12</span></a>
+    <a href="medicine_panel.html" class="nav-item"><span class="icon">💊</span> Medicine <span class="nav-badge alert">3</span></a>
+    <a href="all_services.html" class="nav-item"><span class="icon">🩺</span> Services <span class="nav-badge">20</span></a>
+    <a href="inventory_panel.html" class="nav-item"><span class="icon">📦</span> Inventory</a>
+    <a href="billing.html" class="nav-item"><span class="icon">💰</span> Billing</a>
+    <a href="reports.html" class="nav-item"><span class="icon">📊</span> Reports</a>
+  </div>
+  <div style="margin:0 12px 14px">
+    <button onclick="toggleChat()" style="width:100%;padding:10px;border-radius:12px;border:1px solid rgba(61,191,160,0.3);background:rgba(61,191,160,0.08);color:var(--teal-glow);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;justify-content:center">🤖 AI Clinical Assistant</button>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="date-pill">📅 Apr 24, 2026 · 11:48 AM</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title">Prescription Workbench</div>
+    <div style="margin-left:10px" class="badge-ai">✦ AI-Powered v2</div>
+    <div class="topbar-right">
+      <button id="btn-ai-insights" onclick="triggerAIInsights()" style="padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px">🧠 Cohort Insights</button>
+      <button onclick="openTranslateModal()" style="padding:8px 14px;border-radius:10px;background:rgba(61,79,138,0.1);border:1px solid rgba(61,79,138,0.2);color:var(--indigo);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px">🌐 Translate Rx</button>
+      <div class="notif-btn">🔔</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff">P</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ STEP 1: PATIENT SELECTION ═══ -->
+    <div id="step-patient">
+
+      <div class="register-hero animate d1">
+        <div class="register-text">
+          <h2>✦ Smart Prescription Workbench</h2>
+          <p>AI-assisted prescriptions · ICD-11 coded diagnoses · Drug interaction alerts · Age-adaptive dosing · Smart Autofill</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div style="text-align:center;background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 16px">
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff">12</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7)">Today</div>
+          </div>
+          <div style="text-align:center;background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 16px">
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff">8</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7)">Queue</div>
+          </div>
+          <div style="text-align:center;background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 16px">
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff">3</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7)">⚠️ Alerts</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-insight animate d2">
+        <div class="ai-icon">🤖</div>
+        <div class="ai-text">
+          <h4>✦ AI Clinical Intelligence — Today's Briefing</h4>
+          <p><strong>Rajan Biswas</strong> (WB-2024-0007) is on Warfarin — avoid NSAIDs. <strong>2 pediatric patients</strong> (Priti, Aarav) need weight-adjusted dosing. <strong>Biswajit Mondal</strong> (70y) flagged for ibuprofen allergy. <strong>5 senior patients (65+)</strong> may need dose reduction review.</p>
+        </div>
+        <button onclick="triggerAIInsights()" style="margin-left:auto;flex-shrink:0;background:rgba(61,191,160,0.2);border:1px solid var(--teal-glow);color:var(--teal-glow);padding:8px 14px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Full Report →</button>
+      </div>
+
+      <div class="stats-grid animate d2">
+        <div class="stat-card teal"><div class="stat-icon">📝</div><div class="stat-label">Rx Today</div><div class="stat-value">12</div><div class="stat-sub"><span class="stat-trend up">↑ 4</span> vs yesterday</div></div>
+        <div class="stat-card gold"><div class="stat-icon">⏳</div><div class="stat-label">Queue Pending</div><div class="stat-value">8</div><div class="stat-sub"><span class="stat-trend down">↓ 2</span> last hour</div></div>
+        <div class="stat-card rose"><div class="stat-icon">⚠️</div><div class="stat-label">Allergy Alerts</div><div class="stat-value">3</div><div class="stat-sub"><span class="stat-trend down">↓ 1</span> from yesterday</div></div>
+        <div class="stat-card indigo"><div class="stat-icon">🧬</div><div class="stat-label">AI Interventions</div><div class="stat-value">7</div><div class="stat-sub"><span class="stat-trend up">↑ 2</span> drug flags today</div></div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="search-block animate d3">
+        <div class="search-label">🔍 Advanced Patient Search — AI Enabled</div>
+        <div class="search-wrap" id="searchWrap">
+          <div class="search-icon">🔍</div>
+          <input class="search-input" id="patSearch" type="text" placeholder="Name · Reg No · Phone · Condition · Allergy · Cluster..." autocomplete="off">
+          <div class="search-suggestions" id="searchSuggestions"></div>
+          <div class="search-divider"></div>
+          <div class="search-filter" id="ddCluster">
+            <span>📍</span><span id="ddClusterLabel">Cluster</span><span>▾</span>
+            <div class="dd-menu" id="ddClusterMenu">
+              <div class="dd-item" data-val="">All Clusters</div><div class="dd-divider"></div>
+              <div class="dd-item" data-val="WB-BRH"><span class="dd-dot" style="background:#1A6B5A"></span>WB-BRH</div>
+              <div class="dd-item" data-val="WB-JRG"><span class="dd-dot" style="background:#3D4F8A"></span>WB-JRG</div>
+              <div class="dd-item" data-val="WB-MDN"><span class="dd-dot" style="background:#C8963E"></span>WB-MDN</div>
+              <div class="dd-item" data-val="WB-HWH"><span class="dd-dot" style="background:#C0504A"></span>WB-HWH</div>
+              <div class="dd-item" data-val="WB-NDP"><span class="dd-dot" style="background:#7B5EA7"></span>WB-NDP</div>
+              <div class="dd-clear">✕ Clear</div>
+            </div>
+          </div>
+          <div class="search-filter" id="ddRisk">
+            <span>🎯</span><span id="ddRiskLabel">Risk</span><span>▾</span>
+            <div class="dd-menu" id="ddRiskMenu">
+              <div class="dd-item" data-val="">All Risks</div><div class="dd-divider"></div>
+              <div class="dd-item" data-val="High"><span class="dd-dot" style="background:var(--rose)"></span>High Risk</div>
+              <div class="dd-item" data-val="Medium"><span class="dd-dot" style="background:var(--gold)"></span>Medium Risk</div>
+              <div class="dd-item" data-val="Low"><span class="dd-dot" style="background:#4ADE80"></span>Low Risk</div>
+              <div class="dd-clear">✕ Clear</div>
+            </div>
+          </div>
+          <div class="search-filter" id="ddAge">
+            <span>👤</span><span id="ddAgeLabel">Age</span><span>▾</span>
+            <div class="dd-menu" id="ddAgeMenu">
+              <div class="dd-item" data-val="">All Ages</div><div class="dd-divider"></div>
+              <div class="dd-item" data-val="pediatric">🧒 Pediatric (0–17)</div>
+              <div class="dd-item" data-val="adult">🧑 Adult (18–59)</div>
+              <div class="dd-item" data-val="senior">👴 Senior (60+)</div>
+              <div class="dd-clear">✕ Clear</div>
+            </div>
+          </div>
+          <button class="ai-search-btn" id="aiSearchBtn" onclick="aiPatientSearch()">✦ AI Search</button>
+        </div>
+        <div class="tag-row">
+          <span class="tag active" data-filter="all">All <strong id="cntAll">20</strong></span>
+          <span class="tag status-yellow" data-filter="queue">⏳ Queue <strong id="cntQ">8</strong></span>
+          <span class="tag status-red" data-filter="high">🔴 High Risk</span>
+          <span class="tag status-green" data-filter="low">🟢 Low Risk</span>
+          <span class="tag" data-filter="pediatric">🧒 Pediatric</span>
+          <span class="tag" data-filter="senior">👴 Senior (60+)</span>
+          <span class="tag" data-filter="allergy">⚠️ Allergy Flagged</span>
+          <span class="tag" data-filter="multiCondition">🔗 Multi-Condition</span>
+        </div>
+        <div id="ai-search-result" style="display:none;margin-top:10px;background:rgba(26,107,90,0.05);border:1px solid rgba(26,107,90,0.15);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--teal)"></div>
+      </div>
+
+      <div class="patients-grid animate d4" id="patientsGrid"></div>
+    </div>
+
+    <!-- ═══ STEP 2: PRESCRIPTION ═══ -->
+    <div id="step-rx">
+      <div class="breadcrumb">
+        <a onclick="goBack()">← Patient List</a>
+        <span>›</span>
+        <span id="bcPatName">—</span>
+        <span>›</span>
+        <span style="color:var(--text-dark);font-weight:500">New Prescription</span>
+        <span id="rxIdBadge" style="margin-left:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-soft)"></span>
+      </div>
+
+      <div class="rx-grid">
+        <!-- LEFT COLUMN -->
+        <div>
+          <!-- Patient Summary -->
+          <div class="pat-summary">
+            <div class="pat-summary-header">
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+                <div class="pat-sum-avatar" id="sumAvatar">👤</div>
+                <div>
+                  <div class="pat-sum-name" id="sumName">—</div>
+                  <div class="pat-sum-id" id="sumId">—</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:10px;padding:8px;text-align:center">
+                  <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;font-weight:700" id="sumAgeNum">—</div>
+                  <div style="font-size:10px;color:rgba(255,255,255,0.6)">Age</div>
+                </div>
+                <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:10px;padding:8px;text-align:center">
+                  <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;font-weight:700" id="sumBMI">—</div>
+                  <div style="font-size:10px;color:rgba(255,255,255,0.6)">BMI</div>
+                </div>
+                <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:10px;padding:8px;text-align:center">
+                  <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;font-weight:700" id="sumWeightNum">—</div>
+                  <div style="font-size:10px;color:rgba(255,255,255,0.6)">kg</div>
+                </div>
+              </div>
+            </div>
+            <div class="pat-summary-body">
+              <div class="sum-row"><div><div class="sum-label">Gender · Cluster</div><div class="sum-val" id="sumGenderCluster">—</div></div></div>
+              <div class="sum-row"><div><div class="sum-label">Last Visit</div><div class="sum-val" id="sumLastVisit">—</div></div></div>
+              <div style="margin-top:12px">
+                <div class="sum-label" style="margin-bottom:6px">Active Conditions</div>
+                <div id="sumConditions" class="allergy-tags"></div>
+              </div>
+              <div style="margin-top:10px">
+                <div class="sum-label" style="margin-bottom:6px">⚠️ Drug Allergies</div>
+                <div id="sumAllergies" class="allergy-tags"></div>
+              </div>
+              <div style="margin-top:10px">
+                <div class="sum-label" style="margin-bottom:5px">Risk Profile</div>
+                <div class="risk-meter">
+                  <div class="risk-bar"><div id="riskFill" class="risk-fill" style="width:0%;background:var(--teal)"></div></div>
+                  <span id="riskLabel" style="font-size:12px;font-weight:600">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vitals Quick Entry -->
+          <div class="vitals-panel">
+            <div class="vitals-title">
+              <span>📊 Quick Vitals Entry</span>
+              <button onclick="aiVitalsAnalysis()" style="font-size:10px;color:var(--teal-glow);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600">✦ AI Analyze</button>
+            </div>
+            <div class="vitals-grid">
+              <div class="vital-item"><div class="vital-label">BP (mmHg)</div><input class="vital-input" id="vBP" type="text" placeholder="120/80" oninput="validateVital(this,'bp')"></div>
+              <div class="vital-item"><div class="vital-label">Temp (°F)</div><input class="vital-input" id="vTemp" type="text" placeholder="98.6" oninput="validateVital(this,'temp')"></div>
+              <div class="vital-item"><div class="vital-label">SpO₂ (%)</div><input class="vital-input" id="vSpo2" type="text" placeholder="98" oninput="validateVital(this,'spo2')"></div>
+              <div class="vital-item"><div class="vital-label">Pulse (bpm)</div><input class="vital-input" id="vPulse" type="text" placeholder="72" oninput="validateVital(this,'pulse')"></div>
+              <div class="vital-item"><div class="vital-label">RBS (mg/dL)</div><input class="vital-input" id="vRbs" type="text" placeholder="90" oninput="validateVital(this,'rbs')"></div>
+              <div class="vital-item"><div class="vital-label">Wt. (kg)</div><input class="vital-input" id="vWeight" type="text" placeholder="—"></div>
+            </div>
+          </div>
+
+          <!-- Prescription Completeness Meter -->
+          <div class="rx-completeness" style="margin-top:14px">
+            <div class="comp-title">
+              <span>Rx Completeness</span>
+              <span id="compPct" style="font-size:14px;font-weight:700;color:var(--teal)">0%</span>
+            </div>
+            <div class="comp-bar-wrap"><div class="comp-bar" id="compBar" style="width:0%"></div></div>
+            <div class="comp-checks">
+              <div class="comp-check" id="cc1">Medicine added</div>
+              <div class="comp-check" id="cc2">Diagnosis coded</div>
+              <div class="comp-check" id="cc3">Vitals recorded</div>
+              <div class="comp-check" id="cc4">Advice written</div>
+              <div class="comp-check" id="cc5">Instruction noted</div>
+              <div class="comp-check" id="cc6">Follow-up set</div>
+            </div>
+          </div>
+
+          <!-- AI Companion -->
+          <div class="ai-companion">
+            <div class="ai-comp-title">🤖 AI Prescribing Companion</div>
+            <button class="ai-comp-btn" onclick="aiDosageAdvisor()">💊 Age & Weight Dosage Advisor</button>
+            <button class="ai-comp-btn gold-btn" onclick="aiInteractionCheck()">⚡ Full Drug Interaction Scan</button>
+            <button class="ai-comp-btn rose-btn" onclick="aiAllergyCheck()">🚨 Allergy Safety Check</button>
+            <button class="ai-comp-btn purple-btn" onclick="aiVitalsAnalysis()">📊 Vitals-Based Risk Analysis</button>
+            <button class="ai-comp-btn" onclick="aiConditionMedCheck()" style="border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.06);color:#4ADE80">🔗 Condition–Medicine Match</button>
+            <button class="ai-comp-btn gold-btn" onclick="aiFollowUpDate()">📅 Suggest Follow-up Date</button>
+            <div class="ai-result" id="aiCompResult"></div>
+          </div>
+
+          <!-- Templates -->
+          <div style="margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px">
+            <div style="font-size:12px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">⚡ Smart Templates</div>
+            <div style="font-size:11px;color:var(--text-soft);margin-bottom:10px">AI auto-adjusts doses for this patient's age & weight</div>
+            <div class="templates-grid">
+              <button class="tpl-btn" onclick="applyTemplate('fever')">🌡️ Fever + Infection</button>
+              <button class="tpl-btn" onclick="applyTemplate('bp')">❤️ Hypertension</button>
+              <button class="tpl-btn" onclick="applyTemplate('diabetes')">🩸 Diabetes Mgmt</button>
+              <button class="tpl-btn" onclick="applyTemplate('uti')">🧫 UTI Treatment</button>
+              <button class="tpl-btn" onclick="applyTemplate('respiratory')">🫁 Respiratory</button>
+              <button class="tpl-btn" onclick="applyTemplate('gastro')">🫃 Gastroenteritis</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+
+          <!-- Chief Complaint row -->
+          <div style="background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:18px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft)">Chief Complaint / Presenting Symptoms</div>
+              <button onclick="aiChiefComplaint()" style="font-size:11px;color:var(--teal-glow);background:rgba(61,191,160,0.08);border:1px solid rgba(61,191,160,0.2);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600">✦ AI Autofill from Conditions</button>
+            </div>
+            <input class="form-input" id="chiefComplaint" type="text" placeholder="e.g. Fever for 3 days, diarrhoea, headache..." style="width:100%">
+          </div>
+
+          <!-- ADD MEDICINE FORM -->
+          <div class="rx-form-card">
+            <div class="rx-form-header">
+              <span style="font-size:22px">💊</span>
+              <div class="rx-form-title">Add Medicine</div>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+                <span id="rxMedCount" style="padding:3px 10px;border-radius:20px;background:rgba(26,107,90,0.1);color:var(--teal);font-size:12px;font-weight:600">0 added</span>
+                <span class="badge-ai">✦ Smart Autofill</span>
+              </div>
+            </div>
+            <div class="rx-form-body">
+
+              <!-- Type pills -->
+              <div class="form-group" style="margin-bottom:16px">
+                <div class="form-label">Medicine Type</div>
+                <div class="type-pills">
+                  <span class="type-pill active" data-type="Tablet" onclick="selectType(this,'Tablet')">💊 Tablet</span>
+                  <span class="type-pill" data-type="Syrup" onclick="selectType(this,'Syrup')">🍶 Syrup</span>
+                  <span class="type-pill" data-type="Capsule" onclick="selectType(this,'Capsule')">💉 Capsule</span>
+                  <span class="type-pill" data-type="Injection" onclick="selectType(this,'Injection')">🩹 Injection</span>
+                  <span class="type-pill" data-type="Drops" onclick="selectType(this,'Drops')">💧 Drops</span>
+                  <span class="type-pill" data-type="Cream" onclick="selectType(this,'Cream')">🧴 Cream</span>
+                  <span class="type-pill" data-type="Inhaler" onclick="selectType(this,'Inhaler')">🫁 Inhaler</span>
+                </div>
+              </div>
+
+              <!-- Medicine name -->
+              <div class="form-group" style="margin-bottom:6px">
+                <div class="form-label">
+                  <span>Medicine Name</span>
+                  <span class="ai-link" id="medAIHint" style="display:none" onclick="aiMedSuggest()">✦ AI Suggest for this patient →</span>
+                </div>
+                <div class="med-name-wrap">
+                  <input class="form-input" id="medNameInput" type="text" placeholder="Type to search medicine..." autocomplete="off" oninput="filterMeds()" onfocus="openMedDrop()">
+                  <div class="med-dropdown" id="medDropdown"></div>
+                </div>
+                <div class="dose-hint-banner" id="doseHintBanner"></div>
+                <div class="dup-warn" id="dupWarn">⚠️ This medicine (or a similar one) is already in the prescription. Please review.</div>
+              </div>
+
+              <!-- Morning/Afternoon/Evening with autofill indicator -->
+              <div class="form-group" style="margin-bottom:16px">
+                <div class="form-label"><span>Daily Schedule</span><span style="font-size:10px;color:var(--teal-glow);font-weight:500">Auto-fills on medicine select</span></div>
+                <div class="dose-time-group">
+                  <div class="dose-time-item">
+                    <div class="dose-time-icon">🌅</div>
+                    <input class="form-input" id="dMorning" type="number" min="0" placeholder="0" style="text-align:center">
+                    <div style="font-size:10px;color:var(--text-soft);text-align:center">Morning</div>
+                  </div>
+                  <div class="dose-time-item">
+                    <div class="dose-time-icon">☀️</div>
+                    <input class="form-input" id="dAfternoon" type="number" min="0" placeholder="0" style="text-align:center">
+                    <div style="font-size:10px;color:var(--text-soft);text-align:center">Afternoon</div>
+                  </div>
+                  <div class="dose-time-item">
+                    <div class="dose-time-icon">🌙</div>
+                    <input class="form-input" id="dEvening" type="number" min="0" placeholder="0" style="text-align:center">
+                    <div style="font-size:10px;color:var(--text-soft);text-align:center">Evening</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dose / Duration / Type / Other -->
+              <div class="form-row cols4" style="margin-bottom:16px">
+                <div class="form-group">
+                  <div class="form-label">Dose</div>
+                  <div style="position:relative">
+                    <input class="form-input" id="dDose" type="text" placeholder="500mg">
+                    <span class="autofill-badge" id="badgeDose">✦ auto</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="form-label">Duration</div>
+                  <div style="position:relative">
+                    <input class="form-input" id="dDuration" type="number" min="1" placeholder="7">
+                    <span class="autofill-badge" id="badgeDuration">✦ auto</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="form-label">Duration Type</div>
+                  <select class="form-select" id="dDurationType">
+                    <option value="">Select</option>
+                    <option value="Days">Days</option>
+                    <option value="Weeks">Weeks</option>
+                    <option value="Months">Months</option>
+                    <option value="Ongoing">Ongoing</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <div class="form-label">
+                    <span>Note / Timing</span>
+                  </div>
+                  <div style="position:relative">
+                    <input class="form-input" id="dOther" type="text" placeholder="After meal">
+                    <span class="autofill-badge" id="badgeOther">✦ auto</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interaction badge -->
+              <div class="interaction-badge" id="interactionBadge" style="display:none"></div>
+
+              <!-- AI Next Medicine Suggestion -->
+              <div class="next-med-strip" id="nextMedStrip">
+                <div class="next-med-title">✦ AI Also Recommends Adding</div>
+                <div class="next-med-chips" id="nextMedChips"></div>
+              </div>
+
+              <div style="display:flex;justify-content:center;gap:12px">
+                <button class="btn-add" onclick="addMedicine()">✚ Add Medicine</button>
+                <button onclick="clearMedForm()" style="padding:12px 18px;border-radius:12px;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">↺ Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medicine Table -->
+          <div style="margin-top:18px">
+            <div class="section-head">
+              <span>Prescribed Medicines</span>
+              <span id="rxMedCountBig" style="font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--text-soft)">0 medicines</span>
+            </div>
+            <div class="med-table-wrap">
+              <div class="med-table-empty" id="medTableEmpty">
+                <div style="font-size:32px;margin-bottom:8px">💊</div>
+                No medicines yet — use the form above or pick a template.
+              </div>
+              <table class="med-table" id="medTable" style="display:none">
+                <thead>
+                  <tr>
+                    <th>#</th><th>Medicine</th><th>Dose</th>
+                    <th>🌅</th><th>☀️</th><th>🌙</th>
+                    <th>Note</th><th>Duration</th><th>AI Flag</th><th>Del</th>
+                  </tr>
+                </thead>
+                <tbody id="medTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- DIAGNOSIS ICD-11 -->
+          <div style="margin-top:22px">
+            <div class="section-head">
+              <span>Diagnosis — ICD-11</span>
+              <button onclick="toggleAiIcdPanel()" style="padding:4px 12px;border-radius:20px;border:1px solid rgba(61,191,160,0.3);background:rgba(61,191,160,0.06);color:var(--teal-glow);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">✦ Describe Symptoms → AI Map</button>
+            </div>
+
+            <!-- AI Symptom → ICD panel -->
+            <div class="ai-icd-panel" id="aiIcdPanel">
+              <div style="font-size:12px;color:var(--teal-glow);font-weight:600;margin-bottom:8px">✦ Symptom-to-ICD-11 AI Mapper</div>
+              <div style="display:flex;gap:8px">
+                <input id="symptomInput" type="text" placeholder="e.g. fever, vomiting, abdominal cramps for 2 days..." style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid rgba(61,191,160,0.2);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;outline:none">
+                <button onclick="runSymptomToIcd()" style="padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Diagnose →</button>
+              </div>
+              <div id="symptomResult" style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.75);line-height:1.7;display:none"></div>
+            </div>
+
+            <div class="icd-section">
+              <div class="icd-selected-tags" id="icdTagsArea" onclick="toggleIcdPanel()">
+                <span class="icd-placeholder" id="icdPlaceholder">Click to select ICD-11 diagnoses…</span>
+              </div>
+              <div class="icd-dropdown-panel" id="icdDropPanel">
+                <!-- AI suggested codes from patient conditions -->
+                <div class="icd-suggested-banner" id="icdSuggestedBanner" style="display:none">
+                  <div class="icd-suggested-title">✦ AI-Suggested based on patient's conditions</div>
+                  <div class="icd-suggested-chips" id="icdSuggestedChips"></div>
+                </div>
+                <input class="icd-search-input" id="icdSearchInput" type="text" placeholder="🔍 Search ICD-11 codes or conditions..." oninput="filterIcd()">
+                <div class="icd-checkbox-list" id="icdList"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FOLLOW-UP DATE -->
+          <div style="margin-top:20px">
+            <div class="section-head">Follow-up Schedule</div>
+            <div class="followup-row">
+              <div style="font-size:13px;color:var(--text-mid)">Follow up in:</div>
+              <div class="followup-chips" id="followupChips">
+                <span class="fu-chip" data-val="3 days" onclick="setFollowup(this)">3 Days</span>
+                <span class="fu-chip" data-val="7 days" onclick="setFollowup(this)">1 Week</span>
+                <span class="fu-chip" data-val="14 days" onclick="setFollowup(this)">2 Weeks</span>
+                <span class="fu-chip" data-val="1 month" onclick="setFollowup(this)">1 Month</span>
+                <span class="fu-chip" data-val="3 months" onclick="setFollowup(this)">3 Months</span>
+              </div>
+              <input class="form-input" id="followupDate" type="text" placeholder="Or custom…" style="width:130px;font-size:13px;padding:7px 12px">
+            </div>
+          </div>
+
+          <!-- CLINICAL NOTES -->
+          <div style="margin-top:20px">
+            <div class="section-head">Clinical Notes</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                  <label style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);font-weight:600">Instruction / Observation</label>
+                  <button onclick="aiGenerateInstruction(event)" style="font-size:10px;color:var(--teal-glow);background:rgba(61,191,160,0.08);border:1px solid rgba(61,191,160,0.2);border-radius:20px;padding:2px 9px;cursor:pointer;font-family:'DM Sans',sans-serif">✦ AI Fill</button>
+                </div>
+                <textarea class="form-textarea" id="txtInstruction" placeholder="Observations, vitals, examination notes…" oninput="updateCompleteness()"></textarea>
+              </div>
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                  <label style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);font-weight:600">Advice to Patient</label>
+                  <button onclick="aiGenerateAdvice(event)" style="font-size:10px;color:var(--teal-glow);background:rgba(61,191,160,0.08);border:1px solid rgba(61,191,160,0.2);border-radius:20px;padding:2px 9px;cursor:pointer;font-family:'DM Sans',sans-serif">✦ AI Fill</button>
+                </div>
+                <textarea class="form-textarea" id="txtAdvice" placeholder="Diet, activity, warnings, follow-up advice…" oninput="updateCompleteness()"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="rx-actions">
+            <button class="btn-primary" onclick="savePrescription()">💾 Save Prescription</button>
+            <button class="btn-ai" onclick="aiRxSummary()">✦ AI Summary</button>
+            <button class="btn-secondary" onclick="printRx()">🖨️ Print</button>
+            <button class="btn-secondary" onclick="openTranslateModal()">🌐 Translate</button>
+            <button class="btn-secondary" onclick="goBack()">← Back</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END STEP 2 -->
+  </div>
+</main>
+
+<!-- ═══ FLOATING AI CHAT ═══ -->
+<div id="ai-chat-fab" onclick="toggleChat()">
+  <button class="fab-btn">
+    <span class="fab-pulse"></span>
+    🤖
+    <span class="fab-badge">✦</span>
+  </button>
+</div>
+<div id="ai-chat-panel">
+  <div class="chat-header">
+    <div class="chat-avatar">🤖</div>
+    <div>
+      <div class="chat-title">ClinicalAI</div>
+      <div class="chat-subtitle">Your AI prescribing assistant</div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg ai">👋 Hi Dr. Sharma! I'm ClinicalAI. I can help you with drug interactions, dosage calculations, ICD-11 codes, or clinical guidelines. What do you need?</div>
+  </div>
+  <div class="chat-quick-prompts" id="chatQuickPrompts">
+    <span class="chat-qp" onclick="sendChatPrompt('Safe dose of Paracetamol for a 5-year-old 18kg child?')">Paediatric dose</span>
+    <span class="chat-qp" onclick="sendChatPrompt('Can Metformin and Amlodipine be given together?')">Drug interaction</span>
+    <span class="chat-qp" onclick="sendChatPrompt('ICD-11 code for hypertensive heart disease?')">ICD-11 code</span>
+    <span class="chat-qp" onclick="sendChatPrompt('What is the first-line treatment for UTI in pregnancy?')">UTI in pregnancy</span>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chatInput" type="text" placeholder="Ask a clinical question…" onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATASET
+// ═══════════════════════════════════════════════════════
+const patients = [
+  {id:'WB-2024-0001',name:'Ananya Chakraborty',age:45,gender:'F',dob:'1979-03-12',weight:58,height:158,cluster:'WB-BRH',phone:'9831234567',conditions:['Hypertension','Type 2 Diabetes'],allergies:['Penicillin'],status:'Registered',lastVisit:'Apr 20, 2026',queue:true,risk:'High',emoji:'👩'},
+  {id:'WB-2024-0002',name:'Rajesh Kumar Saha',age:62,gender:'M',dob:'1962-07-22',weight:72,height:170,cluster:'WB-JRG',phone:'9874561230',conditions:['CAD','Dyslipidemia'],allergies:[],status:'Allocated',lastVisit:'Apr 22, 2026',queue:false,risk:'High',emoji:'👨'},
+  {id:'WB-2024-0003',name:'Priti Ghosh',age:8,gender:'F',dob:'2017-11-05',weight:22,height:126,cluster:'WB-MDN',phone:'8765432109',conditions:['Asthma'],allergies:['Aspirin'],status:'Registered',lastVisit:'Apr 24, 2026',queue:true,risk:'Medium',emoji:'👧'},
+  {id:'WB-2024-0004',name:'Mohammed Iqbal',age:55,gender:'M',dob:'1970-04-18',weight:80,height:172,cluster:'WB-HWH',phone:'7698765432',conditions:['Hypertension','Obesity'],allergies:['Sulfa'],status:'Registered',lastVisit:'Apr 23, 2026',queue:true,risk:'High',emoji:'👨'},
+  {id:'WB-2024-0005',name:'Sunita Devi',age:34,gender:'F',dob:'1991-09-28',weight:52,height:155,cluster:'WB-NDP',phone:'9123456789',conditions:[],allergies:[],status:'Registered',lastVisit:'Apr 18, 2026',queue:false,risk:'Low',emoji:'👩'},
+  {id:'WB-2024-0006',name:'Biswajit Mondal',age:70,gender:'M',dob:'1955-01-14',weight:65,height:165,cluster:'WB-BRH',phone:'9876543210',conditions:['COPD','Hypertension','Arthritis'],allergies:['Ibuprofen'],status:'Allocated',lastVisit:'Apr 21, 2026',queue:true,risk:'High',emoji:'👴'},
+  {id:'WB-2024-0007',name:'Rajan Biswas',age:48,gender:'M',dob:'1977-06-30',weight:68,height:168,cluster:'WB-JRG',phone:'8001234567',conditions:['Atrial Fibrillation'],allergies:['NSAIDs'],status:'Registered',lastVisit:'Apr 19, 2026',queue:false,risk:'High',emoji:'👨'},
+  {id:'WB-2024-0008',name:'Kavita Sharma',age:29,gender:'F',dob:'1996-12-03',weight:54,height:162,cluster:'WB-MDN',phone:'9012345678',conditions:['Anaemia'],allergies:[],status:'Registered',lastVisit:'Apr 24, 2026',queue:true,risk:'Low',emoji:'👩'},
+  {id:'WB-2024-0009',name:'Aarav Sen',age:5,gender:'M',dob:'2020-08-15',weight:18,height:108,cluster:'WB-HWH',phone:'7001234567',conditions:['Recurrent Fever'],allergies:['Amoxicillin'],status:'Registered',lastVisit:'Apr 24, 2026',queue:true,risk:'Medium',emoji:'👦'},
+  {id:'WB-2024-0010',name:'Meena Bala',age:66,gender:'F',dob:'1959-02-22',weight:60,height:152,cluster:'WB-NDP',phone:'8765012345',conditions:['Osteoporosis','Hypertension'],allergies:[],status:'Released',lastVisit:'Mar 30, 2026',queue:false,risk:'Medium',emoji:'👵'},
+  {id:'WB-2024-0011',name:'Sourav Das',age:38,gender:'M',dob:'1987-05-09',weight:74,height:175,cluster:'WB-BRH',phone:'9988776655',conditions:['Peptic Ulcer'],allergies:['Aspirin'],status:'Registered',lastVisit:'Apr 22, 2026',queue:true,risk:'Medium',emoji:'👨'},
+  {id:'WB-2024-0012',name:'Fatima Begum',age:42,gender:'F',dob:'1983-10-17',weight:63,height:158,cluster:'WB-JRG',phone:'7766554433',conditions:['Type 2 Diabetes','Hypothyroidism'],allergies:[],status:'Registered',lastVisit:'Apr 20, 2026',queue:false,risk:'Medium',emoji:'👩'},
+  {id:'WB-2024-0013',name:'Tamal Nandi',age:19,gender:'M',dob:'2006-07-01',weight:62,height:172,cluster:'WB-MDN',phone:'8899001122',conditions:[],allergies:[],status:'Pending',lastVisit:'Apr 15, 2026',queue:false,risk:'Low',emoji:'👦'},
+  {id:'WB-2024-0014',name:'Lakshmi Roy',age:58,gender:'F',dob:'1967-11-11',weight:70,height:156,cluster:'WB-HWH',phone:'9900112233',conditions:['CKD Stage 2','Hypertension'],allergies:['Contrast Dye'],status:'Allocated',lastVisit:'Apr 23, 2026',queue:true,risk:'High',emoji:'👩'},
+  {id:'WB-2024-0015',name:'Paritosh Pal',age:75,gender:'M',dob:'1950-03-05',weight:58,height:162,cluster:'WB-NDP',phone:'7788990011',conditions:['Parkinsonism','CAD','Diabetes'],allergies:[],status:'Registered',lastVisit:'Apr 18, 2026',queue:false,risk:'High',emoji:'👴'},
+  {id:'WB-2024-0016',name:'Dipali Bose',age:31,gender:'F',dob:'1994-08-25',weight:55,height:160,cluster:'WB-BRH',phone:'9001122334',conditions:['PCOS'],allergies:[],status:'Registered',lastVisit:'Apr 21, 2026',queue:true,risk:'Low',emoji:'👩'},
+  {id:'WB-2024-0017',name:'Arun Haldar',age:53,gender:'M',dob:'1972-12-14',weight:77,height:169,cluster:'WB-JRG',phone:'8112233445',conditions:['Hypertension','Dyslipidemia'],allergies:['Atorvastatin'],status:'Registered',lastVisit:'Apr 17, 2026',queue:false,risk:'Medium',emoji:'👨'},
+  {id:'WB-2024-0018',name:'Rekha Mitra',age:47,gender:'F',dob:'1978-04-02',weight:66,height:157,cluster:'WB-MDN',phone:'7223344556',conditions:['Migraine','Anxiety'],allergies:[],status:'Registered',lastVisit:'Apr 24, 2026',queue:true,risk:'Low',emoji:'👩'},
+  {id:'WB-2024-0019',name:'Nikhil Ghosh',age:12,gender:'M',dob:'2013-09-19',weight:38,height:148,cluster:'WB-HWH',phone:'9334455667',conditions:['Thalassemia Minor'],allergies:['Iron Supplements'],status:'Registered',lastVisit:'Apr 22, 2026',queue:false,risk:'Medium',emoji:'👦'},
+  {id:'WB-2024-0020',name:'Chandana Sarkar',age:64,gender:'F',dob:'1961-06-08',weight:62,height:153,cluster:'WB-NDP',phone:'8445566778',conditions:['Hypothyroidism','Osteoarthritis'],allergies:['Codeine'],status:'Released',lastVisit:'Apr 10, 2026',queue:false,risk:'Medium',emoji:'👵'}
+];
+
+// ═════════ MEDICINE DATABASE WITH SMART AUTOFILL DEFAULTS ═════════
+const medicines = {
+  Tablet:['Paracetamol 500mg','Amoxicillin 500mg','Metformin 500mg','Atenolol 50mg','Omeprazole 20mg','Amlodipine 5mg','Ciprofloxacin 500mg','Azithromycin 500mg','Ibuprofen 400mg','Aspirin 75mg','Calpal 500mg','Cetirizine 10mg','Pantoprazole 40mg','Losartan 50mg','Metoprolol 25mg','Levothyroxine 50mcg','Metronidazole 400mg','Doxycycline 100mg','Ranitidine 150mg','Folic Acid 5mg','Atorvastatin 10mg','Clonazepam 0.5mg','Montelukast 10mg','Vitamin D3 60K','Ferrous Sulphate 200mg','Zinc Sulphate 20mg','Domperidone 10mg','Ondansetron 4mg','Diclofenac 50mg','Naproxen 250mg'],
+  Syrup:['Paracetamol Susp 120mg/5ml','Amoxicillin 125mg/5ml','Cetirizine 5mg/5ml','ORS Sachet','Digene 200ml','Lactulose 3.35g/5ml','Benadryl 14mg/5ml','Salbutamol Syrup 2mg/5ml','Metronidazole 200mg/5ml','Ibuprofen 100mg/5ml'],
+  Capsule:['Omeprazole 20mg','Doxycycline 100mg','Rifampicin 150mg','Vitamin D3 60K','B-Complex','Multivitamin','Amoxicillin 500mg Cap','Pregabalin 75mg'],
+  Injection:['Ceftriaxone 1g IV','Amikacin 500mg IM','Insulin Regular 40IU','Methylprednisolone 40mg','Ondansetron 4mg IV','Diclofenac 75mg IM','Dexamethasone 4mg','Ranitidine 50mg IV'],
+  Drops:['Otrivin Nasal 0.1%','Optrex Eye Drops','Ciprodex Ear 0.3%','Tobramycin Eye 0.3%','Mometasone Nasal Spray'],
+  Cream:['Betamethasone 0.1%','Clotrimazole 1%','Mupirocin 2%','Calamine Lotion','Hydrocortisone 1%','Fusidic Acid Cream'],
+  Inhaler:['Salbutamol 100mcg','Budesonide 200mcg','Tiotropium 18mcg','Formoterol 12mcg','Fluticasone 250mcg','Ipratropium 20mcg']
+};
+
+// AUTOFILL DEFAULTS — { morning, afternoon, evening, dose, duration, durType, other }
+const medDefaults = {
+  'Paracetamol 500mg':         {morning:'1',afternoon:'1',evening:'1',dose:'500mg',duration:'5',durType:'Days',other:'After meal, as needed'},
+  'Paracetamol Susp 120mg/5ml':{morning:'5ml',afternoon:'5ml',evening:'5ml',dose:'120mg/5ml',duration:'5',durType:'Days',other:'After meal'},
+  'Amoxicillin 500mg':         {morning:'1',afternoon:'',evening:'1',dose:'500mg',duration:'7',durType:'Days',other:'After meal'},
+  'Amoxicillin 125mg/5ml':     {morning:'5ml',afternoon:'',evening:'5ml',dose:'125mg/5ml',duration:'7',durType:'Days',other:'After meal'},
+  'Metformin 500mg':           {morning:'1',afternoon:'1',evening:'1',dose:'500mg',duration:'',durType:'Ongoing',other:'After meal'},
+  'Atenolol 50mg':             {morning:'1',afternoon:'',evening:'',dose:'50mg',duration:'',durType:'Ongoing',other:'Morning, empty stomach'},
+  'Omeprazole 20mg':           {morning:'1',afternoon:'',evening:'',dose:'20mg',duration:'14',durType:'Days',other:'30 min before breakfast'},
+  'Amlodipine 5mg':            {morning:'1',afternoon:'',evening:'',dose:'5mg',duration:'',durType:'Ongoing',other:'Morning'},
+  'Ciprofloxacin 500mg':       {morning:'1',afternoon:'',evening:'1',dose:'500mg',duration:'7',durType:'Days',other:'After meal, with water'},
+  'Azithromycin 500mg':        {morning:'1',afternoon:'',evening:'',dose:'500mg',duration:'3',durType:'Days',other:'Empty stomach'},
+  'Ibuprofen 400mg':           {morning:'1',afternoon:'1',evening:'1',dose:'400mg',duration:'5',durType:'Days',other:'After meal, avoid empty stomach'},
+  'Aspirin 75mg':              {morning:'1',afternoon:'',evening:'',dose:'75mg',duration:'',durType:'Ongoing',other:'After meal'},
+  'Calpal 500mg':              {morning:'1',afternoon:'1',evening:'1',dose:'500mg',duration:'5',durType:'Days',other:'After meal'},
+  'Cetirizine 10mg':           {morning:'',afternoon:'',evening:'1',dose:'10mg',duration:'7',durType:'Days',other:'At bedtime'},
+  'Cetirizine 5mg/5ml':        {morning:'',afternoon:'',evening:'5ml',dose:'5mg/5ml',duration:'7',durType:'Days',other:'At bedtime'},
+  'Pantoprazole 40mg':         {morning:'1',afternoon:'',evening:'',dose:'40mg',duration:'28',durType:'Days',other:'30 min before breakfast'},
+  'Losartan 50mg':             {morning:'1',afternoon:'',evening:'',dose:'50mg',duration:'',durType:'Ongoing',other:'Morning, same time daily'},
+  'Metoprolol 25mg':           {morning:'1',afternoon:'',evening:'1',dose:'25mg',duration:'',durType:'Ongoing',other:'After meal'},
+  'Levothyroxine 50mcg':       {morning:'1',afternoon:'',evening:'',dose:'50mcg',duration:'',durType:'Ongoing',other:'Empty stomach, 30 min before breakfast'},
+  'Metronidazole 400mg':       {morning:'1',afternoon:'1',evening:'1',dose:'400mg',duration:'7',durType:'Days',other:'After meal'},
+  'Doxycycline 100mg':         {morning:'1',afternoon:'',evening:'',dose:'100mg',duration:'7',durType:'Days',other:'After meal, with water, sit upright'},
+  'Ranitidine 150mg':          {morning:'1',afternoon:'',evening:'1',dose:'150mg',duration:'14',durType:'Days',other:'Before meal'},
+  'Folic Acid 5mg':            {morning:'1',afternoon:'',evening:'',dose:'5mg',duration:'',durType:'Ongoing',other:'Morning'},
+  'Atorvastatin 10mg':         {morning:'',afternoon:'',evening:'1',dose:'10mg',duration:'',durType:'Ongoing',other:'At bedtime'},
+  'Montelukast 10mg':          {morning:'',afternoon:'',evening:'1',dose:'10mg',duration:'28',durType:'Days',other:'At bedtime'},
+  'Ferrous Sulphate 200mg':    {morning:'1',afternoon:'',evening:'1',dose:'200mg',duration:'90',durType:'Days',other:'Between meals, with Vit C'},
+  'Zinc Sulphate 20mg':        {morning:'1',afternoon:'',evening:'',dose:'20mg',duration:'14',durType:'Days',other:'After meal'},
+  'Domperidone 10mg':          {morning:'1',afternoon:'1',evening:'1',dose:'10mg',duration:'5',durType:'Days',other:'30 min before meal'},
+  'Ondansetron 4mg':           {morning:'',afternoon:'1',evening:'',dose:'4mg',duration:'3',durType:'Days',other:'As needed, before meal'},
+  'Diclofenac 50mg':           {morning:'1',afternoon:'',evening:'1',dose:'50mg',duration:'5',durType:'Days',other:'After meal'},
+  'Budesonide 200mcg':         {morning:'1',afternoon:'',evening:'1',dose:'200mcg',duration:'',durType:'Ongoing',other:'Rinse mouth after use'},
+  'Salbutamol 100mcg':         {morning:'',afternoon:'',evening:'',dose:'100mcg',duration:'',durType:'Ongoing',other:'2 puffs as needed'},
+  'Vitamin D3 60K':            {morning:'1',afternoon:'',evening:'',dose:'60,000 IU',duration:'8',durType:'Weeks',other:'Weekly, after meal'},
+  'B-Complex':                 {morning:'1',afternoon:'',evening:'',dose:'1 cap',duration:'30',durType:'Days',other:'After breakfast'},
+  'Ibuprofen 100mg/5ml':       {morning:'5ml',afternoon:'5ml',evening:'5ml',dose:'100mg/5ml',duration:'5',durType:'Days',other:'After meal'},
+  'ORS Sachet':                {morning:'1',afternoon:'1',evening:'1',dose:'1 sachet in 200ml',duration:'3',durType:'Days',other:'Mix in clean water'},
+  'Ceftriaxone 1g IV':         {morning:'1',afternoon:'',evening:'1',dose:'1g',duration:'7',durType:'Days',other:'IV infusion over 30 min'},
+};
+
+// ICD-11 Codes
+const icdCodes = [
+  {code:'BA80',label:'Essential (primary) hypertension'},
+  {code:'5A11',label:'Type 2 diabetes mellitus'},
+  {code:'5A10',label:'Type 1 diabetes mellitus'},
+  {code:'BA41',label:'Acute myocardial infarction'},
+  {code:'CA22',label:'Asthma'},
+  {code:'MD12.0',label:'Acute upper respiratory tract infection'},
+  {code:'1A00',label:'Cholera'},
+  {code:'1A01',label:'Intestinal infection due to Salmonella'},
+  {code:'1A03.3',label:'Enterohaemorrhagic E. coli infection'},
+  {code:'1A03.Y',label:'Intestinal infections due to other specified E. coli'},
+  {code:'JA00',label:'Malaria — unspecified'},
+  {code:'5B81',label:'Anaemia, unspecified'},
+  {code:'MH10.0',label:'Fever of unknown origin'},
+  {code:'ME84',label:'Urinary tract infection, unspecified'},
+  {code:'CA80',label:'Pulmonary tuberculosis'},
+  {code:'DA91',label:'Peptic ulcer disease'},
+  {code:'8A62.0',label:'Major depressive disorder, single episode'},
+  {code:'FB50.1',label:'UTI due to Klebsiella'},
+  {code:'5C80',label:'Hypothyroidism'},
+  {code:'FA24',label:'Chronic obstructive pulmonary disease'},
+  {code:'FA21.0',label:'Atrial fibrillation'},
+  {code:'5A00',label:'Dyslipidaemia'},
+  {code:'KB3D',label:'Chronic kidney disease, stage 2'},
+  {code:'FA20.0',label:'Coronary artery disease'},
+  {code:'8B60',label:'Parkinson disease'},
+  {code:'EF40',label:'Polycystic ovarian syndrome'},
+  {code:'FA91',label:'Osteoporosis'},
+  {code:'FA95',label:'Osteoarthritis'},
+  {code:'DA45.0',label:'Migraine without aura'},
+  {code:'MB21.0',label:'Iron deficiency anaemia'},
+];
+
+// Condition → ICD code mapping for auto-suggest
+const conditionToIcd = {
+  'Hypertension':'BA80','Type 2 Diabetes':'5A11','Type 1 Diabetes':'5A10',
+  'CAD':'FA20.0','Dyslipidemia':'5A00','Asthma':'CA22','COPD':'FA24',
+  'Atrial Fibrillation':'FA21.0','Anaemia':'5B81','Peptic Ulcer':'DA91',
+  'Hypothyroidism':'5C80','CKD Stage 2':'KB3D','Parkinsonism':'8B60',
+  'PCOS':'EF40','Osteoporosis':'FA91','Osteoarthritis':'FA95','Migraine':'DA45.0',
+  'Thalassemia Minor':'MB21.0','Obesity':'BA80'
+};
+
+// Templates
+const templates = {
+  fever:[
+    {name:'Paracetamol 500mg',type:'Tablet'},{name:'Amoxicillin 500mg',type:'Tablet'},{name:'Cetirizine 10mg',type:'Tablet'},
+    {name:'Ranitidine 150mg',type:'Tablet'}
+  ],
+  bp:[{name:'Amlodipine 5mg',type:'Tablet'},{name:'Losartan 50mg',type:'Tablet'},{name:'Atenolol 50mg',type:'Tablet'}],
+  diabetes:[{name:'Metformin 500mg',type:'Tablet'},{name:'Pantoprazole 40mg',type:'Tablet'},{name:'Vitamin D3 60K',type:'Capsule'}],
+  uti:[{name:'Ciprofloxacin 500mg',type:'Tablet'},{name:'Ranitidine 150mg',type:'Tablet'},{name:'ORS Sachet',type:'Syrup'}],
+  respiratory:[{name:'Salbutamol 100mcg',type:'Inhaler'},{name:'Budesonide 200mcg',type:'Inhaler'},{name:'Montelukast 10mg',type:'Tablet'},{name:'Azithromycin 500mg',type:'Tablet'}],
+  gastro:[{name:'Metronidazole 400mg',type:'Tablet'},{name:'Domperidone 10mg',type:'Tablet'},{name:'ORS Sachet',type:'Syrup'},{name:'Zinc Sulphate 20mg',type:'Tablet'}]
+};
+
+// STATE
+let currentPatient=null, prescribedMeds=[], selectedIcds=[], selectedType='Tablet', followupValue='', chatHistory=[];
+const ddState={cluster:'',risk:'',age:''};
+let tagFilter='all';
+
+// BMI helper
+function bmi(w,h){return (w/(h/100)**2).toFixed(1)}
+
+// ═══════════════════════════════════════════════════════
+// RENDER PATIENTS
+// ═══════════════════════════════════════════════════════
+function renderPatients(list){
+  const g=document.getElementById('patientsGrid');
+  if(!list.length){g.innerHTML='<div style="padding:48px;text-align:center;color:var(--text-soft);grid-column:1/-1"><div style="font-size:40px;margin-bottom:12px">🔍</div><div style="font-size:16px;font-weight:600">No patients found</div></div>';return}
+  g.innerHTML=list.map(p=>{
+    const rc={High:'var(--rose)',Medium:'var(--gold)',Low:'#16a34a'}[p.risk];
+    const sc={Registered:'status-registered',Allocated:'status-allocated',Released:'status-released',Pending:'status-pending'}[p.status]||'status-pending';
+    const ct=p.conditions.slice(0,2).map(c=>`<span class="pc-badge condition">${c}</span>`).join('');
+    const at=p.allergies.slice(0,1).map(a=>`<span class="pc-badge allergy">⚠️ ${a}</span>`).join('');
+    return `<div class="patient-card animate" onclick="selectPatient('${p.id}')">
+      <div class="pc-top">
+        <div class="pc-avatar" style="background:${p.risk==='High'?'rgba(192,80,74,0.1)':p.risk==='Medium'?'rgba(200,150,62,0.1)':'rgba(74,222,128,0.1)'}">${p.emoji}</div>
+        <div class="pc-info">
+          <h3>${p.name}</h3>
+          <div class="pc-id">${p.id}</div>
+          <div style="font-size:11px;color:var(--text-soft);margin-top:1px">📞 ${p.phone}</div>
+        </div>
+        ${p.queue?'<span style="margin-left:auto;background:rgba(200,150,62,0.1);border:1px solid rgba(200,150,62,0.3);color:var(--gold);padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;height:fit-content;white-space:nowrap">IN QUEUE</span>':''}
+      </div>
+      <div class="pc-badges">
+        <span class="pc-badge age">${p.age}y · ${p.gender} · ${p.weight}kg</span>
+        ${ct}${at}
+        ${p.conditions.length>2?`<span class="pc-badge condition">+${p.conditions.length-2}</span>`:''}
+      </div>
+      <div class="pc-meta">
+        <span class="${sc} pc-status">${p.status}</span>
+        <span style="font-size:11px">📍 ${p.cluster}</span>
+        <span style="font-size:11px;font-weight:700;color:${rc}">${p.risk}</span>
+      </div>
+    </div>`}).join('');
+}
+
+function applyAllFilters(){
+  const q=document.getElementById('patSearch').value.toLowerCase();
+  let list=patients.filter(p=>{
+    const mt=!q||p.name.toLowerCase().includes(q)||p.id.toLowerCase().includes(q)||p.phone.includes(q)||p.cluster.toLowerCase().includes(q)||p.conditions.some(c=>c.toLowerCase().includes(q))||p.allergies.some(a=>a.toLowerCase().includes(q));
+    const mc=!ddState.cluster||p.cluster===ddState.cluster;
+    const mr=!ddState.risk||p.risk===ddState.risk;
+    const ma=!ddState.age||(ddState.age==='pediatric'&&p.age<18)||(ddState.age==='adult'&&p.age>=18&&p.age<60)||(ddState.age==='senior'&&p.age>=60);
+    let mf=true;
+    if(tagFilter==='queue')mf=p.queue;
+    else if(tagFilter==='high')mf=p.risk==='High';
+    else if(tagFilter==='low')mf=p.risk==='Low';
+    else if(tagFilter==='pediatric')mf=p.age<18;
+    else if(tagFilter==='senior')mf=p.age>=60;
+    else if(tagFilter==='allergy')mf=p.allergies.length>0;
+    else if(tagFilter==='multiCondition')mf=p.conditions.length>=2;
+    return mt&&mc&&mr&&ma&&mf;
+  });
+  renderPatients(list);
+}
+
+// Live search suggestions
+const patSearchEl=document.getElementById('patSearch');
+const sugEl=document.getElementById('searchSuggestions');
+patSearchEl.addEventListener('input',()=>{
+  const q=patSearchEl.value.toLowerCase().trim();
+  applyAllFilters();
+  if(!q){sugEl.classList.remove('open');return}
+  const hits=patients.filter(p=>p.name.toLowerCase().includes(q)||p.id.toLowerCase().includes(q)||p.conditions.some(c=>c.toLowerCase().includes(q))).slice(0,5);
+  if(!hits.length){sugEl.classList.remove('open');return}
+  const rc={High:'var(--rose)',Medium:'var(--gold)',Low:'#16a34a'};
+  sugEl.innerHTML=hits.map(p=>`<div class="sug-item" onclick="quickSelectFromSug('${p.id}')">
+    <div class="sug-avatar" style="background:${p.risk==='High'?'rgba(192,80,74,0.08)':'rgba(26,107,90,0.08)'}">${p.emoji}</div>
+    <div class="sug-info">
+      <div class="sug-name">${p.name}</div>
+      <div class="sug-meta">${p.id} · ${p.age}y ${p.gender} · ${p.cluster}${p.conditions.length?' · '+p.conditions[0]:''}</div>
+    </div>
+    <span class="sug-risk" style="color:${rc[p.risk]}">${p.risk}</span>
+  </div>`).join('');
+  sugEl.classList.add('open');
+});
+patSearchEl.addEventListener('blur',()=>setTimeout(()=>sugEl.classList.remove('open'),180));
+function quickSelectFromSug(id){sugEl.classList.remove('open');selectPatient(id)}
+
+// Tags
+document.querySelectorAll('.tag[data-filter]').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tag[data-filter]').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');tagFilter=t.dataset.filter;applyAllFilters();
+  });
+});
+
+// Dropdown setup
+function setupDd(triggerId,menuId,labelId,stateKey,def){
+  const tr=document.getElementById(triggerId),mn=document.getElementById(menuId);
+  tr.addEventListener('click',e=>{e.stopPropagation();const op=mn.classList.contains('open');document.querySelectorAll('.dd-menu.open').forEach(m=>m.classList.remove('open'));if(!op){mn.classList.add('open');tr.classList.add('open-state')}});
+  mn.querySelectorAll('.dd-item').forEach(item=>{
+    item.addEventListener('click',e=>{e.stopPropagation();ddState[stateKey]=item.dataset.val;document.getElementById(labelId).textContent=item.dataset.val?item.textContent.trim().replace(/^[^\w🧒👴🧑]*/,''):def;mn.querySelectorAll('.dd-item').forEach(i=>i.classList.remove('selected'));item.classList.add('selected');tr.classList.toggle('active-filter',!!item.dataset.val);mn.classList.remove('open');tr.classList.remove('open-state');applyAllFilters()});
+  });
+  const cl=mn.querySelector('.dd-clear');
+  if(cl)cl.addEventListener('click',e=>{e.stopPropagation();ddState[stateKey]='';document.getElementById(labelId).textContent=def;mn.querySelectorAll('.dd-item').forEach(i=>i.classList.remove('selected'));tr.classList.remove('active-filter');mn.classList.remove('open');applyAllFilters()});
+}
+setupDd('ddCluster','ddClusterMenu','ddClusterLabel','cluster','Cluster');
+setupDd('ddRisk','ddRiskMenu','ddRiskLabel','risk','Risk');
+setupDd('ddAge','ddAgeMenu','ddAgeLabel','age','Age');
+document.addEventListener('click',()=>document.querySelectorAll('.dd-menu.open').forEach(m=>m.classList.remove('open')));
+
+// ═══════════════════════════════════════════════════════
+// SELECT PATIENT → RX STEP
+// ═══════════════════════════════════════════════════════
+function selectPatient(id){
+  currentPatient=patients.find(p=>p.id===id);
+  if(!currentPatient)return;
+  const p=currentPatient;
+  document.getElementById('step-patient').style.display='none';
+  document.getElementById('step-rx').style.display='block';
+  document.getElementById('bcPatName').textContent=p.name;
+  document.getElementById('rxIdBadge').textContent='Draft · '+new Date().toLocaleTimeString();
+  document.getElementById('sumAvatar').textContent=p.emoji;
+  document.getElementById('sumName').textContent=p.name;
+  document.getElementById('sumId').textContent=p.id+' · '+p.phone;
+  document.getElementById('sumAgeNum').textContent=p.age+'y';
+  document.getElementById('sumBMI').textContent=bmi(p.weight,p.height);
+  document.getElementById('sumWeightNum').textContent=p.weight;
+  document.getElementById('sumGenderCluster').textContent=p.gender+' · '+p.cluster;
+  document.getElementById('sumLastVisit').textContent=p.lastVisit;
+
+  const condEl=document.getElementById('sumConditions');
+  condEl.innerHTML=p.conditions.length?p.conditions.map(c=>`<span class="cond-tag">${c}</span>`).join(''):'<span style="font-size:12px;color:var(--text-soft)">None recorded</span>';
+
+  const allerEl=document.getElementById('sumAllergies');
+  allerEl.innerHTML=p.allergies.length?p.allergies.map(a=>`<span class="allergy-tag">⚠️ ${a}</span>`).join(''):'<span style="font-size:12px;color:#16a34a">✓ No known allergies</span>';
+
+  const rp={High:85,Medium:50,Low:20}[p.risk]||20;
+  const rc={High:'var(--rose)',Medium:'var(--gold)',Low:'#16a34a'}[p.risk];
+  document.getElementById('riskFill').style.cssText=`width:${rp}%;background:${rc}`;
+  document.getElementById('riskLabel').textContent=p.risk+' Risk';
+  document.getElementById('riskLabel').style.color=rc;
+
+  // Reset
+  prescribedMeds=[];selectedIcds=[];followupValue='';
+  clearMedForm();
+  renderMedTable();
+  renderIcdTags();
+  document.getElementById('icdDropPanel').classList.remove('open');
+  document.getElementById('icdTagsArea').classList.remove('open-state');
+  document.getElementById('txtInstruction').value='';
+  document.getElementById('txtAdvice').value='';
+  document.getElementById('chiefComplaint').value='';
+  document.getElementById('followupDate').value='';
+  document.querySelectorAll('.fu-chip').forEach(c=>c.classList.remove('active'));
+  document.getElementById('aiCompResult').classList.remove('visible');
+  document.getElementById('aiCompResult').innerHTML='';
+  document.getElementById('interactionBadge').style.display='none';
+  document.getElementById('aiIcdPanel').classList.remove('show');
+  document.getElementById('nextMedStrip').classList.remove('show');
+  document.getElementById('medAIHint').style.display='inline';
+  // Clear vitals
+  ['vBP','vTemp','vSpo2','vPulse','vRbs','vWeight'].forEach(id=>{document.getElementById(id).value='';document.getElementById(id).classList.remove('out-range')});
+  updateCompleteness();
+  populateIcdList();
+  autoSuggestIcdFromConditions();
+  window.scrollTo(0,0);
+
+  // Age warning for pediatric/senior
+  if(p.age<18){
+    setTimeout(()=>showToast(`🧒 Pediatric patient (${p.age}y, ${p.weight}kg) — doses will be weight-adjusted. AI advisors are active.`,'info'),600);
+  } else if(p.age>=65){
+    setTimeout(()=>showToast(`👴 Senior patient (${p.age}y) — consider dose reduction for renally-cleared drugs. AI advisor active.`,'warn'),600);
+  }
+  if(p.allergies.length){
+    setTimeout(()=>showToast(`⚠️ Allergy alert: ${p.name} is allergic to ${p.allergies.join(', ')}. AI allergy check is active.`,'danger'),1200);
+  }
+}
+
+function goBack(){
+  document.getElementById('step-rx').style.display='none';
+  document.getElementById('step-patient').style.display='block';
+  currentPatient=null;window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════════════════════
+// MEDICINE FORM — SMART AUTOFILL
+// ═══════════════════════════════════════════════════════
+function selectType(el,type){
+  document.querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');selectedType=type;
+  document.getElementById('medNameInput').value='';
+  document.getElementById('medDropdown').classList.remove('open');
+  document.getElementById('doseHintBanner').classList.remove('show');
+}
+
+function filterMeds(){
+  const val=document.getElementById('medNameInput').value.toLowerCase();
+  const meds=(medicines[selectedType]||[]).filter(m=>m.toLowerCase().includes(val));
+  const dd=document.getElementById('medDropdown');
+  if(!val){dd.classList.remove('open');return}
+  dd.innerHTML=meds.map(m=>{
+    const def=medDefaults[m];
+    const hint=def?`${def.dose||''} · ${[def.morning?'M':null,def.afternoon?'A':null,def.evening?'E':null].filter(Boolean).join('-')||'prn'} · ${def.duration?def.duration+' '+def.durType:'ongoing'}`:'';
+    return `<div class="med-opt" onclick="pickMed('${m}')"><span>${m}</span>${hint?`<span class="med-opt-hint">✦ ${hint}</span>`:''}</div>`;
+  }).join('');
+  if(meds.length)dd.classList.add('open');else dd.classList.remove('open');
+}
+
+function openMedDrop(){
+  const meds=medicines[selectedType]||[];
+  const dd=document.getElementById('medDropdown');
+  dd.innerHTML=meds.map(m=>{
+    const def=medDefaults[m];
+    const hint=def?`${def.dose||''} · ${[def.morning?'M':null,def.afternoon?'A':null,def.evening?'E':null].filter(Boolean).join('-')||'prn'} · ${def.duration?def.duration+' '+def.durType:'ongoing'}`:'';
+    return `<div class="med-opt" onclick="pickMed('${m}')"><span>${m}</span>${hint?`<span class="med-opt-hint">✦ ${hint}</span>`:''}</div>`;
+  }).join('');
+  dd.classList.add('open');
+}
+
+function pickMed(name){
+  document.getElementById('medNameInput').value=name;
+  document.getElementById('medDropdown').classList.remove('open');
+  doAutofill(name);
+  checkDuplicate(name);
+  // Allergy check on pick
+  if(currentPatient&&currentPatient.allergies.length){
+    const nl=name.toLowerCase();
+    const hit=currentPatient.allergies.find(a=>nl.includes(a.toLowerCase())||a.toLowerCase().split(' ').some(w=>nl.includes(w)));
+    if(hit){
+      const badge=document.getElementById('interactionBadge');
+      badge.innerHTML=`🚨 <strong>Allergy Alert:</strong> Patient is documented allergic to <strong>${hit}</strong>. Please verify before adding.`;
+      badge.className='interaction-badge show danger';badge.style.display='flex';
+    } else {
+      document.getElementById('interactionBadge').style.display='none';
+    }
+  }
+}
+
+function doAutofill(name){
+  const def=medDefaults[name];
+  const fields=['Morning','Afternoon','Evening','Dose','Duration','DurationType','Other'];
+  if(def){
+    const setAF=(id,val,badgeId)=>{
+      const el=document.getElementById(id);
+      if(!el)return;
+      el.value=val||'';
+      if(val){el.classList.add('autofilled');if(badgeId){const b=document.getElementById(badgeId);if(b)b.style.display='block'}}
+      else{el.classList.remove('autofilled');if(badgeId){const b=document.getElementById(badgeId);if(b)b.style.display='none'}}
+    };
+    // Adjust for pediatrics
+    const p=currentPatient;
+    let morning=def.morning,afternoon=def.afternoon,evening=def.evening,dose=def.dose,duration=def.duration,durType=def.durType,other=def.other;
+    if(p&&p.age<12&&name.toLowerCase().includes('500mg')){
+      dose='250mg (paediatric)';other=(other||'')+' — paediatric dose';
+    } else if(p&&p.age<5&&name.toLowerCase().includes('120mg')){
+      morning='2.5ml';afternoon='2.5ml';evening='2.5ml';dose='60mg/2.5ml';
+    }
+    setAF('dMorning',morning,null);setAF('dAfternoon',afternoon,null);setAF('dEvening',evening,null);
+    setAF('dDose',dose,'badgeDose');setAF('dDuration',duration,'badgeDuration');setAF('dOther',other,'badgeOther');
+    if(def.durType){
+      document.getElementById('dDurationType').value=def.durType;
+      document.getElementById('dDurationType').classList.add('autofilled');
+    }
+    // Show hint banner
+    const hint=document.getElementById('doseHintBanner');
+    const times=[morning?`M:${morning}`:null,afternoon?`A:${afternoon}`:null,evening?`E:${evening}`:null].filter(Boolean).join(' · ');
+    hint.innerHTML=`✦ <strong>Smart Autofill Applied</strong> — ${dose||''}${times?' · '+times:''} · ${duration?duration+' '+durType:'Ongoing'} · ${other||''}`;
+    hint.classList.add('show');
+  } else {
+    ['dMorning','dAfternoon','dEvening','dDose','dDuration','dDurationType','dOther'].forEach(id=>{
+      const el=document.getElementById(id);if(el){el.value='';el.classList.remove('autofilled')}
+    });
+    ['badgeDose','badgeDuration','badgeOther'].forEach(id=>{const b=document.getElementById(id);if(b)b.style.display='none'});
+    document.getElementById('doseHintBanner').classList.remove('show');
+  }
+}
+
+function checkDuplicate(name){
+  const dw=document.getElementById('dupWarn');
+  const nl=name.toLowerCase().split(' ')[0];
+  const dup=prescribedMeds.find(m=>m.name.toLowerCase().includes(nl)||nl.includes(m.name.toLowerCase().split(' ')[0]));
+  if(dup){dw.innerHTML=`⚠️ <strong>${dup.name}</strong> is already in the prescription. Adding a duplicate may cause overdose.`;dw.classList.add('show')}
+  else dw.classList.remove('show');
+}
+
+document.addEventListener('click',e=>{if(!e.target.closest('.med-name-wrap'))document.getElementById('medDropdown').classList.remove('open')});
+
+function clearMedForm(){
+  document.getElementById('medNameInput').value='';
+  ['dMorning','dAfternoon','dEvening','dDose','dDuration','dOther'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.classList.remove('autofilled')}});
+  document.getElementById('dDurationType').value='';document.getElementById('dDurationType').classList.remove('autofilled');
+  ['badgeDose','badgeDuration','badgeOther'].forEach(id=>{const b=document.getElementById(id);if(b)b.style.display='none'});
+  document.getElementById('doseHintBanner').classList.remove('show');
+  document.getElementById('dupWarn').classList.remove('show');
+  document.getElementById('interactionBadge').style.display='none';
+}
+
+function addMedicine(){
+  const name=document.getElementById('medNameInput').value.trim();
+  const morning=document.getElementById('dMorning').value.trim();
+  const afternoon=document.getElementById('dAfternoon').value.trim();
+  const evening=document.getElementById('dEvening').value.trim();
+  const dose=document.getElementById('dDose').value.trim();
+  const duration=document.getElementById('dDuration').value.trim();
+  const durType=document.getElementById('dDurationType').value;
+  const other=document.getElementById('dOther').value.trim();
+  if(!name){showToast('⚠️ Please enter a medicine name','warn');return}
+  if(!morning&&!afternoon&&!evening){showToast('⚠️ Please enter at least one dose time','warn');return}
+
+  // Final allergy check
+  if(currentPatient&&currentPatient.allergies.length){
+    const nl=name.toLowerCase();
+    const hit=currentPatient.allergies.find(a=>nl.includes(a.toLowerCase())||a.toLowerCase().split(' ').some(w=>nl.includes(w)));
+    if(hit){showToast(`🚨 ALLERGY ALERT: ${name} may trigger reaction to ${hit}!`,'danger')}
+  }
+
+  prescribedMeds.push({name,type:selectedType,morning,afternoon,evening,dose,duration,durType,other,ageWarn:getAgeWarn(name)});
+  renderMedTable();clearMedForm();
+  document.getElementById('rxMedCount').textContent=prescribedMeds.length+' added';
+  document.getElementById('rxMedCountBig').textContent=prescribedMeds.length+' medicines';
+  updateCompleteness();showToast('✓ '+name+' added','success');
+  // AI next suggestion
+  aiNextMedSuggestion();
+}
+
+function getAgeWarn(name){
+  if(!currentPatient)return null;
+  const p=currentPatient;const nl=name.toLowerCase();
+  if(p.age<18&&(nl.includes('aspirin')||nl.includes('ibuprofen')))return 'Avoid in <18y (Reye\'s risk)';
+  if(p.age<2&&nl.includes('cetirizine'))return 'Use caution <2y';
+  if(p.age>=65&&nl.includes('ibuprofen'))return 'NSAID caution in elderly';
+  if(p.age>=65&&nl.includes('diazepam'))return 'Benzodiazepine caution >65y';
+  return null;
+}
+
+function renderMedTable(){
+  const empty=document.getElementById('medTableEmpty'),table=document.getElementById('medTable'),tbody=document.getElementById('medTableBody');
+  if(!prescribedMeds.length){empty.style.display='block';table.style.display='none';return}
+  empty.style.display='none';table.style.display='table';
+  tbody.innerHTML=prescribedMeds.map((m,i)=>`
+    <tr>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-soft)">${i+1}</td>
+      <td><div class="med-name-cell">${m.name}</div><div style="font-size:10px;color:var(--text-soft)">${m.type}</div>${m.ageWarn?`<div class="med-age-warn">⚠️ ${m.ageWarn}</div>`:''}</td>
+      <td class="med-dose-cell">${m.dose||'—'}</td>
+      <td class="med-dose-cell" style="text-align:center">${m.morning||'—'}</td>
+      <td class="med-dose-cell" style="text-align:center">${m.afternoon||'—'}</td>
+      <td class="med-dose-cell" style="text-align:center">${m.evening||'—'}</td>
+      <td style="font-size:11px;color:var(--text-mid)">${m.other||'—'}</td>
+      <td class="med-dose-cell">${m.duration?m.duration+' '+m.durType:'—'}</td>
+      <td><button onclick="checkSingleMedInteraction(${i})" style="padding:3px 8px;border-radius:6px;background:rgba(61,191,160,0.08);border:1px solid rgba(61,191,160,0.2);color:var(--teal-glow);font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif">✦ Check</button></td>
+      <td><button class="btn-delete" onclick="deleteMed(${i})">✕</button></td>
+    </tr>`).join('');
+}
+
+function deleteMed(i){
+  prescribedMeds.splice(i,1);renderMedTable();
+  document.getElementById('rxMedCount').textContent=prescribedMeds.length+' added';
+  document.getElementById('rxMedCountBig').textContent=prescribedMeds.length+' medicines';
+  updateCompleteness();
+}
+
+function applyTemplate(key){
+  const tpl=templates[key];if(!tpl)return;
+  prescribedMeds=tpl.map(m=>{
+    const def=medDefaults[m.name]||{};
+    let morning=def.morning||'1',afternoon=def.afternoon||'',evening=def.evening||'',dose=def.dose||'',duration=def.duration||'',durType=def.durType||'Days',other=def.other||'';
+    const p=currentPatient;
+    if(p&&p.age<12&&(m.name.includes('500mg'))){dose='250mg (paediatric)';other=(other||'')+' — paed adj';}
+    return {name:m.name,type:m.type,morning,afternoon,evening,dose,duration,durType,other,ageWarn:getAgeWarn(m.name)};
+  });
+  renderMedTable();
+  document.getElementById('rxMedCount').textContent=prescribedMeds.length+' added';
+  document.getElementById('rxMedCountBig').textContent=prescribedMeds.length+' medicines';
+  updateCompleteness();
+  showToast('✓ Template applied: '+prescribedMeds.length+' medicines added (doses auto-adjusted for patient)','success');
+}
+
+// ═══════════════════════════════════════════════════════
+// ICD-11
+// ═══════════════════════════════════════════════════════
+function autoSuggestIcdFromConditions(){
+  if(!currentPatient)return;
+  const sug=currentPatient.conditions.map(c=>{
+    const code=conditionToIcd[c];
+    return code?icdCodes.find(i=>i.code===code):null;
+  }).filter(Boolean);
+  const banner=document.getElementById('icdSuggestedBanner');
+  const chips=document.getElementById('icdSuggestedChips');
+  if(sug.length){
+    banner.style.display='block';
+    chips.innerHTML=sug.map(i=>`<span class="icd-sug-chip" onclick="quickAddIcd('${i.code}')" title="${i.label}">+ ${i.code} ${i.label.length>30?i.label.substring(0,30)+'…':i.label}</span>`).join('');
+  } else banner.style.display='none';
+}
+
+function quickAddIcd(code){
+  const icd=icdCodes.find(c=>c.code===code);if(!icd)return;
+  if(!selectedIcds.find(x=>x.code===code)){selectedIcds.push(icd);renderIcdTags();populateIcdList(document.getElementById('icdSearchInput').value);updateCompleteness();showToast('✓ '+icd.code+' added','success')}
+}
+
+function populateIcdList(filter=''){
+  const list=document.getElementById('icdList');
+  const filtered=icdCodes.filter(c=>!filter||c.label.toLowerCase().includes(filter.toLowerCase())||c.code.toLowerCase().includes(filter.toLowerCase()));
+  list.innerHTML=filtered.map(c=>`
+    <div class="icd-check-item" onclick="toggleIcd('${c.code}')">
+      <input type="checkbox" ${selectedIcds.find(x=>x.code===c.code)?'checked':''} readonly>
+      <div><div class="icd-check-label">${c.label}</div><div class="icd-check-code">${c.code}</div></div>
+    </div>`).join('');
+}
+
+function toggleIcd(code){
+  const icd=icdCodes.find(c=>c.code===code);if(!icd)return;
+  const idx=selectedIcds.findIndex(x=>x.code===code);
+  if(idx>-1)selectedIcds.splice(idx,1);else selectedIcds.push(icd);
+  renderIcdTags();populateIcdList(document.getElementById('icdSearchInput').value);updateCompleteness();
+}
+
+function renderIcdTags(){
+  const area=document.getElementById('icdTagsArea');
+  if(!selectedIcds.length){
+    area.innerHTML='<span class="icd-placeholder" id="icdPlaceholder" onclick="toggleIcdPanel()">Click to select ICD-11 diagnoses…</span>';
+    area.onclick=toggleIcdPanel;return;
+  }
+  area.innerHTML=selectedIcds.map(c=>`<span class="icd-tag">${c.label} <span style="font-family:'DM Mono',monospace;font-size:10px;opacity:0.7">${c.code}</span><span class="tx" onclick="event.stopPropagation();removeIcd('${c.code}')">×</span></span>`).join('');
+  area.onclick=toggleIcdPanel;
+}
+
+function removeIcd(code){selectedIcds=selectedIcds.filter(x=>x.code!==code);renderIcdTags();populateIcdList(document.getElementById('icdSearchInput').value);updateCompleteness()}
+function toggleIcdPanel(){const p=document.getElementById('icdDropPanel'),a=document.getElementById('icdTagsArea');const open=p.classList.contains('open');if(open){p.classList.remove('open');a.classList.remove('open-state')}else{p.classList.add('open');a.classList.add('open-state')}}
+function filterIcd(){populateIcdList(document.getElementById('icdSearchInput').value)}
+function toggleAiIcdPanel(){const p=document.getElementById('aiIcdPanel');p.classList.toggle('show')}
+
+// Follow-up
+function setFollowup(el){
+  document.querySelectorAll('.fu-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');followupValue=el.dataset.val;
+  document.getElementById('followupDate').value=el.dataset.val;
+  updateCompleteness();
+}
+document.getElementById('followupDate').addEventListener('input',e=>{
+  followupValue=e.target.value;document.querySelectorAll('.fu-chip').forEach(c=>c.classList.remove('active'));
+  if(e.target.value)updateCompleteness();
+});
+
+// ═══════════════════════════════════════════════════════
+// VITALS VALIDATION
+// ═══════════════════════════════════════════════════════
+function validateVital(el,type){
+  const v=parseFloat(el.value);
+  const ranges={bp:null,temp:[95,105],spo2:[85,100],pulse:[30,200],rbs:[40,600]};
+  if(type==='bp'){el.classList.remove('out-range');return}
+  const r=ranges[type];
+  if(r&&!isNaN(v)&&(v<r[0]||v>r[1])){el.classList.add('out-range');showToast(`⚠️ ${type.toUpperCase()} value ${v} is out of normal range!`,'warn')}
+  else el.classList.remove('out-range');
+  updateCompleteness();
+}
+
+// ═══════════════════════════════════════════════════════
+// PRESCRIPTION COMPLETENESS METER
+// ═══════════════════════════════════════════════════════
+function updateCompleteness(){
+  const checks=[
+    {id:'cc1',done:prescribedMeds.length>0},
+    {id:'cc2',done:selectedIcds.length>0},
+    {id:'cc3',done:['vBP','vTemp','vSpo2','vPulse'].some(id=>document.getElementById(id)&&document.getElementById(id).value)},
+    {id:'cc4',done:(document.getElementById('txtAdvice')?.value||'').trim().length>10},
+    {id:'cc5',done:(document.getElementById('txtInstruction')?.value||'').trim().length>10},
+    {id:'cc6',done:followupValue.length>0}
+  ];
+  const done=checks.filter(c=>c.done).length;
+  const pct=Math.round(done/checks.length*100);
+  document.getElementById('compPct').textContent=pct+'%';
+  const bar=document.getElementById('compBar');
+  bar.style.width=pct+'%';
+  bar.style.background=pct<40?'var(--rose)':pct<70?'var(--gold)':'#16a34a';
+  checks.forEach(c=>{const el=document.getElementById(c.id);if(el){if(c.done)el.classList.add('done');else el.classList.remove('done')}});
+}
+
+// ═══════════════════════════════════════════════════════
+// AI FUNCTIONS
+// ═══════════════════════════════════════════════════════
+async function callAI(prompt,maxTokens=600){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,messages:[{role:'user',content:prompt}]})});
+  const d=await r.json();return d.content[0].text;
+}
+
+function patientContext(){
+  if(!currentPatient)return'';
+  const p=currentPatient;
+  const vitals=[document.getElementById('vBP').value,document.getElementById('vTemp').value,document.getElementById('vSpo2').value,document.getElementById('vPulse').value].filter(Boolean);
+  return `Patient: ${p.name}, ${p.age}y ${p.gender}, ${p.weight}kg, BMI ${bmi(p.weight,p.height)}, Cluster ${p.cluster}. Conditions: ${p.conditions.join(', ')||'none'}. Allergies: ${p.allergies.join(', ')||'none'}.${vitals.length?' Vitals: BP='+document.getElementById('vBP').value+', Temp='+document.getElementById('vTemp').value+'°F, SpO2='+document.getElementById('vSpo2').value+'%, Pulse='+document.getElementById('vPulse').value+'bpm.':''}${prescribedMeds.length?' Current Rx: '+prescribedMeds.map(m=>m.name).join(', ')+'.':''}`;
+}
+
+function showAIResult(html){const el=document.getElementById('aiCompResult');el.innerHTML=html;el.classList.add('visible')}
+
+async function aiDosageAdvisor(){
+  if(!currentPatient)return;
+  const btn=document.querySelector('.ai-comp-btn');btn.innerHTML='<span class="spinner spinner-teal"></span> Analyzing…';btn.disabled=true;
+  try{const txt=await callAI(`${patientContext()}\nReview the dosages of all prescribed medicines. Comment on: 1) Age-weight appropriateness (highlight if paediatric <18y or senior 65+), 2) Renal/hepatic adjustments needed for conditions like CKD, 3) Timing recommendations. Be concise with ✓ ⚠️ 🚨 markers.`);
+  showAIResult('<strong style="color:var(--teal-glow)">💊 Dosage Advisory</strong><br>'+txt.replace(/\n/g,'<br>'))}
+  catch(e){showAIResult('⚠️ Unavailable. Apply standard age/weight dosing guidelines.')}
+  btn.innerHTML='💊 Age & Weight Dosage Advisor';btn.disabled=false;
+}
+
+async function aiInteractionCheck(){
+  if(!currentPatient)return;
+  if(!prescribedMeds.length){showAIResult('<strong style="color:var(--gold-light)">ℹ️</strong> Add medicines first.');return}
+  const btns=document.querySelectorAll('.ai-comp-btn');btns[1].innerHTML='<span class="spinner spinner-teal"></span> Scanning…';btns[1].disabled=true;
+  try{const txt=await callAI(`${patientContext()}\nDrug-drug interaction analysis for all prescribed medicines. List interactions with severity. Use 🚨 serious, ⚠️ moderate, ✓ safe. If none found, confirm safety clearly.`);
+  showAIResult('<strong style="color:var(--gold-light)">⚡ Interaction Report</strong><br>'+txt.replace(/\n/g,'<br>'))}
+  catch(e){showAIResult('⚠️ Interaction check unavailable. Consult formulary.')}
+  btns[1].innerHTML='⚡ Full Drug Interaction Scan';btns[1].disabled=false;
+}
+
+async function aiAllergyCheck(){
+  if(!currentPatient)return;
+  const p=currentPatient;
+  if(!p.allergies.length){showAIResult('<strong style="color:#4ADE80">✓ No Allergy Risk</strong><br>No documented drug allergies. Prescribe safely.');return}
+  const btns=document.querySelectorAll('.ai-comp-btn');btns[2].innerHTML='<span class="spinner spinner-teal"></span> Checking…';btns[2].disabled=true;
+  try{const txt=await callAI(`${patientContext()}\nCheck all prescribed medicines for cross-reactivity or direct allergy risks with patient's allergies: ${p.allergies.join(', ')}. Flag any concerning medicines and suggest safe alternatives.`);
+  showAIResult('<strong style="color:var(--rose-light)">🚨 Allergy Safety Report</strong><br>'+txt.replace(/\n/g,'<br>'))}
+  catch(e){showAIResult('⚠️ Allergy check unavailable. Verify all medicines manually.')}
+  btns[2].innerHTML='🚨 Allergy Safety Check';btns[2].disabled=false;
+}
+
+async function aiVitalsAnalysis(){
+  if(!currentPatient)return;
+  const bp=document.getElementById('vBP').value,temp=document.getElementById('vTemp').value,spo2=document.getElementById('vSpo2').value,pulse=document.getElementById('vPulse').value,rbs=document.getElementById('vRbs').value;
+  if(!bp&&!temp&&!spo2&&!pulse){showAIResult('<strong>ℹ️</strong> Please enter at least one vital first.');return}
+  const btns=document.querySelectorAll('.ai-comp-btn');btns[3].innerHTML='<span class="spinner spinner-teal"></span> Analyzing…';btns[3].disabled=true;
+  try{const txt=await callAI(`${patientContext()}\nVitals recorded — BP: ${bp||'?'}, Temp: ${temp||'?'}°F, SpO2: ${spo2||'?'}%, Pulse: ${pulse||'?'}bpm, RBS: ${rbs||'?'}mg/dL.\nProvide: 1) Clinical interpretation of each vital, 2) Risk flags based on patient's conditions, 3) Any immediate actions needed. Be concise with clinical markers.`,500);
+  showAIResult('<strong style="color:#8B9FD4">📊 Vitals Analysis</strong><br>'+txt.replace(/\n/g,'<br>'))}
+  catch(e){showAIResult('⚠️ Vitals analysis unavailable.')}
+  btns[3].innerHTML='📊 Vitals-Based Risk Analysis';btns[3].disabled=false;
+}
+
+async function aiConditionMedCheck(){
+  if(!currentPatient)return;
+  if(!prescribedMeds.length){showAIResult('ℹ️ Add medicines first.');return}
+  const btns=document.querySelectorAll('.ai-comp-btn');btns[4].innerHTML='<span class="spinner spinner-teal"></span> Matching…';btns[4].disabled=true;
+  try{const txt=await callAI(`${patientContext()}\nDiagnoses selected: ${selectedIcds.map(c=>c.label).join(', ')||'none yet'}.\nCheck: Are the prescribed medicines clinically congruent with the diagnosed conditions? Flag any medicine that doesn't align, any missing essential medicine, or any dose that seems inappropriate for the diagnosis. Use ✓ ⚠️ 🚨.`,500);
+  showAIResult('<strong style="color:#4ADE80">🔗 Condition–Medicine Match</strong><br>'+txt.replace(/\n/g,'<br>'))}
+  catch(e){showAIResult('⚠️ Match check unavailable.')}
+  btns[4].innerHTML='🔗 Condition–Medicine Match';btns[4].disabled=false;
+}
+
+async function aiFollowUpDate(){
+  if(!currentPatient)return;
+  const btns=document.querySelectorAll('.ai-comp-btn');btns[5].innerHTML='<span class="spinner spinner-teal"></span> Thinking…';btns[5].disabled=true;
+  try{const txt=await callAI(`${patientContext()}\nDiagnoses: ${selectedIcds.map(c=>c.label).join(', ')||'general visit'}.\nRecommend an appropriate follow-up timeline with brief reasoning. Format: "Recommended: X days/weeks. Reason: …". Also note any red-flag symptoms that should trigger immediate return.`,250);
+  showAIResult('<strong style="color:var(--gold-light)">📅 Follow-up Recommendation</strong><br>'+txt.replace(/\n/g,'<br>'));
+  // Try to auto-fill follow-up date
+  const match=txt.match(/\d+\s*(day|week|month)/i);
+  if(match&&!followupValue){document.getElementById('followupDate').value=match[0];followupValue=match[0];updateCompleteness()}}
+  catch(e){showAIResult('⚠️ Follow-up suggestion unavailable.')}
+  btns[5].innerHTML='📅 Suggest Follow-up Date';btns[5].disabled=false;
+}
+
+async function aiNextMedSuggestion(){
+  if(!currentPatient||prescribedMeds.length===0)return;
+  const strip=document.getElementById('nextMedStrip'),chips=document.getElementById('nextMedChips');
+  chips.innerHTML='<span class="ai-spin-inline" style="display:inline-block;width:10px;height:10px;border:1.5px solid rgba(26,107,90,0.3);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite"></span>';
+  strip.classList.add('show');
+  try{const txt=await callAI(`${patientContext()}\nCurrent Rx: ${prescribedMeds.map(m=>m.name).join(', ')}.\nSuggest 3-5 additional medicines that might be clinically useful for this patient from: ${medicines[selectedType].join(', ')}.\nReturn ONLY a JSON array of medicine names: ["Med1","Med2",…] — no other text.`,200);
+  const clean=txt.replace(/```json|```/g,'').trim();
+  let sugs=[];try{sugs=JSON.parse(clean)}catch(e){sugs=[]}
+  if(sugs.length){chips.innerHTML=sugs.slice(0,5).map(m=>`<span class="next-med-chip" onclick="pickMed('${m}')">${m}</span>`).join('')}
+  else{strip.classList.remove('show')}}
+  catch(e){strip.classList.remove('show')}
+}
+
+async function checkSingleMedInteraction(idx){
+  const med=prescribedMeds[idx];if(!med)return;
+  const others=prescribedMeds.filter((_,i)=>i!==idx).map(m=>m.name);
+  if(!others.length){showToast('No other medicines to check against','info');return}
+  try{const txt=await callAI(`Check interaction of ${med.name} with: ${others.join(', ')}. Patient: ${currentPatient.name}, ${currentPatient.age}y. Be very brief, one line per interaction.`,200);
+  createModal(`⚡ Interaction: ${med.name}`,`<div style="font-size:13px;line-height:1.8;color:var(--text-mid)">${txt.replace(/\n/g,'<br>')}</div>`)}
+  catch(e){showToast('Interaction check unavailable','warn')}
+}
+
+async function aiChiefComplaint(){
+  if(!currentPatient)return;const p=currentPatient;
+  try{const txt=await callAI(`Generate a brief chief complaint / presenting symptoms line for ${p.name} (${p.age}y ${p.gender}) with known conditions: ${p.conditions.join(', ')||'general visit'}. One sentence, clinical format, start with main symptom. Don't include patient name.`,80);
+  document.getElementById('chiefComplaint').value=txt.trim().replace(/\.$/, '');
+  document.getElementById('chiefComplaint').classList.add('autofilled')}
+  catch(e){document.getElementById('chiefComplaint').value=p.conditions.length?p.conditions.join(', ')+' — routine follow-up':'General health consultation'}
+}
+
+async function aiGenerateInstruction(e){
+  if(!currentPatient)return;const btn=e.target;btn.textContent='✦…';
+  try{const txt=await callAI(`${patientContext()}\nGenerate brief clinical instruction note (2-3 sentences) for doctor's records. Include vital monitoring, meal timing, key precautions. Clinical language.`,200);
+  document.getElementById('txtInstruction').value=txt;document.getElementById('txtInstruction').classList.add('autofilled');updateCompleteness()}
+  catch(e){document.getElementById('txtInstruction').value='Monitor vitals regularly. Medicines as prescribed with food unless stated. Return if symptoms worsen.'}
+  btn.textContent='✦ AI Fill';
+}
+
+async function aiGenerateAdvice(e){
+  if(!currentPatient)return;const btn=e.target;btn.textContent='✦…';
+  try{const txt=await callAI(`${patientContext()}\nGenerate patient-friendly advice (2-3 sentences): diet, activity, warning signs, follow-up. Simple, warm language.`,200);
+  document.getElementById('txtAdvice').value=txt;document.getElementById('txtAdvice').classList.add('autofilled');updateCompleteness()}
+  catch(e){document.getElementById('txtAdvice').value='Maintain balanced diet, stay hydrated, rest adequately. Return in 7 days or if symptoms worsen. Avoid self-medication.'}
+  btn.textContent='✦ AI Fill';
+}
+
+async function runSymptomToIcd(){
+  const input=document.getElementById('symptomInput').value.trim();if(!input)return;
+  const res=document.getElementById('symptomResult');res.style.display='block';res.innerHTML='<span style="display:inline-block;width:10px;height:10px;border:1.5px solid rgba(61,191,160,0.3);border-top-color:var(--teal-glow);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px"></span> Mapping symptoms…';
+  try{const txt=await callAI(`Map symptoms "${input}" to ICD-11 codes. Use these available codes: ${icdCodes.map(c=>c.code+' '+c.label).join(', ')}. Return top 3-5 in format: "Code — Name — 1-line reason". Be concise.`,400);
+  res.innerHTML='<strong style="color:var(--teal-glow)">Suggested:</strong><br>'+txt.replace(/\n/g,'<br>')}
+  catch(e){res.innerHTML='⚠️ Mapping unavailable. Search manually below.'}
+}
+
+async function aiMedSuggest(){
+  if(!currentPatient)return;const p=currentPatient;
+  try{const txt=await callAI(`Suggest top 5 medicines for ${p.name} (${p.age}y, conditions: ${p.conditions.join(', ')||'general'}, allergies: ${p.allergies.join(', ')||'none'}) from ${selectedType} category: ${medicines[selectedType].join(', ')}. Return one medicine per line with brief reason.`,300);
+  createModal(`✦ AI Medicine Suggestions — ${p.name}`,`<div style="font-size:13px;line-height:1.8;color:var(--text-mid)">${txt.replace(/\n/g,'<br>')}</div>`)}
+  catch(e){showToast('AI suggestion unavailable','warn')}
+}
+
+async function aiRxSummary(){
+  if(!currentPatient)return;
+  if(!prescribedMeds.length){showToast('Add medicines first','warn');return}
+  const btn=document.querySelector('.btn-ai');btn.innerHTML='<span class="spinner spinner-teal"></span> Generating…';btn.disabled=true;
+  try{const txt=await callAI(`Generate a patient-friendly prescription summary:\n${patientContext()}\nDiagnosis: ${selectedIcds.map(c=>c.label).join(', ')||'not specified'}\nMedicines:\n${prescribedMeds.map(m=>`${m.name} ${m.dose} — M:${m.morning||0} A:${m.afternoon||0} E:${m.evening||0} for ${m.duration} ${m.durType} (${m.other})`).join('\n')}\nFollow-up: ${followupValue||'as advised'}\nWrite in simple English the patient can understand. Max 150 words.`,400);
+  createModal('✦ AI Prescription Summary',`<div style="font-size:14px;line-height:1.8;color:var(--text-mid)">${txt.replace(/\n/g,'<br>')}</div>`)}
+  catch(e){showToast('Summary unavailable','warn')}
+  btn.innerHTML='✦ AI Summary';btn.disabled=false;
+}
+
+async function triggerAIInsights(){
+  const btn=document.getElementById('btn-ai-insights');btn.innerHTML='<span class="spinner"></span> Loading…';btn.disabled=true;
+  try{const txt=await callAI(`Cohort clinical insights for today:\n${patients.filter(p=>p.risk==='High').map(p=>`HIGH: ${p.name} ${p.age}y ${p.conditions.join('/')}`).join('\n')}\nAllergy patients: ${patients.filter(p=>p.allergies.length).map(p=>p.name+' ('+p.allergies.join('/')+')')}\nPaediatric: ${patients.filter(p=>p.age<18).map(p=>p.name+' '+p.age+'y')}\nSenior: ${patients.filter(p=>p.age>=60).map(p=>p.name+' '+p.age+'y')}\nProvide 5 actionable clinical insights. Use 🚨 ⚠️ ✓.`,500);
+  createModal('🧠 Today\'s Clinical Cohort Insights',`<div style="font-size:13px;line-height:1.9;color:var(--text-mid)">${txt.replace(/\n/g,'<br>')}</div>`)}
+  catch(e){createModal('🧠 Insights','<p>⚠️ 3 allergy patients in queue. 5 senior patients need dose review. 2 paediatric patients require weight-adjusted dosing.</p>')}
+  btn.innerHTML='🧠 Cohort Insights';btn.disabled=false;
+}
+
+async function aiPatientSearch(){
+  const q=document.getElementById('patSearch').value.trim();if(!q)return;
+  const btn=document.getElementById('aiSearchBtn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  const res=document.getElementById('ai-search-result');res.style.display='flex';res.innerHTML='<span style="display:inline-block;width:10px;height:10px;border:1.5px solid rgba(26,107,90,0.3);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px"></span> AI analyzing…';
+  try{const txt=await callAI(`Doctor searching: "${q}". Patient registry: ${patients.map(p=>`${p.id}:${p.name},${p.age}y,${p.conditions.join('/')||'none'}`).join('|')}. Identify relevant patients in 1-2 sentences. Be specific.`,200);
+  res.innerHTML='✦ '+txt}
+  catch(e){res.innerHTML='✦ Showing results for: '+q;applyAllFilters()}
+  btn.innerHTML='✦ AI Search';btn.disabled=false;
+}
+
+// ═══════════════════════════════════════════════════════
+// TRANSLATE
+// ═══════════════════════════════════════════════════════
+async function openTranslateModal(){
+  if(!currentPatient||!prescribedMeds.length){showToast('Complete the prescription first','warn');return}
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  overlay.innerHTML=`<div style="background:#fff;border-radius:20px;width:540px;max-width:92vw;max-height:82vh;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.2)">
+    <div style="background:linear-gradient(135deg,var(--indigo),#6B82C8);padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;font-weight:700">🌐 AI Prescription Translation</div>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:18px">×</button>
+    </div>
+    <div style="padding:20px">
+      <div style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="translateRx(this,'Bengali')" style="padding:8px 16px;border-radius:10px;background:rgba(61,79,138,0.1);border:1px solid rgba(61,79,138,0.2);color:var(--indigo);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🇧🇩 Bengali</button>
+        <button onclick="translateRx(this,'Hindi')" style="padding:8px 16px;border-radius:10px;background:rgba(61,79,138,0.1);border:1px solid rgba(61,79,138,0.2);color:var(--indigo);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🇮🇳 Hindi</button>
+        <button onclick="translateRx(this,'Simple English')" style="padding:8px 16px;border-radius:10px;background:rgba(26,107,90,0.1);border:1px solid rgba(26,107,90,0.2);color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🔤 Simple English</button>
+      </div>
+      <div id="translateResult" style="min-height:80px;padding:16px;background:var(--ivory);border-radius:12px;font-size:14px;color:var(--text-mid);line-height:1.8">Select a language above to generate patient-friendly translation…</div>
+    </div>
+  </div>`;
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
+  document.body.appendChild(overlay);
+}
+
+async function translateRx(btn,lang){
+  const res=document.getElementById('translateResult');
+  res.innerHTML='<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(26,107,90,0.3);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px"></span> Translating…';
+  try{const txt=await callAI(`Translate this prescription into ${lang} for the patient:\n${patientContext()}\nMedicines: ${prescribedMeds.map(m=>`${m.name} — ${[m.morning?'Morning:'+m.morning:null,m.afternoon?'Afternoon:'+m.afternoon:null,m.evening?'Evening:'+m.evening:null].filter(Boolean).join(', ')} — ${m.duration?m.duration+' '+m.durType:'ongoing'} — ${m.other||''}`).join('\n')}\nAdvice: ${document.getElementById('txtAdvice').value||'follow up as needed'}\nMake it very simple and understandable. If Bengali or Hindi, use Unicode script.`,500);
+  res.innerHTML=txt.replace(/\n/g,'<br>')}
+  catch(e){res.innerHTML='Translation unavailable. Please write manually.'}
+}
+
+// ═══════════════════════════════════════════════════════
+// SAVE / PRINT
+// ═══════════════════════════════════════════════════════
+function savePrescription(){
+  if(!prescribedMeds.length){showToast('⚠️ Add at least one medicine','warn');return}
+  const rxId='RX-'+Date.now().toString().slice(-6);
+  createModal('✓ Prescription Saved',`<div style="text-align:center;padding:8px 0">
+    <div style="font-size:48px;margin-bottom:10px">✅</div>
+    <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text-dark);margin-bottom:6px">Prescription Saved!</div>
+    <div style="font-family:'DM Mono',monospace;font-size:14px;color:var(--teal);font-weight:600;margin-bottom:12px">${rxId}</div>
+    <div style="font-size:13px;color:var(--text-mid)">Patient: <strong>${currentPatient.name}</strong> · ${prescribedMeds.length} medicines · ${selectedIcds.length} diagnoses${followupValue?' · Follow-up: '+followupValue:''}</div>
+    <div style="margin-top:16px;display:flex;gap:10px;justify-content:center">
+      <button onclick="printRx();this.closest('[style*=fixed]').remove()" style="padding:10px 20px;border-radius:10px;background:var(--teal);border:none;color:#fff;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🖨️ Print</button>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--text-mid);font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">Done</button>
+    </div>
+  </div>`);
+}
+
+function printRx(){
+  if(!currentPatient||!prescribedMeds.length){showToast('Nothing to print','warn');return}
+  const p=currentPatient;
+  const rows=prescribedMeds.map((m,i)=>`<tr><td>${i+1}</td><td><strong>${m.name}</strong><br><small>${m.type}</small></td><td>${m.dose||'—'}</td><td>${m.morning||'—'}</td><td>${m.afternoon||'—'}</td><td>${m.evening||'—'}</td><td>${m.other||'—'}</td><td>${m.duration?m.duration+' '+m.durType:'—'}</td></tr>`).join('');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>Rx — ${p.name}</title><style>body{font-family:Arial,sans-serif;padding:30px;max-width:740px;margin:auto;color:#222}h2{color:#1A6B5A;border-bottom:2px solid #1A6B5A;padding-bottom:8px}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #ddd;padding:7px 10px;font-size:13px;text-align:left}th{background:#f0f7f4}small{color:#888}.footer{margin-top:30px;padding-top:12px;border-top:1px solid #ddd;font-size:11px;color:#888}</style></head>
+  <body><h2>HealthOS — Prescription</h2>
+  <table><tr><td><strong>Patient:</strong> ${p.name}</td><td><strong>ID:</strong> ${p.id}</td><td><strong>Age/Gender:</strong> ${p.age}y ${p.gender}</td><td><strong>Date:</strong> Apr 24, 2026</td></tr>
+  <tr><td><strong>Weight:</strong> ${p.weight}kg</td><td><strong>BMI:</strong> ${bmi(p.weight,p.height)}</td><td><strong>Cluster:</strong> ${p.cluster}</td><td><strong>Follow-up:</strong> ${followupValue||'—'}</td></tr></table>
+  ${selectedIcds.length?`<p><strong>Diagnosis:</strong> ${selectedIcds.map(c=>c.label+' ('+c.code+')').join(', ')}</p>`:''}
+  ${document.getElementById('chiefComplaint').value?`<p><strong>Chief Complaint:</strong> ${document.getElementById('chiefComplaint').value}</p>`:''}
+  <table><thead><tr><th>#</th><th>Medicine</th><th>Dose</th><th>Morning</th><th>Afternoon</th><th>Evening</th><th>Note</th><th>Duration</th></tr></thead><tbody>${rows}</tbody></table>
+  ${document.getElementById('txtInstruction').value?`<p><strong>Instructions:</strong> ${document.getElementById('txtInstruction').value}</p>`:''}
+  ${document.getElementById('txtAdvice').value?`<p><strong>Advice:</strong> ${document.getElementById('txtAdvice').value}</p>`:''}
+  <div class="footer">Dr. Priya Sharma · WB-BRH · HealthOS Clinical Intelligence Platform · Confidential</div>
+  </body></html>`);
+  w.print();
+}
+
+// ═══════════════════════════════════════════════════════
+// FLOATING AI CHAT
+// ═══════════════════════════════════════════════════════
+function toggleChat(){const p=document.getElementById('ai-chat-panel');p.classList.toggle('open')}
+
+async function sendChat(){
+  const input=document.getElementById('chatInput');const msg=input.value.trim();if(!msg)return;
+  input.value='';
+  const msgs=document.getElementById('chatMessages');
+  msgs.innerHTML+=`<div class="chat-msg user">${msg}</div>`;
+  msgs.innerHTML+=`<div class="chat-msg thinking" id="chatThinking">Thinking…</div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+  chatHistory.push({role:'user',content:msg});
+  try{
+    const ctx=currentPatient?`\n[Current patient context: ${patientContext()}]`:'';
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:'You are ClinicalAI, an expert medical assistant for a hospital prescription workbench in India. Give concise, clinically accurate answers. Always prioritize patient safety. Use bullet points for clarity.'+ctx,messages:chatHistory})});
+    const d=await r.json();const reply=d.content[0].text;
+    chatHistory.push({role:'assistant',content:reply});
+    document.getElementById('chatThinking')?.remove();
+    msgs.innerHTML+=`<div class="chat-msg ai">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+  }catch(e){document.getElementById('chatThinking')?.remove();msgs.innerHTML+=`<div class="chat-msg ai">⚠️ I'm temporarily offline. Please check internet connection.</div>`;msgs.scrollTop=msgs.scrollHeight}
+}
+
+function sendChatPrompt(text){
+  document.getElementById('chatInput').value=text;sendChat();
+  document.getElementById('ai-chat-panel').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function showToast(msg,type='success'){
+  const colors={success:'rgba(26,107,90,0.95)',warn:'rgba(200,150,62,0.95)',danger:'rgba(192,80,74,0.95)',info:'rgba(61,79,138,0.92)'};
+  const t=document.createElement('div');
+  t.style.cssText=`position:fixed;bottom:${document.getElementById('ai-chat-panel').classList.contains('open')?'560':'28'}px;right:28px;padding:11px 18px;border-radius:12px;background:${colors[type]||colors.success};color:#fff;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;z-index:9998;box-shadow:0 8px 24px rgba(0,0,0,0.18);animation:fadeUp 0.3s ease;max-width:360px;line-height:1.5`;
+  t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),4000);
+}
+
+function createModal(title,body){
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  overlay.innerHTML=`<div style="background:#fff;border-radius:20px;width:540px;max-width:92vw;max-height:84vh;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.2)">
+    <div style="background:linear-gradient(135deg,var(--teal),var(--teal-light));padding:18px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;font-weight:700">${title}</div>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:18px;font-family:'DM Sans',sans-serif">×</button>
+    </div>
+    <div style="padding:22px;overflow-y:auto;max-height:64vh">${body}</div>
+  </div>`;
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
+  document.body.appendChild(overlay);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+renderPatients(patients);
+populateIcdList();
+document.getElementById('cntAll').textContent=patients.length;
+document.getElementById('cntQ').textContent=patients.filter(p=>p.queue).length;
+</script>
+</body>
+</html>

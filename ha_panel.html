@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Health Assistants</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --purple: #7B5EA7;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+  --shadow-lg: 0 12px 48px rgba(26,107,90,0.16);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;
+  background-image:radial-gradient(ellipse 800px 600px at 90% 10%,rgba(61,191,160,0.06) 0%,transparent 70%),
+  radial-gradient(ellipse 600px 500px at 10% 80%,rgba(200,150,62,0.05) 0%,transparent 70%);}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;position:fixed;top:0;left:0;height:100vh;background:var(--text-dark);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 40px rgba(0,0,0,0.15);}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo-mark{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;}
+.logo-mark span{color:var(--teal-glow);}
+.logo-sub{font-size:11px;color:var(--text-soft);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.sidebar-admin{padding:20px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.admin-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;}
+.admin-avatar::after{content:'';position:absolute;bottom:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#4ADE80;border:2px solid var(--text-dark);}
+.admin-name{font-weight:600;font-size:14px;color:#fff;}
+.admin-role{font-size:11px;color:var(--text-soft);}
+.nav-section{padding:16px 12px 8px;}
+.nav-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 12px 8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:2px;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);}
+.nav-item.active{background:linear-gradient(135deg,var(--teal),var(--teal-light));color:#fff;}
+.nav-item .icon{font-size:18px;width:22px;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.12);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);}
+.nav-badge.alert{background:var(--rose);color:#fff;}
+.sidebar-bottom{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06);}
+.quick-jump{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px;margin-bottom:10px;}
+.qj-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px;}
+.qj-link{display:block;font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s;margin-bottom:2px;}
+.qj-link:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);}
+.date-pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:8px 14px;text-align:center;font-size:12px;color:var(--text-soft);font-family:'DM Mono',monospace;}
+
+/* ── MAIN ── */
+.main{margin-left:260px;min-height:100vh;}
+.topbar{background:var(--glass);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 36px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--text-dark);}
+.breadcrumb{font-size:12px;color:var(--text-soft);margin-top:2px;}
+.breadcrumb a{color:var(--teal);text-decoration:none;font-weight:500;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.tb-btn{padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+.tb-btn:hover{border-color:var(--teal);color:var(--teal);}
+.tb-btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+.tb-btn.primary:hover{background:var(--teal-light);transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,107,90,0.25);}
+.notif-btn-wrap{position:relative;}
+.notif-btn{width:38px;height:38px;border-radius:10px;background:var(--ivory);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative;transition:all 0.15s;}
+.notif-btn:hover{border-color:var(--teal);}
+.notif-badge{position:absolute;top:-5px;right:-5px;background:var(--rose);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;border:2px solid var(--cream);}
+.user-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;cursor:pointer;}
+
+.content{padding:32px 36px;}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.03);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;}
+.sc-teal::before{background:linear-gradient(90deg,var(--teal),var(--teal-glow));}
+.sc-gold::before{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.sc-rose::before{background:linear-gradient(90deg,var(--rose),var(--rose-light));}
+.sc-indigo::before{background:linear-gradient(90deg,var(--indigo),#6B82C8);}
+.sc-purple::before{background:linear-gradient(90deg,var(--purple),#A78BFA);}
+.stat-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px;}
+.stat-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;line-height:1;}
+.stat-sub{font-size:11.5px;color:var(--text-soft);margin-top:6px;}
+.stat-trend{font-weight:700;}
+.stat-trend.up{color:#16a34a;}
+.stat-trend.dn{color:var(--rose);}
+
+/* ── AI INSIGHT ── */
+.ai-insight{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:18px;padding:20px 26px;display:flex;align-items:flex-start;gap:16px;margin-bottom:28px;border:1px solid rgba(61,191,160,0.2);}
+.ai-icon{width:42px;height:42px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,var(--teal-glow),var(--teal));display:flex;align-items:center;justify-content:center;font-size:20px;}
+.ai-text h4{font-size:12px;font-weight:700;color:var(--teal-glow);letter-spacing:1px;text-transform:uppercase;}
+.ai-text p{font-size:13px;color:rgba(255,255,255,0.72);margin-top:5px;line-height:1.6;}
+.ai-text strong{color:rgba(255,255,255,0.95);}
+.ai-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.ai-chip{padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:600;border:1px solid rgba(61,191,160,0.3);color:var(--teal-glow);background:rgba(61,191,160,0.08);cursor:pointer;transition:all 0.15s;}
+.ai-chip:hover{background:rgba(61,191,160,0.15);}
+
+/* ── SEARCH + FILTER ── */
+.search-block{margin-bottom:24px;}
+.search-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.search-wrap{flex:1;background:#fff;border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:center;padding:0 14px;gap:10px;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.03);}
+.search-wrap:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.08);}
+.search-wrap input{flex:1;padding:12px 0;font-size:13.5px;font-family:'DM Sans',sans-serif;border:none;outline:none;background:transparent;color:var(--text-dark);}
+.search-wrap input::placeholder{color:var(--text-soft);}
+.filter-btn{padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--text-mid);font-size:12.5px;cursor:pointer;white-space:nowrap;transition:all 0.15s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;}
+.filter-btn:hover{border-color:var(--teal);color:var(--teal);}
+.ai-btn{padding:9px 16px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.2s;}
+.ai-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,107,90,0.25);}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;}
+.tag{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);transition:all 0.15s;display:flex;align-items:center;gap:5px;}
+.tag:hover,.tag.active{border-color:var(--teal);background:rgba(26,107,90,0.06);color:var(--teal);}
+.tag .dot{width:7px;height:7px;border-radius:50%;}
+
+/* ── TWO-COL LAYOUT ── */
+.two-col{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start;}
+
+/* ── HA CARDS GRID ── */
+.ha-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.ha-card{background:#fff;border:1.5px solid var(--border);border-radius:18px;padding:20px;transition:all 0.2s;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
+.ha-card:hover{border-color:var(--teal-glow);transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.ha-card.top-performer{border-color:rgba(200,150,62,0.4);}
+.ha-card.top-performer::after{content:'⭐ Top Performer';position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;color:var(--gold);background:rgba(200,150,62,0.1);border:1px solid rgba(200,150,62,0.3);padding:3px 8px;border-radius:20px;}
+.ha-card.needs-attention{border-color:rgba(192,80,74,0.35);}
+.ha-card.needs-attention::after{content:'⚠ Needs Review';position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;color:var(--rose);background:rgba(192,80,74,0.08);border:1px solid rgba(192,80,74,0.25);padding:3px 8px;border-radius:20px;}
+.ha-top{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.ha-avatar{width:50px;height:50px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;}
+.ha-name{font-weight:700;font-size:15px;}
+.ha-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-soft);margin-top:2px;}
+.ha-cluster{font-size:11px;padding:3px 9px;border-radius:8px;background:rgba(26,107,90,0.07);color:var(--teal);font-weight:600;margin-top:5px;display:inline-block;}
+.online-dot{width:9px;height:9px;border-radius:50%;background:#4ADE80;border:2px solid #fff;box-shadow:0 0 0 2px rgba(74,222,128,0.3);flex-shrink:0;}
+.offline-dot{width:9px;height:9px;border-radius:50%;background:#CBD5E1;border:2px solid #fff;flex-shrink:0;}
+.ha-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.hs{background:var(--ivory);border-radius:10px;padding:10px 8px;text-align:center;border:1px solid var(--border);}
+.hs-val{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}
+.hs-lbl{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);margin-top:3px;}
+.ha-progress{margin-bottom:12px;}
+.hp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.hp-label{font-size:11.5px;color:var(--text-mid);font-weight:500;}
+.hp-pct{font-size:11.5px;font-weight:700;color:var(--teal);}
+.progress-bar{height:5px;background:var(--border);border-radius:5px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--teal),var(--teal-glow));transition:width 0.8s ease;}
+.ha-footer{display:flex;align-items:center;justify-content:space-between;}
+.ha-phone{font-size:12px;color:var(--text-soft);display:flex;align-items:center;gap:5px;}
+.ha-actions{display:flex;gap:6px;}
+.ha-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-mid);font-size:11.5px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.ha-btn:hover{border-color:var(--teal);color:var(--teal);}
+.ha-btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+.ha-btn.primary:hover{background:var(--teal-light);}
+
+/* ── RIGHT PANEL ── */
+.right-panel{display:flex;flex-direction:column;gap:20px;}
+
+/* ── ADD HA FORM ── */
+.form-card{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);}
+.form-head{background:linear-gradient(135deg,var(--text-dark),#2D3A52);padding:22px 26px;}
+.form-head h3{font-family:'Playfair Display',serif;font-size:19px;color:#fff;font-weight:700;}
+.form-head p{font-size:12.5px;color:rgba(255,255,255,0.5);margin-top:4px;}
+.form-body{padding:24px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg.full{grid-column:1/-1;}
+.fl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);font-weight:600;}
+.fi{padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-dark);outline:none;transition:all 0.2s;background:#FAFAF8;width:100%;}
+.fi:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.08);background:#fff;}
+.fi::placeholder{color:var(--text-soft);}
+select.fi{cursor:pointer;}
+.ai-assist-row{background:linear-gradient(135deg,rgba(26,107,90,0.04),rgba(61,191,160,0.07));border:1px solid rgba(26,107,90,0.15);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:9px;margin-bottom:16px;}
+.ai-assist-row p{font-size:12px;color:var(--text-mid);}
+.ai-assist-row strong{color:var(--teal);}
+.submit-row{display:flex;gap:10px;margin-top:14px;}
+.sub-btn{flex:2;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.sub-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,107,90,0.3);}
+.sec-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* ── AI PERFORMANCE PANEL ── */
+.ai-perf{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:16px;padding:20px;border:1px solid rgba(61,191,160,0.2);}
+.ap-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--teal-glow);margin-bottom:14px;font-weight:700;}
+.perf-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+.pr-name{font-size:12.5px;color:rgba(255,255,255,0.8);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pr-bar-wrap{flex:2;height:6px;background:rgba(255,255,255,0.1);border-radius:6px;overflow:hidden;}
+.pr-bar{height:100%;border-radius:6px;transition:width 0.8s ease;}
+.pr-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;width:34px;text-align:right;}
+
+/* ── WORKLOAD SUMMARY ── */
+.workload-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.03);}
+.wc-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.wc-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.wc-name{font-size:12px;color:var(--text-mid);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wc-bar-wrap{flex:1;height:7px;background:var(--border);border-radius:7px;overflow:hidden;}
+.wc-bar{height:100%;border-radius:7px;}
+.wc-val{font-size:11.5px;font-weight:700;width:28px;text-align:right;font-family:'DM Mono',monospace;}
+
+/* ── TABLE VIEW (toggle) ── */
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);display:none;}
+.tw-head{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.tw-title{font-weight:700;font-size:15px;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:12px 18px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);background:#FAFAF8;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid #F5F0E8;transition:background 0.15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(26,107,90,0.025);}
+tbody td{padding:13px 18px;font-size:13px;color:var(--text-dark);}
+.mono{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-soft);}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;}
+.badge-active{background:rgba(74,222,128,0.1);color:#16a34a;}
+.badge-active::before{background:#4ADE80;}
+.badge-leave{background:rgba(200,150,62,0.1);color:var(--gold);}
+.badge-leave::before{background:var(--gold-light);}
+.badge-inactive{background:rgba(192,80,74,0.1);color:var(--rose);}
+.badge-inactive::before{background:var(--rose);}
+.act-dots{cursor:pointer;font-size:18px;color:var(--text-soft);padding:2px 8px;border-radius:6px;}
+.act-dots:hover{background:var(--ivory);}
+
+/* ── VIEW TOGGLE ── */
+.view-toggle{display:flex;gap:4px;background:var(--ivory);border:1px solid var(--border);border-radius:10px;padding:3px;}
+.vt-btn{padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text-soft);transition:all 0.15s;border:none;background:transparent;font-family:'DM Sans',sans-serif;}
+.vt-btn.active{background:#fff;color:var(--text-dark);box-shadow:0 2px 6px rgba(0,0,0,0.08);}
+
+/* ── SECTION HEADING ── */
+.sec-head{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.sec-head::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── TOAST + TRANSITIONS ── */
+.toast{position:fixed;bottom:32px;right:32px;background:var(--text-dark);color:#fff;padding:14px 22px;border-radius:12px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;z-index:9000;transform:translateY(80px);opacity:0;transition:all 0.35s;box-shadow:0 8px 32px rgba(0,0,0,0.25);}
+.toast.show{transform:translateY(0);opacity:1;}
+.page-transition-overlay{position:fixed;inset:0;background:var(--cream);z-index:9999;opacity:0;pointer-events:none;display:flex;align-items:center;justify-content:center;transition:opacity 0.22s ease;}
+.page-transition-overlay.active{opacity:1;pointer-events:all;}
+.pt-logo{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--teal);opacity:0;transform:translateY(8px);transition:all 0.3s ease 0.08s;}
+.pt-logo span{color:var(--teal-glow);}
+.page-transition-overlay.active .pt-logo{opacity:1;transform:translateY(0);}
+
+/* ── DETAIL DRAWER ── */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);backdrop-filter:blur(4px);z-index:300;}
+.drawer-overlay.open{display:block;}
+.drawer{position:fixed;top:0;right:-500px;width:480px;height:100vh;background:#fff;box-shadow:-12px 0 60px rgba(0,0,0,0.15);z-index:301;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;}
+.drawer.open{right:0;}
+.drawer-head{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;}
+.drawer-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--ivory);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all 0.15s;}
+.drawer-close:hover{border-color:var(--rose);color:var(--rose);}
+.drawer-body{padding:28px;}
+.d-section{margin-bottom:24px;}
+.d-sec-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.d-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F5F0E8;}
+.d-row:last-child{border-bottom:none;}
+.d-label{font-size:12.5px;color:var(--text-soft);}
+.d-value{font-size:13px;font-weight:600;color:var(--text-dark);}
+.d-ai-box{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:12px;padding:16px;margin-top:16px;border:1px solid rgba(61,191,160,0.2);}
+.d-ai-box h5{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal-glow);margin-bottom:8px;}
+.d-ai-box p{font-size:12.5px;color:rgba(255,255,255,0.7);line-height:1.6;}
+.d-ai-box strong{color:rgba(255,255,255,0.9);}
+.d-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;}
+.d-stat{background:var(--ivory);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border);}
+.d-stat-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+.d-stat-lbl{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);margin-top:3px;}
+.patient-mini{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--ivory);border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all 0.15s;}
+.patient-mini:hover{border-color:var(--teal);background:rgba(26,107,90,0.03);}
+.pm-name{font-size:13px;font-weight:600;}
+.pm-meta{font-size:11px;color:var(--text-soft);}
+.pm-badge{margin-left:auto;font-size:11px;padding:2px 8px;border-radius:8px;font-weight:600;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.animate{animation:fadeUp 0.45s ease both;}
+.d1{animation-delay:0.05s;}.d2{animation-delay:0.1s;}.d3{animation-delay:0.15s;}.d4{animation-delay:0.2s;}.d5{animation-delay:0.25s;}
+</style>
+</head>
+<body>
+
+<div class="page-transition-overlay" id="pageOverlay"><div class="pt-logo">Health<span>OS</span></div></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence Platform</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div><div class="admin-name">Admin Portal</div><div class="admin-role">Super Administrator</div></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Core</div>
+    <a href="admin_panel.html" class="nav-item" onclick="navTo('admin_panel.html');return false"><span class="icon">🏥</span>Patients<span class="nav-badge">1001</span></a>
+    <a href="doctor_panel.html" class="nav-item" onclick="navTo('doctor_panel.html');return false"><span class="icon">👨‍⚕️</span>Doctors<span class="nav-badge">20</span></a>
+    <a href="ha_panel.html" class="nav-item active"><span class="icon">👤</span>Health Assistants<span class="nav-badge">8</span></a>
+    <a href="cluster_panel.html" class="nav-item" onclick="navTo('cluster_panel.html');return false"><span class="icon">🏘</span>Clusters<span class="nav-badge">6</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Operations</div>
+    <a href="medicine_panel.html" class="nav-item" onclick="navTo('medicine_panel.html');return false"><span class="icon">💊</span>Medicine<span class="nav-badge alert">3</span></a>
+    <a href="all_services.html" class="nav-item" onclick="navTo('all_services.html');return false"><span class="icon">🩺</span>Services<span class="nav-badge">20</span></a>
+    <a href="inventory_panel.html" class="nav-item"><span class="icon">📦</span>Inventory</a>
+    <a href="billing.html" class="nav-item"><span class="icon">💰</span>Billing</a>
+    <a href="reports.html" class="nav-item"><span class="icon">📊</span>Reports</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="quick-jump">
+      <div class="qj-label">Quick Jump</div>
+      <a class="qj-link" href="admin_panel.html" onclick="navTo('admin_panel.html');return false">🏥 Patient Registry</a>
+      <a class="qj-link" href="doctor_panel.html" onclick="navTo('doctor_panel.html');return false">👨‍⚕️ Doctor Panel</a>
+      <a class="qj-link" href="cluster_panel.html" onclick="navTo('cluster_panel.html');return false">🏘 Cluster Map</a>
+      <a class="qj-link" href="all_services.html" onclick="navTo('all_services.html');return false">🩺 New Visit</a>
+      <a class="qj-link" href="medicine_panel.html" onclick="navTo('medicine_panel.html');return false">💊 Medicines</a>
+    </div>
+    <div class="date-pill" id="clockPill">📅 Apr 24, 2026 · 11:30 AM</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div style="cursor:pointer;color:var(--text-soft);font-size:20px" onclick="navTo('admin_panel.html')">←</div>
+    <div>
+      <div class="page-title">Health Assistants</div>
+      <div class="breadcrumb"><a href="admin_panel.html" onclick="navTo('admin_panel.html');return false">Dashboard</a> › HA Management</div>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-btn" onclick="navTo('admin_panel.html')">🏥 Patients</button>
+      <button class="tb-btn" onclick="navTo('cluster_panel.html')">🏘 Clusters</button>
+      <button class="tb-btn" onclick="toggleView()">⇄ Table View</button>
+      <button class="tb-btn primary" onclick="openAddForm()">✚ Add HA</button>
+      <div class="notif-btn-wrap">
+        <div class="notif-btn">🔔<span class="notif-badge">5</span></div>
+      </div>
+      <div class="user-btn">A</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-grid animate d1">
+      <div class="stat-card sc-teal">
+        <div class="stat-label">Total HAs</div>
+        <div class="stat-value" style="color:var(--teal)">8</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 2</span> this quarter</div>
+      </div>
+      <div class="stat-card sc-gold">
+        <div class="stat-label">Avg Patients / HA</div>
+        <div class="stat-value" style="color:var(--gold)">125</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 8%</span> vs last month</div>
+      </div>
+      <div class="stat-card sc-indigo">
+        <div class="stat-label">Total Visits This Month</div>
+        <div class="stat-value" style="color:var(--indigo)">847</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 12%</span> month-on-month</div>
+      </div>
+      <div class="stat-card sc-rose">
+        <div class="stat-label">Overdue Follow-ups</div>
+        <div class="stat-value" style="color:var(--rose)">34</div>
+        <div class="stat-sub"><span class="stat-trend dn">↑ 5</span> from last week</div>
+      </div>
+      <div class="stat-card sc-purple">
+        <div class="stat-label">Avg Performance Score</div>
+        <div class="stat-value" style="color:var(--purple)">82%</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 3pts</span> improvement</div>
+      </div>
+    </div>
+
+    <!-- AI INSIGHT -->
+    <div class="ai-insight animate d2">
+      <div class="ai-icon">🤖</div>
+      <div class="ai-text" style="flex:1">
+        <h4>✦ AI Workforce Intelligence</h4>
+        <p><strong>Sumit C</strong> is managing 221 patients — <strong>43% above cluster average</strong>. AI recommends redistributing 40 patients to <strong>Kavita B</strong> (currently underloaded at 67 patients). <strong>Rohit K</strong> has the highest overdue rate (18 patients) — schedule a review. Overall cluster coverage improved by <strong>11% this month</strong>.</p>
+        <div class="ai-chips">
+          <span class="ai-chip" onclick="showToast('✦ AI rebalancing plan generated!')">✦ Auto-Rebalance Workload</span>
+          <span class="ai-chip" onclick="showToast('📋 Performance report ready!')">📋 Generate HA Report</span>
+          <span class="ai-chip" onclick="showToast('📩 Alerts sent to 3 HAs!')">📩 Send Follow-up Alerts</span>
+          <span class="ai-chip" onclick="showToast('🗓 Schedule created!')">🗓 AI Schedule Optimizer</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-block animate d3">
+      <div class="search-row">
+        <div class="search-wrap">
+          <span style="font-size:17px;color:var(--text-soft)">🔍</span>
+          <input id="searchInput" type="text" placeholder="Search HA by name, ID, cluster, phone, location..." oninput="filterHAs()">
+        </div>
+        <button class="filter-btn" onclick="filterByStatus('all')">All Status ▾</button>
+        <button class="filter-btn">📍 Cluster ▾</button>
+        <button class="filter-btn">📊 Sort by ▾</button>
+        <button class="ai-btn" onclick="showToast('✦ AI has highlighted 2 HAs needing attention!')">✦ AI Insights</button>
+      </div>
+      <div class="tag-row">
+        <span class="tag active" onclick="filterByStatus('all',this)">👥 All HAs</span>
+        <span class="tag" onclick="filterByStatus('Active',this)"><span class="dot" style="background:#4ADE80"></span>Active</span>
+        <span class="tag" onclick="filterByStatus('On Leave',this)"><span class="dot" style="background:var(--gold)"></span>On Leave</span>
+        <span class="tag" onclick="filterByStatus('Inactive',this)"><span class="dot" style="background:var(--rose)"></span>Inactive</span>
+        <span class="tag" onclick="filterHighLoad(this)">🔴 High Workload</span>
+        <span class="tag" onclick="filterTopPerf(this)">⭐ Top Performers</span>
+        <span class="tag" onclick="filterOverdue(this)">⚠ Overdue Visits</span>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- LEFT: CARDS + TABLE -->
+      <div>
+        <!-- VIEW TOGGLE -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div class="sec-head" style="margin-bottom:0;flex:1">HA Directory</div>
+          <div class="view-toggle">
+            <button class="vt-btn active" id="cardViewBtn" onclick="switchView('card')">⊞ Cards</button>
+            <button class="vt-btn" id="tableViewBtn" onclick="switchView('table')">≡ Table</button>
+          </div>
+        </div>
+
+        <!-- CARD GRID -->
+        <div class="ha-grid" id="haGrid"></div>
+
+        <!-- TABLE VIEW -->
+        <div class="table-wrap" id="haTable">
+          <div class="tw-head">
+            <div class="tw-title">HA Registry — All Records</div>
+            <div style="display:flex;gap:8px">
+              <button class="ha-btn" onclick="showToast('⬇ CSV exported!')">⬇ Export</button>
+              <button class="ha-btn primary" onclick="showToast('✦ AI summary generated!')">✦ AI Summary</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr>
+              <th>HA ID</th><th>Name</th><th>Cluster</th><th>Phone</th>
+              <th>Patients</th><th>Visits (Mo)</th><th>Score</th><th>Status</th><th></th>
+            </tr></thead>
+            <tbody id="haTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel animate d2">
+        <!-- ADD FORM -->
+        <div class="form-card" id="addFormCard">
+          <div class="form-head">
+            <h3>Add New Health Assistant</h3>
+            <p>Register & assign to cluster with AI assist</p>
+          </div>
+          <div class="form-body">
+            <div class="ai-assist-row">
+              <span style="font-size:18px">✦</span>
+              <p><strong>AI Assist:</strong> Enter name & cluster — AI auto-assigns optimal HA ID and suggests workload cap.</p>
+            </div>
+            <div class="form-grid">
+              <div class="fg"><label class="fl">First Name</label><input class="fi" placeholder="First name"></div>
+              <div class="fg"><label class="fl">Last Name</label><input class="fi" placeholder="Last name"></div>
+              <div class="fg full"><label class="fl">HA ID (Auto)</label><input class="fi" id="haIdInput" placeholder="e.g. HA-WB-BRH-009" readonly style="background:rgba(26,107,90,0.04);color:var(--teal);font-family:'DM Mono',monospace;font-weight:600"></div>
+              <div class="fg"><label class="fl">Phone</label><input class="fi" placeholder="+91 XXXXXXXXXX"></div>
+              <div class="fg"><label class="fl">Email</label><input class="fi" placeholder="ha@health.in"></div>
+              <div class="fg full"><label class="fl">Address</label><input class="fi" placeholder="Village / Town, District"></div>
+              <div class="fg"><label class="fl">Cluster Assignment</label>
+                <select class="fi" id="clusterSelect" onchange="autoGenId()">
+                  <option value="">Select cluster</option>
+                  <option value="WB-BRH">WB-BRH Berhampore</option>
+                  <option value="WB-JRG">WB-JRG Jalpaiguri</option>
+                  <option value="WB-MDN">WB-MDN Midnapore</option>
+                  <option value="WB-HWH">WB-HWH Howrah</option>
+                  <option value="WB-NDP">WB-NDP Nadia</option>
+                  <option value="WB-BNK">WB-BNK Bankura</option>
+                </select>
+              </div>
+              <div class="fg"><label class="fl">Qualification</label>
+                <select class="fi">
+                  <option>ANM</option><option>GNM</option><option>BSc Nursing</option>
+                  <option>ASHA Worker</option><option>Community Health Worker</option>
+                </select>
+              </div>
+              <div class="fg"><label class="fl">Joining Date</label><input class="fi" type="date"></div>
+              <div class="fg"><label class="fl">Max Patient Cap</label><input class="fi" type="number" id="patCap" placeholder="AI suggests: 120"></div>
+              <div class="fg full"><label class="fl">Languages Spoken</label>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="langTags">
+                  <span class="tag" style="font-size:11px;padding:4px 10px" onclick="this.classList.toggle('active')">Bengali</span>
+                  <span class="tag" style="font-size:11px;padding:4px 10px" onclick="this.classList.toggle('active')">Hindi</span>
+                  <span class="tag" style="font-size:11px;padding:4px 10px" onclick="this.classList.toggle('active')">English</span>
+                  <span class="tag" style="font-size:11px;padding:4px 10px" onclick="this.classList.toggle('active')">Santali</span>
+                  <span class="tag" style="font-size:11px;padding:4px 10px" onclick="this.classList.toggle('active')">Odia</span>
+                </div>
+              </div>
+            </div>
+            <div class="submit-row">
+              <button class="sec-btn" onclick="autoFillForm()">✦ AI Auto-Fill</button>
+              <button class="sub-btn" onclick="showToast('✅ New HA registered successfully!')">✚ Register HA</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI PERFORMANCE RANKING -->
+        <div class="ai-perf animate d3">
+          <div class="ap-title">✦ AI Performance Ranking</div>
+          <div id="perfRows"></div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);font-size:10.5px;color:rgba(255,255,255,0.35);letter-spacing:0.5px">Based on visit rate, patient load, overdue %, and feedback score</div>
+        </div>
+
+        <!-- WORKLOAD BAR -->
+        <div class="workload-card animate d4">
+          <div class="wc-title">📊 Patient Load Distribution</div>
+          <div id="workloadBars"></div>
+          <div style="margin-top:12px;padding:10px 12px;background:rgba(26,107,90,0.04);border:1px solid rgba(26,107,90,0.12);border-radius:10px;font-size:12px;color:var(--text-mid)">
+            ✦ <strong style="color:var(--teal)">AI Recommendation:</strong> Transfer 40 patients from Sumit C to Kavita B for optimal load balance.
+            <button onclick="showToast('✦ Rebalancing plan applied!')" style="display:block;margin-top:8px;width:100%;padding:7px;border-radius:8px;border:none;background:var(--teal);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Apply AI Rebalance</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="haDrawer">
+  <div class="drawer-head">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700" id="drawerName">HA Detail</div>
+      <div style="font-size:12px;color:var(--text-soft);margin-top:2px" id="drawerSub">Loading...</div>
+    </div>
+    <div class="drawer-close" onclick="closeDrawer()">✕</div>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const haData = [
+  {id:'HA-WB-BRH-001',name:'Sumit Chakraborty',cluster:'WB-BRH',phone:'9876543210',addr:'Berhampore, Murshidabad',qual:'GNM',patients:221,visits:78,overdue:4,score:91,status:'Active',lang:['Bengali','Hindi'],joined:'2020-03-15',cap:200,color:'#1A6B5A',top:true},
+  {id:'HA-WB-BRH-002',name:'Priya Mukherjee',cluster:'WB-BRH',phone:'8765432109',addr:'Lalbagh, Murshidabad',qual:'ANM',patients:187,visits:65,overdue:6,score:86,status:'Active',lang:['Bengali'],joined:'2019-07-22',cap:200,color:'#2A9076',top:true},
+  {id:'HA-WB-JRG-001',name:'Rohit Karmakar',cluster:'WB-JRG',phone:'7654321098',addr:'Jalpaiguri Town',qual:'Community Health Worker',patients:178,visits:54,overdue:18,score:68,status:'Active',lang:['Bengali','Hindi'],joined:'2021-01-10',cap:180,color:'#C0504A',top:false,warn:true},
+  {id:'HA-WB-JRG-002',name:'Anjali Singh',cluster:'WB-JRG',phone:'6543210987',addr:'Dhupguri, Jalpaiguri',qual:'BSc Nursing',patients:143,visits:60,overdue:7,score:82,status:'Active',lang:['Hindi','Bengali'],joined:'2020-11-05',cap:150,color:'#3D4F8A',top:false},
+  {id:'HA-WB-MDN-001',name:'Deepa Rao',cluster:'WB-MDN',phone:'9543210876',addr:'Midnapore Town',qual:'ANM',patients:156,visits:58,overdue:5,score:84,status:'Active',lang:['Bengali','Odia'],joined:'2021-06-18',cap:160,color:'#C8963E',top:false},
+  {id:'HA-WB-HWH-001',name:'Suresh Pillai',cluster:'WB-HWH',phone:'8432109765',addr:'Howrah, Shibpur',qual:'GNM',patients:112,visits:48,overdue:3,score:88,status:'Active',lang:['Bengali','Hindi'],joined:'2022-02-28',cap:120,color:'#7B5EA7',top:false},
+  {id:'HA-WB-NDP-001',name:'Kavita Banerjee',cluster:'WB-NDP',phone:'7321098654',addr:'Krishnanagar, Nadia',qual:'ASHA Worker',patients:67,visits:30,overdue:2,score:79,status:'On Leave',lang:['Bengali'],joined:'2022-09-01',cap:100,color:'#8B6914',top:false},
+  {id:'HA-WB-BNK-001',name:'Manoj Ghosh',cluster:'WB-BNK',phone:'6210987543',addr:'Bankura Town',qual:'Community Health Worker',patients:43,visits:22,overdue:1,score:75,status:'Active',lang:['Bengali','Santali'],joined:'2023-04-12',cap:80,color:'#A0522D',top:false},
+];
+
+let currentFilter = 'all';
+let currentSearch = '';
+let currentView = 'card';
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function getFiltered(){
+  return haData.filter(h => {
+    const matchStatus = currentFilter === 'all' || h.status === currentFilter ||
+      (currentFilter === 'high' && h.patients > 180) ||
+      (currentFilter === 'top' && h.score >= 88) ||
+      (currentFilter === 'overdue' && h.overdue > 5);
+    const q = currentSearch.toLowerCase();
+    const matchQ = !q || h.name.toLowerCase().includes(q) || h.cluster.toLowerCase().includes(q) ||
+      h.id.toLowerCase().includes(q) || h.phone.includes(q) || h.addr.toLowerCase().includes(q);
+    return matchStatus && matchQ;
+  });
+}
+
+function renderGrid(){
+  const grid = document.getElementById('haGrid');
+  const filtered = getFiltered();
+  if(!filtered.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-soft);font-size:14px">No HAs match your search.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map((h,i) => {
+    const pct = Math.round(h.patients / h.cap * 100);
+    const scoreColor = h.score >= 88 ? '#16a34a' : h.score >= 75 ? 'var(--gold)' : 'var(--rose)';
+    const badgeCls = h.status === 'Active' ? 'badge-active' : h.status === 'On Leave' ? 'badge-leave' : 'badge-inactive';
+    return `<div class="ha-card ${h.top?'top-performer':''} ${h.warn?'needs-attention':''}" style="animation:fadeUp 0.4s ease ${0.05+i*0.06}s both" onclick="openDrawer(${h.id.split('-').pop()*1 - 1})">
+      <div class="ha-top">
+        <div class="ha-avatar" style="background:${h.color}">${h.name.split(' ').map(n=>n[0]).join('')}</div>
+        <div style="flex:1">
+          <div class="ha-name">${h.name}</div>
+          <div class="ha-id">${h.id}</div>
+          <span class="ha-cluster">${h.cluster}</span>
+        </div>
+        <div class="${h.status==='Active'?'online-dot':'offline-dot'}" title="${h.status}"></div>
+      </div>
+      <div class="ha-stats">
+        <div class="hs"><div class="hs-val" style="color:var(--teal)">${h.patients}</div><div class="hs-lbl">Patients</div></div>
+        <div class="hs"><div class="hs-val" style="color:var(--indigo)">${h.visits}</div><div class="hs-lbl">Visits/Mo</div></div>
+        <div class="hs"><div class="hs-val" style="color:${scoreColor}">${h.score}%</div><div class="hs-lbl">AI Score</div></div>
+      </div>
+      <div class="ha-progress">
+        <div class="hp-row"><span class="hp-label">Patient load</span><span class="hp-pct" style="color:${pct>90?'var(--rose)':pct>70?'var(--gold)':'var(--teal)'}">${pct}% of cap</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(pct,100)}%;background:${pct>90?'linear-gradient(90deg,var(--rose),var(--rose-light))':pct>70?'linear-gradient(90deg,var(--gold),var(--gold-light))':'linear-gradient(90deg,var(--teal),var(--teal-glow))'}"></div></div>
+      </div>
+      <div class="ha-footer">
+        <div class="ha-phone">📱 ${h.phone}</div>
+        <div class="ha-actions">
+          <button class="ha-btn" onclick="event.stopPropagation();showToast('📩 Message sent to '+${JSON.stringify(h.name)})">Message</button>
+          <button class="ha-btn primary" onclick="event.stopPropagation();openDrawer(${haData.indexOf(h)})">View</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTable(){
+  const tbody = document.getElementById('haTableBody');
+  const filtered = getFiltered();
+  tbody.innerHTML = filtered.map(h => {
+    const badgeCls = h.status === 'Active' ? 'badge-active' : h.status === 'On Leave' ? 'badge-leave' : 'badge-inactive';
+    const scoreColor = h.score >= 88 ? '#16a34a' : h.score >= 75 ? 'var(--gold)' : 'var(--rose)';
+    return `<tr onclick="openDrawer(${haData.indexOf(h)})" style="cursor:pointer">
+      <td><span class="mono">${h.id}</span></td>
+      <td><div style="display:flex;align-items:center;gap:9px"><div style="width:30px;height:30px;border-radius:8px;background:${h.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">${h.name.split(' ').map(n=>n[0]).join('')}</div><strong>${h.name}</strong></div></td>
+      <td><span style="font-size:12px;background:rgba(26,107,90,0.07);color:var(--teal);padding:3px 9px;border-radius:6px;font-weight:600">${h.cluster}</span></td>
+      <td style="color:var(--text-soft);font-size:12px">${h.phone}</td>
+      <td><strong>${h.patients}</strong><span style="color:var(--text-soft);font-size:11px">/${h.cap}</span></td>
+      <td>${h.visits}</td>
+      <td><strong style="color:${scoreColor}">${h.score}%</strong></td>
+      <td><span class="badge ${badgeCls}">${h.status}</span></td>
+      <td><span class="act-dots">⋯</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPerfBars(){
+  const sorted = [...haData].sort((a,b) => b.score - a.score);
+  const colors = ['#3DBFA0','#4ADE80','#E8B96A','#E8857F','#6B82C8','#A78BFA','#FCA5A5','#86EFAC'];
+  document.getElementById('perfRows').innerHTML = sorted.map((h,i) => `
+    <div class="perf-row">
+      <div class="pr-name">${h.name.split(' ')[0]}</div>
+      <div class="pr-bar-wrap"><div class="pr-bar" style="width:${h.score}%;background:${colors[i]}"></div></div>
+      <div class="pr-val" style="color:${colors[i]}">${h.score}</div>
+    </div>`).join('');
+}
+
+function renderWorkload(){
+  const max = Math.max(...haData.map(h=>h.patients));
+  const colors = ['#1A6B5A','#2A9076','#C0504A','#3D4F8A','#C8963E','#7B5EA7','#8B6914','#A0522D'];
+  document.getElementById('workloadBars').innerHTML = haData.map((h,i) => `
+    <div class="wc-row">
+      <div class="wc-name" title="${h.name}">${h.name.split(' ')[0]}</div>
+      <div class="wc-bar-wrap"><div class="wc-bar" style="width:${Math.round(h.patients/max*100)}%;background:${colors[i]}"></div></div>
+      <div class="wc-val" style="color:${colors[i]}">${h.patients}</div>
+    </div>`).join('');
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────────────────
+function filterHAs(){ currentSearch = document.getElementById('searchInput').value; render(); }
+function filterByStatus(s, el){
+  currentFilter = s;
+  document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  render();
+}
+function filterHighLoad(el){ currentFilter = 'high'; document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active')); el.classList.add('active'); render(); }
+function filterTopPerf(el){ currentFilter = 'top'; document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active')); el.classList.add('active'); render(); }
+function filterOverdue(el){ currentFilter = 'overdue'; document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active')); el.classList.add('active'); render(); }
+
+function render(){ currentView === 'card' ? renderGrid() : renderTable(); }
+
+// ── VIEW TOGGLE ───────────────────────────────────────────────────────────────
+function switchView(v){
+  currentView = v;
+  document.getElementById('haGrid').style.display = v === 'card' ? 'grid' : 'none';
+  document.getElementById('haTable').style.display = v === 'table' ? 'block' : 'none';
+  document.getElementById('cardViewBtn').classList.toggle('active', v === 'card');
+  document.getElementById('tableViewBtn').classList.toggle('active', v === 'table');
+  render();
+}
+function toggleView(){ switchView(currentView === 'card' ? 'table' : 'card'); }
+
+// ── DRAWER ────────────────────────────────────────────────────────────────────
+function openDrawer(idx){
+  const h = haData[idx];
+  if(!h) return;
+  document.getElementById('drawerName').textContent = h.name;
+  document.getElementById('drawerSub').textContent = h.id + ' · ' + h.cluster + ' · ' + h.status;
+  const scoreColor = h.score >= 88 ? '#16a34a' : h.score >= 75 ? 'var(--gold)' : 'var(--rose)';
+  const pct = Math.round(h.patients / h.cap * 100);
+  document.getElementById('drawerBody').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+      <div style="width:64px;height:64px;border-radius:18px;background:${h.color};display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff">${h.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700">${h.name}</div>
+        <div style="font-size:12px;color:var(--text-soft);margin-top:2px">${h.qual} · Joined ${new Date(h.joined).toLocaleDateString('en-GB',{month:'short',year:'numeric'})}</div>
+        <div style="margin-top:6px;display:flex;gap:6px">
+          ${h.lang.map(l=>`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:rgba(26,107,90,0.08);color:var(--teal);font-weight:600">${l}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="d-stat-row">
+      <div class="d-stat"><div class="d-stat-val" style="color:var(--teal)">${h.patients}</div><div class="d-stat-lbl">Patients</div></div>
+      <div class="d-stat"><div class="d-stat-val" style="color:var(--indigo)">${h.visits}</div><div class="d-stat-lbl">Visits/Mo</div></div>
+      <div class="d-stat"><div class="d-stat-val" style="color:${scoreColor}">${h.score}%</div><div class="d-stat-lbl">AI Score</div></div>
+    </div>
+    <div class="d-section">
+      <div class="d-sec-title">Contact & Location</div>
+      <div class="d-row"><span class="d-label">Phone</span><span class="d-value">${h.phone}</span></div>
+      <div class="d-row"><span class="d-label">Address</span><span class="d-value">${h.addr}</span></div>
+      <div class="d-row"><span class="d-label">Cluster</span><span class="d-value" style="color:var(--teal)">${h.cluster}</span></div>
+      <div class="d-row"><span class="d-label">Qualification</span><span class="d-value">${h.qual}</span></div>
+    </div>
+    <div class="d-section">
+      <div class="d-sec-title">Workload</div>
+      <div class="d-row"><span class="d-label">Patients</span><span class="d-value">${h.patients} / ${h.cap} cap (${pct}%)</span></div>
+      <div class="progress-bar" style="margin:6px 0 10px"><div class="progress-fill" style="width:${pct}%;background:${pct>90?'var(--rose)':pct>70?'var(--gold)':'var(--teal)'}"></div></div>
+      <div class="d-row"><span class="d-label">Overdue Follow-ups</span><span class="d-value" style="color:${h.overdue>5?'var(--rose)':'var(--text-dark)'}">${h.overdue}</span></div>
+      <div class="d-row"><span class="d-label">Monthly Visits</span><span class="d-value">${h.visits}</span></div>
+    </div>
+    <div class="d-ai-box">
+      <h5>✦ AI Performance Analysis</h5>
+      <p>${h.score >= 88 ? `<strong>${h.name.split(' ')[0]}</strong> is a <strong>top performer</strong> with excellent patient engagement. Visit frequency is above cluster average. Recommend for mentorship role.` : h.score >= 75 ? `<strong>${h.name.split(' ')[0]}</strong> is performing <strong>well</strong> but has ${h.overdue} overdue follow-ups. AI suggests scheduling a review call to address gaps.` : `<strong>${h.name.split(' ')[0]}</strong> shows <strong>below-average</strong> performance. Overdue rate (${h.overdue}) is critical. Recommend immediate workload review and supervisor support.`}</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px">
+      <button onclick="showToast('📩 Message sent to ${h.name}!')" style="padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">📩 Message</button>
+      <button onclick="showToast('📋 HA report for ${h.name} ready!')" style="padding:11px;border-radius:10px;border:none;background:var(--teal);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">📋 Full Report</button>
+    </div>`;
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('haDrawer').classList.add('open');
+}
+
+function closeDrawer(){
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('haDrawer').classList.remove('open');
+}
+
+// ── FORM HELPERS ──────────────────────────────────────────────────────────────
+function autoGenId(){
+  const cl = document.getElementById('clusterSelect').value;
+  if(cl){ document.getElementById('haIdInput').value = 'HA-'+cl+'-00'+(haData.length+1); document.getElementById('patCap').placeholder = 'AI suggests: '+Math.floor(80+Math.random()*60); }
+}
+function autoFillForm(){
+  document.getElementById('clusterSelect').value = 'WB-BRH';
+  autoGenId();
+  showToast('✦ AI has auto-filled suggested values!');
+}
+function openAddForm(){ document.getElementById('addFormCard').scrollIntoView({behavior:'smooth'}); }
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+function navTo(page){ const o=document.getElementById('pageOverlay'); o.classList.add('active'); setTimeout(()=>window.location.href=page,280); }
+function updateClock(){ const el=document.querySelector('.date-pill'); if(!el)return; const now=new Date(); el.textContent='📅 '+now.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'})+' · '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', ()=>{
+  const o = document.getElementById('pageOverlay');
+  o.classList.add('active');
+  setTimeout(()=>o.classList.remove('active'), 350);
+  render();
+  renderPerfBars();
+  renderWorkload();
+  updateClock();
+  setInterval(updateClock, 30000);
+});
+</script>
+</body>
+</html>

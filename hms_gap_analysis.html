@@ -1,0 +1,99 @@
+
+<style>
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 1rem 0; }
+  .card { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 14px 16px; }
+  .card.exists { border-left: 3px solid #1D9E75; }
+  .card.missing { border-left: 3px solid #E24B4A; }
+  .card.partial { border-left: 3px solid #EF9F27; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px; }
+  .badge.exists { background: var(--color-background-success); color: var(--color-text-success); }
+  .badge.missing { background: var(--color-background-danger); color: var(--color-text-danger); }
+  .badge.partial { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+  .desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .section-head { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 1.5rem 0 0.5rem; }
+  .summary-bar { display: flex; gap: 16px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .sum-chip { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-secondary); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  h2 { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  p { font-size: 13px; color: var(--color-text-secondary); margin: 0 0 1rem; }
+</style>
+<h2 style="padding-top:1rem">HMS screens — gap analysis</h2>
+<p>You have 16 screens. Here's how they map to a complete Hospital Management System.</p>
+<div class="summary-bar">
+  <div class="sum-chip"><div class="dot" style="background:#1D9E75"></div> 9 covered</div>
+  <div class="sum-chip"><div class="dot" style="background:#EF9F27"></div> 4 partial</div>
+  <div class="sum-chip"><div class="dot" style="background:#E24B4A"></div> 14 missing</div>
+</div>
+
+<div class="section-head">Clinical — examinations &amp; records</div>
+<div class="grid">
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">General exams</div><div class="desc">general_exams.html (342 KB — largest file)</div></div>
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Specific exams</div><div class="desc">specific_exams.html — multi-system exam with GNEAI</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Doctor workbench / EMR</div><div class="desc">SOAP notes, prescriptions, CPOE, visit summary</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Discharge summary</div><div class="desc">IP discharge instructions, referral letters</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Vitals &amp; nursing notes</div><div class="desc">Bedside vitals entry, nursing shift notes</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Radiology / imaging</div><div class="desc">Order, report, DICOM viewer link</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Laboratory (LIS)</div><div class="desc">Test requisition, sample tracking, results</div></div>
+</div>
+
+<div class="section-head">Patient flow</div>
+<div class="grid">
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Patient registration</div><div class="desc">patient_registration.html</div></div>
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Patient snapshot</div><div class="desc">patient_snapshot.html — summary view</div></div>
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Patient episodes</div><div class="desc">patient_episodes.html — visit history</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Appointment scheduling</div><div class="desc">Slot booking, calendar, SMS reminders</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">OP / OPD queue</div><div class="desc">Token system, doctor queue display</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">IP admission &amp; bed mgmt</div><div class="desc">Bed map, admission, transfer, discharge</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Emergency / triage</div><div class="desc">Walk-in triage, acuity scoring, fast-track</div></div>
+</div>
+
+<div class="section-head">Pharmacy &amp; supplies</div>
+<div class="grid">
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Medicine panel</div><div class="desc">medicine_panel.html — drug catalogue</div></div>
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Inventory panel</div><div class="desc">inventory_panel.html — stock management</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Pharmacy dispensing</div><div class="desc">Prescription fulfilment, issue slip, returns</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Purchase orders / GRN</div><div class="desc">Vendor PO, goods receipt, expiry alerts</div></div>
+</div>
+
+<div class="section-head">Billing &amp; finance</div>
+<div class="grid">
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Billing</div><div class="desc">billing.html — invoice &amp; payments</div></div>
+  <div class="card partial"><span class="badge partial">Partial</span><div class="title">Insurance / TPA</div><div class="desc">billing.html may cover basic; pre-auth &amp; claim submission likely missing</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Accounts &amp; ledger</div><div class="desc">Day book, cashier summary, revenue reconciliation</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Insurance claim tracking</div><div class="desc">Claim status, rejection, resubmission workflow</div></div>
+</div>
+
+<div class="section-head">Administration &amp; HR</div>
+<div class="grid">
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Admin panel</div><div class="desc">admin_panel.html — system config</div></div>
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Doctor panel</div><div class="desc">doctor_panel.html — doctor profiles / scheduling</div></div>
+  <div class="card partial"><span class="badge partial">Partial</span><div class="title">Staff / HR</div><div class="desc">ha_panel.html covers HA; full HR (payroll, leave, attendance) may be missing</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Duty roster &amp; shifts</div><div class="desc">Nurse / doctor shift assignment, swap requests</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Payroll</div><div class="desc">Salary computation, deductions, payslip</div></div>
+</div>
+
+<div class="section-head">Reporting &amp; analytics</div>
+<div class="grid">
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Reports</div><div class="desc">reports.html — standard report outputs</div></div>
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Report services</div><div class="desc">report_services.html — service-wise breakdown</div></div>
+  <div class="card partial"><span class="badge partial">Partial</span><div class="title">Analytics dashboard</div><div class="desc">May need a live KPI dashboard with charts (OPD count, revenue, bed occupancy)</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">MIS / management reports</div><div class="desc">Daily census, departmental P&amp;L, regulatory returns</div></div>
+</div>
+
+<div class="section-head">Patient engagement &amp; support</div>
+<div class="grid">
+  <div class="card partial"><span class="badge partial">Partial</span><div class="title">Prescription workbench</div><div class="desc">prescription_workbench.html — 144 KB, likely covers most of ePrescription</div></div>
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">All services</div><div class="desc">all_services.html — service catalogue</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Patient portal</div><div class="desc">Self-service: results, appointments, feedback</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Consent management</div><div class="desc">Digital consent forms, audit trail</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Feedback / complaints</div><div class="desc">CSAT survey, grievance tracking</div></div>
+</div>
+
+<div class="section-head">Access &amp; system</div>
+<div class="grid">
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Login</div><div class="desc">login.html — authentication</div></div>
+  <div class="card exists"><span class="badge exists">Exists</span><div class="title">Cluster panel</div><div class="desc">cluster_panel.html — multi-facility / org view</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">Role &amp; permissions mgmt</div><div class="desc">RBAC matrix, user provisioning, audit log</div></div>
+  <div class="card missing"><span class="badge missing">Missing</span><div class="title">OT / surgery scheduling</div><div class="desc">Theatre booking, team assignment, OT notes</div></div>
+</div>

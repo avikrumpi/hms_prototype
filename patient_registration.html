@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Patient Registration</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+  --shadow-lg: 0 12px 48px rgba(26,107,90,0.16);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 800px 600px at 90% 10%, rgba(61,191,160,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 10% 80%, rgba(200,150,62,0.05) 0%, transparent 70%);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px; position: fixed; top: 0; left: 0; height: 100vh;
+  background: var(--text-dark);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  box-shadow: 4px 0 40px rgba(0,0,0,0.15);
+}
+.sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.logo-mark { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+.logo-mark span { color: var(--teal-glow); }
+.logo-sub { font-size: 11px; color: var(--text-soft); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+.sidebar-admin { padding: 20px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.admin-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-light)); display: flex; align-items: center; justify-content: center; font-size: 18px; position: relative; }
+.admin-avatar::after { content:''; position: absolute; bottom: 2px; right: 2px; width: 9px; height: 9px; border-radius: 50%; background: #4ADE80; border: 2px solid var(--text-dark); }
+.admin-name { font-weight: 600; font-size: 14px; color: #fff; }
+.admin-role { font-size: 11px; color: var(--text-soft); }
+.nav-section { padding: 16px 12px 8px; }
+.nav-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0 12px 8px; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; color: rgba(255,255,255,0.55); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none; margin-bottom: 2px; }
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; }
+.nav-item .icon { font-size: 18px; width: 22px; }
+.nav-badge { margin-left: auto; background: rgba(255,255,255,0.12); padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.7); }
+.sidebar-bottom { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+.date-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 8px 14px; text-align: center; font-size: 12px; color: var(--text-soft); font-family: 'DM Mono', monospace; }
+
+/* MAIN */
+.main { margin-left: 260px; min-height: 100vh; }
+.topbar { background: var(--glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 16px 36px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 50; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--text-dark); }
+.breadcrumb { font-size: 13px; color: var(--text-soft); display: flex; align-items: center; gap: 6px; }
+.breadcrumb a { color: var(--teal); text-decoration: none; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.notif-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--ivory); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; position: relative; }
+.notif-btn::after { content: '3'; position: absolute; top: -4px; right: -4px; background: var(--rose); color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; }
+
+.content { padding: 32px 36px; }
+
+/* ADVANCED SEARCH */
+.search-block { margin-bottom: 28px; }
+.search-wrap { background: #fff; border: 1.5px solid var(--border); border-radius: 16px; display: flex; align-items: center; gap: 0; box-shadow: 0 2px 16px rgba(0,0,0,0.04); overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; }
+.search-wrap:focus-within { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(26,107,90,0.08); }
+.search-icon { padding: 0 16px; color: var(--text-soft); font-size: 18px; }
+.search-input { flex: 1; padding: 14px 0; font-size: 14px; font-family: 'DM Sans', sans-serif; border: none; outline: none; background: transparent; color: var(--text-dark); }
+.search-divider { width: 1px; height: 24px; background: var(--border); }
+.search-filter { padding: 0 16px; font-size: 13px; color: var(--text-mid); cursor: pointer; white-space: nowrap; transition: color 0.15s; }
+.search-filter:hover { color: var(--teal); }
+.ai-search-btn { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; border: none; padding: 10px 20px; font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; transition: opacity 0.2s; margin: 6px; border-radius: 10px; }
+.ai-search-btn:hover { opacity: 0.88; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.tag { background: var(--ivory); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 500; color: var(--text-mid); cursor: pointer; transition: all 0.15s; }
+.tag:hover, .tag.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+/* STEP PROGRESS */
+.step-progress { display: flex; align-items: center; margin-bottom: 32px; background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px 28px; box-shadow: var(--shadow); }
+.step { display: flex; align-items: center; gap: 12px; flex: 1; }
+.step-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; transition: all 0.3s; flex-shrink: 0; }
+.step-circle.done { background: var(--teal); color: #fff; }
+.step-circle.active { background: var(--teal); color: #fff; box-shadow: 0 0 0 6px rgba(26,107,90,0.15); }
+.step-circle.pending { background: var(--ivory); border: 2px solid var(--border); color: var(--text-soft); }
+.step-info { flex: 1; }
+.step-name { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.step-desc { font-size: 11px; color: var(--text-soft); margin-top: 1px; }
+.step-connector { flex: 0 0 40px; height: 2px; background: var(--border); margin: 0 8px; border-radius: 2px; }
+.step-connector.done { background: var(--teal); }
+
+/* FORM CARD */
+.form-card { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 32px; box-shadow: var(--shadow); margin-bottom: 24px; }
+.form-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.form-card-icon { width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, rgba(26,107,90,0.1), rgba(42,144,118,0.15)); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.form-card-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--text-dark); }
+.form-card-subtitle { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+.ai-assist-btn { margin-left: auto; background: linear-gradient(135deg, rgba(61,191,160,0.1), rgba(26,107,90,0.15)); border: 1px solid rgba(26,107,90,0.2); color: var(--teal); padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+.ai-assist-btn:hover { background: linear-gradient(135deg, rgba(61,191,160,0.2), rgba(26,107,90,0.25)); }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text-mid); letter-spacing: 0.3px; display: flex; align-items: center; gap: 4px; }
+.form-label .req { color: var(--rose); }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif;
+  color: var(--text-dark); background: var(--cream);
+  outline: none; transition: all 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--teal); background: #fff; box-shadow: 0 0 0 3px rgba(26,107,90,0.08); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238896A5' fill='none' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.ai-suggestion { background: linear-gradient(135deg, rgba(61,191,160,0.06), rgba(200,150,62,0.04)); border: 1px dashed rgba(26,107,90,0.3); border-radius: 8px; padding: 8px 12px; margin-top: 4px; font-size: 12px; color: var(--teal); display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.ai-suggestion:hover { background: rgba(26,107,90,0.08); }
+.input-with-icon { position: relative; }
+.input-with-icon .form-input { padding-right: 44px; }
+.input-suffix { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-soft); font-family: 'DM Mono', monospace; }
+
+/* SECTION DIVIDER */
+.section-divider { display: flex; align-items: center; gap: 12px; margin: 8px 0 20px; }
+.section-divider-line { flex: 1; height: 1px; background: var(--border); }
+.section-divider-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-soft); font-weight: 600; white-space: nowrap; }
+
+/* VITALS SECTION */
+.vitals-section { display: none; }
+.vitals-section.active { display: block; }
+.reg-section.hidden { display: none; }
+
+/* TOGGLE BUTTONS */
+.toggle-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.toggle-btn { padding: 8px 16px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--cream); font-size: 13px; font-weight: 500; color: var(--text-mid); cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.toggle-btn:hover { border-color: var(--teal-glow); color: var(--teal); }
+.toggle-btn.active { background: var(--text-dark); border-color: var(--text-dark); color: #fff; }
+.toggle-btn.teal-active { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+/* VITALS GRID */
+.vitals-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.vital-card { background: var(--ivory); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+.vital-label { font-size: 11px; font-weight: 600; color: var(--text-soft); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+.vital-input-row { display: flex; align-items: center; gap: 8px; }
+.vital-input { flex: 1; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 16px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--text-dark); background: #fff; outline: none; transition: all 0.2s; }
+.vital-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(26,107,90,0.08); }
+.vital-unit { font-size: 12px; color: var(--text-soft); font-family: 'DM Mono', monospace; white-space: nowrap; }
+.vital-status { font-size: 11px; margin-top: 6px; font-weight: 600; }
+.vital-status.normal { color: var(--teal); }
+.vital-status.warning { color: var(--gold); }
+.vital-status.danger { color: var(--rose); }
+.bp-inputs { display: flex; align-items: center; gap: 4px; flex: 1; }
+.bp-sep { font-size: 18px; font-weight: 300; color: var(--text-soft); }
+
+/* AI SUMMARY CARD */
+.ai-summary-card {
+  background: linear-gradient(135deg, #0F4A3C 0%, #1A6B5A 50%, #0D5C47 100%);
+  border-radius: 20px; padding: 28px 32px; margin-top: 24px;
+  position: relative; overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.ai-summary-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+.ai-summary-card::after { content: ''; position: absolute; bottom: -40px; left: 60px; width: 160px; height: 160px; border-radius: 50%; background: rgba(200,150,62,0.07); }
+.ai-summary-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.ai-badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 11px; color: rgba(255,255,255,0.9); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.ai-summary-title { font-family: 'Playfair Display', serif; font-size: 18px; color: #fff; font-weight: 600; }
+.ai-summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; position: relative; z-index: 1; }
+.ai-summary-item { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; }
+.ai-summary-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+.ai-summary-value { font-size: 15px; font-weight: 600; color: #fff; }
+.ai-summary-value.gold { color: var(--gold-light); }
+.ai-summary-insight { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 18px; margin-top: 16px; position: relative; z-index: 1; }
+.ai-insight-text { font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; }
+.ai-insight-text strong { color: var(--gold-light); }
+.ai-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.12); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.9); margin: 4px 4px 0 0; cursor: pointer; border: 1px solid rgba(255,255,255,0.15); }
+
+/* ACTION BAR */
+.action-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; padding: 20px 28px; background: #fff; border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); }
+.action-bar-left { display: flex; align-items: center; gap: 10px; }
+.btn { padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s; border: none; display: flex; align-items: center; gap: 8px; }
+.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-mid); }
+.btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+.btn-primary { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; box-shadow: 0 4px 16px rgba(26,107,90,0.3); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(26,107,90,0.4); }
+.btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #fff; box-shadow: 0 4px 16px rgba(200,150,62,0.3); }
+.btn-gold:hover { transform: translateY(-1px); }
+.btn-rose { background: linear-gradient(135deg, var(--rose), var(--rose-light)); color: #fff; }
+
+/* PHOTO UPLOAD */
+.photo-upload { border: 2px dashed var(--border); border-radius: 14px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--ivory); }
+.photo-upload:hover { border-color: var(--teal); background: rgba(26,107,90,0.03); }
+.photo-preview { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-light)); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+.photo-upload-text { font-size: 13px; color: var(--text-soft); }
+.photo-upload-text strong { color: var(--teal); }
+
+/* HEALTH ID */
+.health-id-badge { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, rgba(26,107,90,0.08), rgba(61,191,160,0.1)); border: 1px solid rgba(26,107,90,0.2); border-radius: 10px; padding: 8px 14px; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--teal); }
+
+/* ANIMATE */
+@keyframes fadeSlideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+.animate { animation: fadeSlideUp 0.5s ease forwards; opacity: 0; }
+.d1{animation-delay:0.05s} .d2{animation-delay:0.1s} .d3{animation-delay:0.15s} .d4{animation-delay:0.2s} .d5{animation-delay:0.25s}
+
+/* AI PULSE */
+@keyframes pulse-ring { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.15);opacity:0.6} }
+.ai-pulse { animation: pulse-ring 2s ease-in-out infinite; display: inline-block; }
+
+/* GENDER AGE INLINE */
+.inline-pair { display: flex; gap: 12px; }
+.inline-pair .form-group { flex: 1; }
+
+/* RISK BADGE */
+.risk-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.risk-low { background: rgba(26,107,90,0.12); color: var(--teal); }
+.risk-medium { background: rgba(200,150,62,0.15); color: var(--gold); }
+.risk-high { background: rgba(192,80,74,0.12); color: var(--rose); }
+
+/* TABS */
+.tab-nav { display: flex; gap: 4px; background: var(--ivory); padding: 5px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 24px; }
+.tab-nav-item { flex: 1; padding: 9px 16px; border-radius: 9px; font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer; text-align: center; transition: all 0.2s; }
+.tab-nav-item.active { background: #fff; color: var(--text-dark); font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence Platform</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div>
+      <div class="admin-name">Dr. Arnav Sen</div>
+      <div class="admin-role">General Physician · Cluster CLDM</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Episode Flow</div>
+    <a href="patient_episodes.html" class="nav-item"><span class="icon">📋</span> Chief Complaints</a>
+    <a href="patient_episodes.html" class="nav-item"><span class="icon">❓</span> Fixed Questions</a>
+    <a href="patient_registration.html" class="nav-item active"><span class="icon">✅</span> Pre-Check</a>
+    <a href="patient_snapshot.html" class="nav-item"><span class="icon">📊</span> Vitals</a>
+    <a href="general_exams.html" class="nav-item"><span class="icon">🩺</span> General Exams</a>
+    <a href="specific_exams.html" class="nav-item"><span class="icon">🔬</span> Specific Exams</a>
+    <a href="patient_snapshot.html" class="nav-item"><span class="icon">📷</span> Photos</a>
+    <a href="cluster_panel.html" class="nav-item"><span class="icon">🗂️</span> Allocation</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Patient Tools</div>
+    <a href="patient_snapshot.html" class="nav-item"><span class="icon">📁</span> Patient Records</a>
+    <a href="prescription_workbench.html" class="nav-item"><span class="icon">💊</span> Prescriptions</a>
+    <a href="reports.html" class="nav-item"><span class="icon">📈</span> Analytics</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="date-pill" id="datePill">Loading...</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb"><a href="admin_panel.html">Dashboard</a> › <a href="admin_panel.html">Patient Registry</a> › <strong>New Registration</strong></div>
+      <div class="page-title">New Patient Registration</div>
+    </div>
+    <div class="topbar-right">
+      <div class="notif-btn">🔔</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ADVANCED SEARCH -->
+    <div class="search-block animate d1">
+      <div class="search-wrap">
+        <div class="search-icon">🔍</div>
+        <input class="search-input" type="text" placeholder="Search existing patients by name, Reg No, Aadhaar, phone, cluster...">
+        <div class="search-divider"></div>
+        <div class="search-filter">📍 Cluster ▾</div>
+        <div class="search-filter">📅 Date ▾</div>
+        <button class="ai-search-btn">✦ AI Search</button>
+      </div>
+      <div class="tag-row">
+        <span class="tag active">New Patient</span>
+        <span class="tag">Returning Patient</span>
+        <span class="tag">Referred</span>
+        <span class="tag">Emergency</span>
+        <span class="tag">Child (Under 12)</span>
+        <span class="tag">Senior (60+)</span>
+        <span class="tag">Maternal Care</span>
+        <span class="tag status-yellow">⚠ Duplicate Check</span>
+      </div>
+    </div>
+
+    <!-- STEP PROGRESS -->
+    <div class="step-progress animate d2" id="stepProgress">
+      <div class="step">
+        <div class="step-circle active" id="sc1">1</div>
+        <div class="step-info"><div class="step-name">Patient Details</div><div class="step-desc">Demographics & identity</div></div>
+      </div>
+      <div class="step-connector done" id="con1"></div>
+      <div class="step">
+        <div class="step-circle pending" id="sc2">2</div>
+        <div class="step-info"><div class="step-name">Contact & Location</div><div class="step-desc">Address & geographic info</div></div>
+      </div>
+      <div class="step-connector" id="con2"></div>
+      <div class="step">
+        <div class="step-circle pending" id="sc3">3</div>
+        <div class="step-info"><div class="step-name">Patient Vitals</div><div class="step-desc">Measurements & appearance</div></div>
+      </div>
+      <div class="step-connector" id="con3"></div>
+      <div class="step">
+        <div class="step-circle pending" id="sc4">4</div>
+        <div class="step-info"><div class="step-name">AI Review</div><div class="step-desc">Summary & confirmation</div></div>
+      </div>
+    </div>
+
+    <!-- STEP 1: PATIENT DETAILS -->
+    <div id="step1" class="reg-section">
+
+      <!-- PHOTO & ID CARD -->
+      <div class="form-card animate d2" style="display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:start">
+        <div>
+          <div class="photo-upload" onclick="triggerPhotoUpload()">
+            <div class="photo-preview">👤</div>
+            <div class="photo-upload-text"><strong>Upload Photo</strong><br>JPG/PNG, max 5MB</div>
+          </div>
+          <div style="margin-top:14px;text-align:center">
+            <div class="health-id-badge">🆔 Auto-generating...</div>
+            <div style="font-size:11px;color:var(--text-soft);margin-top:6px">Unique Health ID</div>
+          </div>
+        </div>
+        <div>
+          <div class="form-card-header" style="margin-bottom:20px;padding-bottom:16px">
+            <div class="form-card-icon">👤</div>
+            <div><div class="form-card-title">Personal Information</div><div class="form-card-subtitle">Core identity and demographic details</div></div>
+            <button class="ai-assist-btn" onclick="aiAutofill()"><span class="ai-pulse">✦</span> AI Autofill</button>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">First Name <span class="req">*</span></label>
+              <input class="form-input" type="text" id="firstName" placeholder="Enter first name" oninput="updateSummary()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name <span class="req">*</span></label>
+              <input class="form-input" type="text" id="lastName" placeholder="Enter last name" oninput="updateSummary()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date of Birth <span class="req">*</span></label>
+              <input class="form-input" type="date" id="dob" onchange="calcAge()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Age</label>
+              <div class="inline-pair">
+                <div class="form-group">
+                  <div class="input-with-icon">
+                    <input class="form-input" type="number" id="ageYears" placeholder="0" style="text-align:center">
+                    <span class="input-suffix">yrs</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="input-with-icon">
+                    <input class="form-input" type="number" id="ageMonths" placeholder="0" style="text-align:center">
+                    <span class="input-suffix">mo</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender <span class="req">*</span></label>
+              <select class="form-select" id="gender" onchange="updateSummary()">
+                <option value="">Select gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Transgender</option>
+                <option>Prefer not to say</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Occupation <span class="req">*</span></label>
+              <select class="form-select" id="occupation">
+                <option value="">Select occupation</option>
+                <option>Student</option>
+                <option>Farmer</option>
+                <option>Labour</option>
+                <option>Service</option>
+                <option>Business</option>
+                <option>Homemaker</option>
+                <option>Retired</option>
+                <option>Unemployed</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Aadhaar Number</label>
+              <input class="form-input" type="text" placeholder="XXXX XXXX XXXX" maxlength="14" id="aadhaar">
+              <div class="ai-suggestion">✦ Auto-verify Aadhaar via UIDAI</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Husband / Wife / Son / Daughter of <span class="req">*</span></label>
+              <input class="form-input" type="text" id="guardian" placeholder="Guardian's name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Religion</label>
+              <select class="form-select">
+                <option value="">Select</option>
+                <option>Hindu</option>
+                <option>Muslim</option>
+                <option>Christian</option>
+                <option>Sikh</option>
+                <option>Buddhist</option>
+                <option>Jain</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Blood Group</label>
+              <select class="form-select" id="bloodGroup">
+                <option value="">Select</option>
+                <option>A+</option><option>A−</option>
+                <option>B+</option><option>B−</option>
+                <option>AB+</option><option>AB−</option>
+                <option>O+</option><option>O−</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACT INFO -->
+      <div class="form-card animate d3">
+        <div class="form-card-header">
+          <div class="form-card-icon">📞</div>
+          <div><div class="form-card-title">Contact Information</div><div class="form-card-subtitle">Phone and emergency contacts</div></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Primary Phone <span class="req">*</span></label>
+            <input class="form-input" type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10" oninput="updateSummary()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alternate Phone</label>
+            <input class="form-input" type="tel" placeholder="Secondary contact number">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Emergency Contact Name</label>
+            <input class="form-input" type="text" placeholder="Name of emergency contact">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Emergency Contact Phone</label>
+            <input class="form-input" type="tel" placeholder="Emergency phone number">
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDICAL HISTORY -->
+      <div class="form-card animate d4">
+        <div class="form-card-header">
+          <div class="form-card-icon">🏥</div>
+          <div><div class="form-card-title">Medical & Family History</div><div class="form-card-subtitle">Past conditions, allergies and hereditary factors</div></div>
+          <button class="ai-assist-btn" onclick="aiMedHistory()"><span class="ai-pulse">✦</span> AI Extract</button>
+        </div>
+        <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Known Conditions</div><div class="section-divider-line"></div></div>
+        <div class="toggle-group" style="margin-bottom:20px" id="conditionsGroup">
+          <button class="toggle-btn" onclick="multiToggle(this)">Diabetes</button>
+          <button class="toggle-btn" onclick="multiToggle(this)">Hypertension</button>
+          <button class="toggle-btn" onclick="multiToggle(this)">Heart Disease</button>
+          <button class="toggle-btn" onclick="multiToggle(this)">Asthma</button>
+          <button class="toggle-btn" onclick="multiToggle(this)">Tuberculosis</button>
+          <button class="toggle-btn" onclick="multiToggle(this)">HIV / AIDS</button>
+          <button class="toggle-btn" onclick="multiToggle(this)">Epilepsy</button>
+          <button class="toggle-btn" onclick="multiToggle(this)">Kidney Disease</button>
+          <button class="toggle-btn" onclick="multiToggle(this)">Cancer</button>
+          <button class="toggle-btn" onclick="multiToggle(this)">None</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Known Allergies</label>
+            <input class="form-input" type="text" placeholder="Penicillin, Sulfa, Aspirin, Nuts...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Current Medications</label>
+            <input class="form-input" type="text" placeholder="Metformin 500mg, Amlodipine 5mg...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Past Surgeries / Hospitalizations</label>
+            <input class="form-input" type="text" placeholder="Appendectomy 2019, Fracture 2021...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Family History</label>
+            <input class="form-input" type="text" placeholder="Father: DM, Mother: HTN...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Smoking / Tobacco</label>
+            <select class="form-select">
+              <option value="">Select</option>
+              <option>Non-smoker</option>
+              <option>Ex-smoker</option>
+              <option>Current smoker</option>
+              <option>Smokeless tobacco</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alcohol Use</label>
+            <select class="form-select">
+              <option value="">Select</option>
+              <option>Never</option>
+              <option>Occasionally</option>
+              <option>Regularly</option>
+              <option>Ex-drinker</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Vaccination History</label>
+            <div class="toggle-group" id="vaccGroup">
+              <button class="toggle-btn" onclick="multiToggle(this)">COVID-19</button>
+              <button class="toggle-btn" onclick="multiToggle(this)">Tetanus</button>
+              <button class="toggle-btn" onclick="multiToggle(this)">Hepatitis B</button>
+              <button class="toggle-btn" onclick="multiToggle(this)">Influenza</button>
+              <button class="toggle-btn" onclick="multiToggle(this)">BCG</button>
+              <button class="toggle-btn" onclick="multiToggle(this)">OPV</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Duplicate Detection Banner -->
+        <div id="dupeBanner" style="display:none;margin-top:16px;background:rgba(200,150,62,0.1);border:1px solid rgba(200,150,62,0.35);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:22px">⚠️</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--gold)">Possible Duplicate Patient Detected</div>
+            <div style="font-size:12px;color:var(--text-mid);margin-top:2px">A patient with similar name & phone was registered on Mar 12, 2025 — <span style="color:var(--teal);cursor:pointer;font-weight:600">View record →</span></div>
+          </div>
+          <button onclick="document.getElementById('dupeBanner').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-soft)">✕</button>
+        </div>
+      </div>
+
+      <!-- CONSENT & INSURANCE -->
+      <div class="form-card animate d5">
+        <div class="form-card-header">
+          <div class="form-card-icon">📄</div>
+          <div><div class="form-card-title">Consent & Insurance</div><div class="form-card-subtitle">Patient consent and coverage details</div></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Insurance Scheme</label>
+            <select class="form-select">
+              <option value="">Select Scheme</option>
+              <option>Ayushman Bharat (PMJAY)</option>
+              <option>West Bengal SWASTHYA SATHI</option>
+              <option>ESIC</option>
+              <option>Central Govt. CGHS</option>
+              <option>Private Insurance</option>
+              <option>None / Self-pay</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Insurance / Card Number</label>
+            <input class="form-input" type="text" placeholder="Policy or card number">
+          </div>
+          <div class="form-group full">
+            <label class="form-label" style="margin-bottom:12px">Patient Consent</label>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-mid);cursor:pointer">
+                <input type="checkbox" id="consentTreatment" style="width:16px;height:16px;accent-color:var(--teal)"> I consent to medical examination and treatment at this facility
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-mid);cursor:pointer">
+                <input type="checkbox" id="consentData" style="width:16px;height:16px;accent-color:var(--teal)"> I consent to my health data being recorded and used for care coordination
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-mid);cursor:pointer">
+                <input type="checkbox" id="consentResearch" style="width:16px;height:16px;accent-color:var(--teal)"> I consent to anonymised data being used for public health research (optional)
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end step1 -->
+
+    <!-- STEP 2: CONTACT & LOCATION -->
+    <div id="step2" class="reg-section hidden">
+      <div class="form-card animate d2">
+        <div class="form-card-header">
+          <div class="form-card-icon">📍</div>
+          <div><div class="form-card-title">Geographic Information</div><div class="form-card-subtitle">Patient's residential address</div></div>
+          <button class="ai-assist-btn" onclick="aiLocate()"><span class="ai-pulse">✦</span> Auto-Detect Location</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Address Line 1 <span class="req">*</span></label>
+            <input class="form-input" type="text" id="addr1" placeholder="House no., Street, Village/Mohalla">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address Line 2</label>
+            <input class="form-input" type="text" id="addr2" placeholder="Landmark, P.O., Area">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State <span class="req">*</span></label>
+            <select class="form-select" id="stateSelect" onchange="updateDistricts()">
+              <option value="">Select State</option>
+              <option value="WB">West Bengal</option>
+              <option value="OD">Odisha</option>
+              <option value="JH">Jharkhand</option>
+              <option value="BR">Bihar</option>
+              <option value="AS">Assam</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">District <span class="req">*</span></label>
+            <select class="form-select" id="districtSelect">
+              <option value="">Select District</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Police Station <span class="req">*</span></label>
+            <select class="form-select">
+              <option value="">Select Police Station</option>
+              <option>Berhampore PS</option>
+              <option>Lalbagh PS</option>
+              <option>Domkal PS</option>
+              <option>Raninagar PS</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">PIN Code</label>
+            <input class="form-input" type="text" placeholder="6-digit PIN" maxlength="6">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country</label>
+            <select class="form-select">
+              <option>India</option>
+              <option>Bangladesh</option>
+              <option>Nepal</option>
+              <option>Bhutan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cluster Assignment <span class="req">*</span></label>
+            <select class="form-select" id="cluster" onchange="updateSummary()">
+              <option value="">Select Cluster</option>
+              <option>WB-BRH Berhampore</option>
+              <option>WB-JRG Jalpaiguri</option>
+              <option>WB-MDN Midnapore</option>
+              <option>WB-HWH Howrah</option>
+              <option>WB-NDP Nadia</option>
+              <option>WB-BNK Bankura</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Health Assistant (HA)</label>
+            <select class="form-select" id="ha" onchange="updateSummary()">
+              <option value="">Select HA</option>
+              <option>Sumit Chakraborty</option>
+              <option>Priya Mukherjee</option>
+              <option>Rohit Kumar</option>
+              <option>Anjali Singh</option>
+              <option>Deepa Rao</option>
+              <option>Kavita Banerjee</option>
+              <option>Suresh Patel</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Household Income Category</label>
+            <select class="form-select">
+              <option value="">Select</option>
+              <option>BPL (Below Poverty Line)</option>
+              <option>Lower Income</option>
+              <option>Middle Income</option>
+              <option>Upper Middle</option>
+            </select>
+          </div>
+        </div>
+        <div class="ai-suggestion" style="margin-top:16px" onclick="aiMapLocate()">✦ AI: Verify address on map & suggest nearest health center (0.8km away)</div>
+      </div>
+    </div>
+
+    <!-- STEP 3: VITALS -->
+    <div id="step3" class="reg-section hidden">
+      <div class="form-card animate d2">
+        <div class="form-card-header">
+          <div class="form-card-icon">💓</div>
+          <div><div class="form-card-title">Patient Vitals</div><div class="form-card-subtitle">Record measurements and physical assessment</div></div>
+          <button class="ai-assist-btn"><span class="ai-pulse">✦</span> AI Analyze</button>
+        </div>
+
+        <!-- Patient Appearance -->
+        <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Patient Appearance</div><div class="section-divider-line"></div></div>
+        <div class="toggle-group" id="appearanceGroup">
+          <button class="toggle-btn" onclick="selectToggle(this,'appearanceGroup')">Looks comfortable</button>
+          <button class="toggle-btn" onclick="selectToggle(this,'appearanceGroup')">In pain</button>
+          <button class="toggle-btn" onclick="selectToggle(this,'appearanceGroup')">Appears breathless</button>
+          <button class="toggle-btn" onclick="selectToggle(this,'appearanceGroup')">Looks unwell</button>
+          <button class="toggle-btn" onclick="selectToggle(this,'appearanceGroup')">Looks very thin</button>
+          <button class="toggle-btn" onclick="selectToggle(this,'appearanceGroup')">Looks obese</button>
+        </div>
+
+        <!-- Patient Gait -->
+        <div class="section-divider" style="margin-top:24px"><div class="section-divider-line"></div><div class="section-divider-label">Patient Gait</div><div class="section-divider-line"></div></div>
+        <div class="toggle-group" id="gaitGroup">
+          <button class="toggle-btn" onclick="selectToggle(this,'gaitGroup')">Walks normally</button>
+          <button class="toggle-btn" onclick="selectToggle(this,'gaitGroup')">Walks with a limp</button>
+          <button class="toggle-btn" onclick="selectToggle(this,'gaitGroup')">Walks with a bump</button>
+          <button class="toggle-btn" onclick="selectToggle(this,'gaitGroup')">Cannot walk</button>
+        </div>
+
+        <!-- Measurements -->
+        <div class="section-divider" style="margin-top:24px"><div class="section-divider-line"></div><div class="section-divider-label">Measurements</div><div class="section-divider-line"></div></div>
+        <div class="vitals-grid">
+          <div class="vital-card">
+            <div class="vital-label">Blood Pressure</div>
+            <div class="vital-input-row">
+              <div class="bp-inputs">
+                <input class="vital-input" type="number" placeholder="120" id="bpSys" style="width:70px" oninput="checkVital('bp')">
+                <span class="bp-sep">/</span>
+                <input class="vital-input" type="number" placeholder="80" id="bpDia" style="width:70px" oninput="checkVital('bp')">
+              </div>
+              <span class="vital-unit">mmHg</span>
+            </div>
+            <div class="vital-status normal" id="bpStatus">— Enter values</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">SpO2 (Oxygen Saturation)</div>
+            <div class="vital-input-row">
+              <input class="vital-input" type="number" placeholder="98" id="spo2" min="0" max="100" oninput="checkVital('spo2')">
+              <span class="vital-unit">%</span>
+            </div>
+            <div class="vital-status normal" id="spo2Status">— Enter value</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Pulse Rate</div>
+            <div class="vital-input-row">
+              <input class="vital-input" type="number" placeholder="72" id="pulse" oninput="checkVital('pulse')">
+              <span class="vital-unit">bpm</span>
+            </div>
+            <div class="vital-status normal" id="pulseStatus">— Enter value</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Temperature</div>
+            <div class="vital-input-row">
+              <input class="vital-input" type="number" placeholder="98.6" id="temp" step="0.1" oninput="checkVital('temp')">
+              <span class="vital-unit">°F</span>
+            </div>
+            <div class="vital-status normal" id="tempStatus">— Enter value</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Height</div>
+            <div class="vital-input-row">
+              <input class="vital-input" type="number" placeholder="165" id="height" oninput="calcBMI()">
+              <span class="vital-unit">cm</span>
+            </div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Weight</div>
+            <div class="vital-input-row">
+              <input class="vital-input" type="number" placeholder="65" id="weight" oninput="calcBMI()">
+              <span class="vital-unit">kg</span>
+            </div>
+            <div class="vital-status normal" id="bmiStatus">— Enter height & weight</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Random Blood Glucose</div>
+            <div class="vital-input-row">
+              <input class="vital-input" type="number" placeholder="110" id="rbs" oninput="checkVital('rbs')">
+              <span class="vital-unit">mg/dL</span>
+            </div>
+            <div class="vital-status normal" id="rbsStatus">— Enter value</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Respiratory Rate</div>
+            <div class="vital-input-row">
+              <input class="vital-input" type="number" placeholder="18" id="rr" oninput="checkVital('rr')">
+              <span class="vital-unit">breaths/min</span>
+            </div>
+            <div class="vital-status normal" id="rrStatus">— Enter value</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Pain Score</div>
+            <div class="vital-input-row">
+              <input class="vital-input" type="number" placeholder="0" id="pain" min="0" max="10">
+              <span class="vital-unit">/ 10</span>
+            </div>
+            <div style="display:flex;gap:4px;margin-top:8px">
+              <span style="font-size:10px;color:var(--teal)">No pain</span>
+              <span style="flex:1;height:4px;background:linear-gradient(to right,var(--teal),var(--gold),var(--rose));border-radius:2px;align-self:center"></span>
+              <span style="font-size:10px;color:var(--rose)">Worst pain</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: AI SUMMARY -->
+    <div id="step4" class="reg-section hidden">
+      <div class="form-card animate d2">
+        <div class="form-card-header">
+          <div class="form-card-icon">🤖</div>
+          <div><div class="form-card-title">AI-Generated Patient Summary</div><div class="form-card-subtitle">Review before final submission</div></div>
+        </div>
+        <div id="summaryContent" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+
+      <!-- AI SUMMARY CARD -->
+      <div class="ai-summary-card animate d3">
+        <div class="ai-summary-header">
+          <span class="ai-badge">✦ AI Analysis</span>
+          <div class="ai-summary-title">Intelligent Patient Snapshot</div>
+        </div>
+        <div class="ai-summary-grid">
+          <div class="ai-summary-item">
+            <div class="ai-summary-label">Risk Level</div>
+            <div class="ai-summary-value gold" id="aiRisk">Medium</div>
+          </div>
+          <div class="ai-summary-item">
+            <div class="ai-summary-label">BMI Category</div>
+            <div class="ai-summary-value" id="aiBMI">—</div>
+          </div>
+          <div class="ai-summary-item">
+            <div class="ai-summary-label">BP Status</div>
+            <div class="ai-summary-value" id="aiBP">—</div>
+          </div>
+          <div class="ai-summary-item">
+            <div class="ai-summary-label">Registered</div>
+            <div class="ai-summary-value" id="aiDate">—</div>
+          </div>
+        </div>
+        <div class="ai-summary-insight">
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">AI Clinical Insight</div>
+          <div class="ai-insight-text" id="aiInsight">Complete all fields to generate AI clinical insight and recommendations.</div>
+          <div style="margin-top:12px" id="aiChips"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION BAR -->
+    <div class="action-bar animate d5" id="actionBar">
+      <div class="action-bar-left">
+        <button class="btn btn-outline" id="btnBack" onclick="prevStep()" style="display:none">← Back</button>
+        <button class="btn btn-outline" onclick="saveDraft()">💾 Save Draft</button>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Next: Contact & Location →</button>
+        <a href="patient_episodes.html">
+          <button class="btn btn-gold" id="btnEpisode" style="display:none">📋 Record Episode →</button>
+        </a>
+        <button class="btn btn-primary" id="btnSubmit" style="display:none" onclick="submitPatient()">✅ Register Patient</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ---- STATE ----
+let currentStep = 1;
+const totalSteps = 4;
+
+const districts = {
+  WB: ['Murshidabad','Malda','Nadia','Howrah','Midnapore East','Midnapore West','Bankura','Purulia','Jalpaiguri','Darjeeling','Alipurduar','Coochbehar','Birbhum'],
+  OD: ['Cuttack','Bhubaneswar','Ganjam','Koraput','Balasore'],
+  JH: ['Ranchi','Dhanbad','Jamshedpur','Bokaro','Hazaribagh'],
+  BR: ['Patna','Gaya','Muzaffarpur','Bhagalpur'],
+  AS: ['Kamrup','Sonitpur','Nagaon','Dibrugarh']
+};
+
+function updateDistricts() {
+  const state = document.getElementById('stateSelect').value;
+  const sel = document.getElementById('districtSelect');
+  sel.innerHTML = '<option value="">Select District</option>';
+  (districts[state] || []).forEach(d => sel.innerHTML += `<option>${d}</option>`);
+}
+
+function calcAge() {
+  const dob = document.getElementById('dob').value;
+  if (!dob) return;
+  const d = new Date(dob);
+  const now = new Date();
+  let yrs = now.getFullYear() - d.getFullYear();
+  let mo = now.getMonth() - d.getMonth();
+  if (mo < 0) { yrs--; mo += 12; }
+  document.getElementById('ageYears').value = yrs;
+  document.getElementById('ageMonths').value = mo;
+}
+
+function calcBMI() {
+  const h = parseFloat(document.getElementById('height').value);
+  const w = parseFloat(document.getElementById('weight').value);
+  if (!h || !w) return;
+  const bmi = (w / ((h/100) ** 2)).toFixed(1);
+  let cat = '', color = 'normal';
+  if (bmi < 18.5) { cat = 'Underweight'; color = 'warning'; }
+  else if (bmi < 25) { cat = 'Normal'; color = 'normal'; }
+  else if (bmi < 30) { cat = 'Overweight'; color = 'warning'; }
+  else { cat = 'Obese'; color = 'danger'; }
+  document.getElementById('bmiStatus').textContent = `BMI ${bmi} — ${cat}`;
+  document.getElementById('bmiStatus').className = `vital-status ${color}`;
+  document.getElementById('aiBMI').textContent = `${bmi} (${cat})`;
+}
+
+function checkVital(type) {
+  const rules = {
+    bp: () => {
+      const s = +document.getElementById('bpSys').value;
+      const d = +document.getElementById('bpDia').value;
+      if (!s || !d) return;
+      let txt = '', cls = 'normal';
+      if (s >= 140 || d >= 90) { txt = '⚠ Hypertension'; cls = 'danger'; }
+      else if (s >= 120 || d >= 80) { txt = '⚡ Pre-hypertension'; cls = 'warning'; }
+      else if (s < 90 || d < 60) { txt = '⚠ Low BP'; cls = 'danger'; }
+      else { txt = '✓ Normal'; cls = 'normal'; }
+      document.getElementById('bpStatus').textContent = txt;
+      document.getElementById('bpStatus').className = `vital-status ${cls}`;
+      document.getElementById('aiBP').textContent = `${s}/${d} mmHg`;
+    },
+    spo2: () => {
+      const v = +document.getElementById('spo2').value;
+      if (!v) return;
+      let txt = v >= 95 ? '✓ Normal' : v >= 90 ? '⚡ Mild Hypoxia' : '🚨 Critical';
+      let cls = v >= 95 ? 'normal' : v >= 90 ? 'warning' : 'danger';
+      document.getElementById('spo2Status').textContent = txt;
+      document.getElementById('spo2Status').className = `vital-status ${cls}`;
+    },
+    pulse: () => {
+      const v = +document.getElementById('pulse').value;
+      if (!v) return;
+      let txt = v >= 60 && v <= 100 ? '✓ Normal' : v < 60 ? '⚡ Bradycardia' : '⚡ Tachycardia';
+      let cls = v >= 60 && v <= 100 ? 'normal' : 'warning';
+      document.getElementById('pulseStatus').textContent = txt;
+      document.getElementById('pulseStatus').className = `vital-status ${cls}`;
+    },
+    temp: () => {
+      const v = +document.getElementById('temp').value;
+      if (!v) return;
+      let txt = v <= 99.5 ? '✓ Normal' : v <= 102 ? '⚡ Mild Fever' : '🚨 High Fever';
+      let cls = v <= 99.5 ? 'normal' : v <= 102 ? 'warning' : 'danger';
+      document.getElementById('tempStatus').textContent = txt;
+      document.getElementById('tempStatus').className = `vital-status ${cls}`;
+    },
+    rbs: () => {
+      const v = +document.getElementById('rbs').value;
+      if (!v) return;
+      let txt = v < 70 ? '⚠ Hypoglycemia' : v <= 140 ? '✓ Normal' : v <= 200 ? '⚡ Elevated' : '🚨 Hyperglycemia';
+      let cls = v < 70 || v > 200 ? 'danger' : v > 140 ? 'warning' : 'normal';
+      document.getElementById('rbsStatus').textContent = txt;
+      document.getElementById('rbsStatus').className = `vital-status ${cls}`;
+    },
+    rr: () => {
+      const v = +document.getElementById('rr').value;
+      if (!v) return;
+      let txt = v >= 12 && v <= 20 ? '✓ Normal' : v < 12 ? '⚡ Bradypnea' : '⚡ Tachypnea';
+      let cls = v >= 12 && v <= 20 ? 'normal' : 'warning';
+      document.getElementById('rrStatus').textContent = txt;
+      document.getElementById('rrStatus').className = `vital-status ${cls}`;
+    }
+  };
+  if (rules[type]) rules[type]();
+}
+
+function selectToggle(btn, groupId) {
+  document.querySelectorAll(`#${groupId} .toggle-btn`).forEach(b => b.classList.remove('teal-active'));
+  btn.classList.add('teal-active');
+}
+
+function nextStep() {
+  if (currentStep < totalSteps) {
+    currentStep++;
+    updateStepUI();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    currentStep--;
+    updateStepUI();
+  }
+}
+
+function updateStepUI() {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`step${i}`).classList.toggle('hidden', i !== currentStep);
+    const sc = document.getElementById(`sc${i}`);
+    if (i < currentStep) { sc.className = 'step-circle done'; sc.textContent = '✓'; }
+    else if (i === currentStep) { sc.className = 'step-circle active'; sc.textContent = i; }
+    else { sc.className = 'step-circle pending'; sc.textContent = i; }
+    if (i < 4) {
+      const con = document.getElementById(`con${i}`);
+      con.className = i < currentStep ? 'step-connector done' : 'step-connector';
+    }
+  }
+  document.getElementById('btnBack').style.display = currentStep > 1 ? 'flex' : 'none';
+  const nextBtn = document.getElementById('btnNext');
+  const submitBtn = document.getElementById('btnSubmit');
+  const episodeBtn = document.getElementById('btnEpisode');
+
+  if (currentStep === 4) {
+    nextBtn.style.display = 'none';
+    submitBtn.style.display = 'flex';
+    episodeBtn.style.display = 'flex';
+    generateSummary();
+  } else {
+    nextBtn.style.display = 'flex';
+    submitBtn.style.display = 'none';
+    episodeBtn.style.display = 'none';
+    const labels = ['', 'Next: Contact & Location →', 'Next: Vitals →', 'Next: AI Review →', ''];
+    nextBtn.textContent = labels[currentStep];
+  }
+}
+
+function generateSummary() {
+  const fn = document.getElementById('firstName').value || '—';
+  const ln = document.getElementById('lastName').value || '—';
+  const gender = document.getElementById('gender').value || '—';
+  const phone = document.getElementById('phone').value || '—';
+  const cluster = document.getElementById('cluster').value || '—';
+  const ha = document.getElementById('ha').value || '—';
+  const ageYrs = document.getElementById('ageYears').value || '—';
+
+  document.getElementById('summaryContent').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${summaryRow('👤 Full Name', `${fn} ${ln}`)}
+      ${summaryRow('⚧ Gender', gender)}
+      ${summaryRow('🎂 Age', `${ageYrs} years`)}
+      ${summaryRow('📞 Phone', phone)}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${summaryRow('🏥 Cluster', cluster)}
+      ${summaryRow('👩‍⚕️ Health Assistant', ha)}
+      ${summaryRow('🩸 Blood Group', document.getElementById('bloodGroup').value || '—')}
+      ${summaryRow('📅 Reg. Date', new Date().toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'}))}
+    </div>`;
+
+  document.getElementById('aiDate').textContent = new Date().toLocaleDateString('en-IN');
+
+  // AI Insight
+  const bpSys = document.getElementById('bpSys').value;
+  let insight = `Patient <strong>${fn} ${ln}</strong>, ${ageYrs} years, ${gender}, registered under cluster <strong>${cluster}</strong> assigned to HA <strong>${ha}</strong>. `;
+  insight += bpSys >= 140 ? 'Blood pressure is elevated — <strong>hypertension protocol</strong> recommended. ' : 'Vitals appear within normal range. ';
+  insight += 'Recommend scheduling follow-up episode within 7 days. AI confidence: 94%.';
+  document.getElementById('aiInsight').innerHTML = insight;
+
+  document.getElementById('aiChips').innerHTML = `
+    <span class="ai-chip">📋 Schedule Episode</span>
+    <span class="ai-chip">💊 Medication Review</span>
+    <span class="ai-chip">📊 Risk Assessment</span>
+    <span class="ai-chip">🩺 Routine Checkup</span>`;
+}
+
+function summaryRow(label, value) {
+  return `<div style="padding:12px 16px;background:var(--ivory);border-radius:10px;border:1px solid var(--border)">
+    <div style="font-size:11px;color:var(--text-soft);margin-bottom:4px">${label}</div>
+    <div style="font-size:15px;font-weight:600;color:var(--text-dark)">${value}</div>
+  </div>`;
+}
+
+function updateSummary() { /* live in step4 */ }
+function aiAutofill() {
+  document.getElementById('firstName').value = 'Priya';
+  document.getElementById('lastName').value = 'Sharma';
+  document.getElementById('phone').value = '9876543210';
+  document.getElementById('gender').value = 'Female';
+  document.getElementById('ageYears').value = '34';
+}
+function aiLocate() {
+  document.getElementById('addr1').value = '12 Rabindra Sarani';
+  document.getElementById('addr2').value = 'Near Bus Stand, Lalbagh';
+}
+function aiMapLocate() { alert('✦ AI Location Verified: 12 Rabindra Sarani, Lalbagh, Murshidabad 742149. Nearest health center: 0.8km.'); }
+function saveDraft() { alert('Draft saved successfully!'); }
+function submitPatient() {
+  const id = 'WB-BRH-BLP-CLDM-' + (19150 + Math.floor(Math.random()*100));
+  alert(`✅ Patient registered successfully!\n\nHealth ID: ${id}\n\nProceed to record episode?`);
+  window.location.href = 'patient_episodes.html';
+}
+function triggerPhotoUpload() { alert('Photo upload: select a file from your device.'); }
+
+// Date pill
+const d = new Date();
+document.getElementById('datePill').textContent = d.toLocaleDateString('en-IN', {weekday:'short',day:'numeric',month:'short',year:'numeric'});
+
+// Tag switching
+document.querySelectorAll('.tag').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tag').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+
+// ---- MULTI-TOGGLE (for conditions, vaccinations) ----
+function multiToggle(btn) {
+  btn.classList.toggle('teal-active');
+}
+
+// ---- LIVE HEALTH ID ----
+function generateHealthID() {
+  const fn = document.getElementById('firstName').value;
+  const cluster = 'WB-BRH-BLP-CLDM';
+  if (fn) {
+    const num = 19150 + Math.floor(Math.random()*999);
+    const badge = document.querySelector('.health-id-badge');
+    if (badge) badge.textContent = `🆔 ${cluster}-${num}`;
+  }
+}
+document.getElementById('firstName').addEventListener('input', generateHealthID);
+document.getElementById('lastName').addEventListener('input', generateHealthID);
+
+// ---- DUPLICATE DETECTION ----
+const EXISTING_PHONES = ['9832427873','9876543210','9123456789','9800012345'];
+document.getElementById('phone').addEventListener('blur', function() {
+  if (EXISTING_PHONES.includes(this.value)) {
+    document.getElementById('dupeBanner').style.display = 'flex';
+  }
+});
+
+// ---- TOAST NOTIFICATION ----
+function showToast(msg, type='success') {
+  const existing = document.getElementById('toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'toast';
+  toast.style.cssText = `position:fixed;bottom:32px;right:32px;z-index:9999;background:${type==='success'?'var(--teal)':type==='warning'?'var(--gold)':'var(--rose)'};color:#fff;padding:14px 22px;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;box-shadow:0 8px 32px rgba(0,0,0,0.2);display:flex;align-items:center;gap:10px;animation:fadeSlideUp 0.3s ease;max-width:380px`;
+  toast.innerHTML = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.4s'; setTimeout(()=>toast.remove(),400); }, 3500);
+}
+
+// ---- FORM VALIDATION BEFORE STEP ADVANCE ----
+const originalNextStep = nextStep;
+function nextStep() {
+  if (currentStep === 1) {
+    const fn = document.getElementById('firstName').value.trim();
+    const ln = document.getElementById('lastName').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const gender = document.getElementById('gender').value;
+    const consent = document.getElementById('consentTreatment')?.checked;
+    if (!fn || !ln) { showToast('⚠️ Please enter patient full name', 'warning'); return; }
+    if (!phone || phone.length !== 10) { showToast('⚠️ Enter a valid 10-digit phone number', 'warning'); return; }
+    if (!gender) { showToast('⚠️ Please select gender', 'warning'); return; }
+    showToast('✓ Personal details saved');
+  }
+  if (currentStep === 2) {
+    const cluster = document.getElementById('cluster').value;
+    if (!cluster) { showToast('⚠️ Please assign a cluster', 'warning'); return; }
+    showToast('✓ Location details saved');
+  }
+  if (currentStep === 3) {
+    showToast('✓ Vitals recorded — generating AI summary');
+  }
+  if (currentStep < totalSteps) {
+    currentStep++;
+    updateStepUI();
+  }
+}
+
+// ---- AI MEDICAL HISTORY EXTRACT ----
+function aiMedHistory() {
+  showToast('✦ AI scanning patient profile for known risk factors...');
+  setTimeout(() => {
+    document.querySelectorAll('#conditionsGroup .toggle-btn').forEach(b => {
+      if (b.textContent === 'Hypertension' || b.textContent === 'Diabetes') b.classList.add('teal-active');
+    });
+    showToast('✦ AI flagged: Hypertension, Diabetes risk based on age & BMI profile');
+  }, 1200);
+}
+
+// ---- LIVE BMI + RISK SCORING ----
+function updateRiskIndicator() {
+  const age = parseInt(document.getElementById('ageYears').value) || 0;
+  const bpSys = parseInt(document.getElementById('bpSys')?.value) || 0;
+  const rbs = parseInt(document.getElementById('rbs')?.value) || 0;
+  let risk = 'Low';
+  if (age > 60 || bpSys >= 140 || rbs > 200) risk = 'High';
+  else if (age > 40 || bpSys >= 120 || rbs > 140) risk = 'Medium';
+  document.getElementById('aiRisk').textContent = risk;
+  document.getElementById('aiRisk').style.color = risk === 'High' ? '#E8857F' : risk === 'Medium' ? '#E8B96A' : '#3DBFA0';
+}
+</script>
+</body>
+</html>

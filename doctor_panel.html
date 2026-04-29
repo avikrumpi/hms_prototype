@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Doctor Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+  --shadow-lg: 0 12px 48px rgba(26,107,90,0.16);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;
+  background-image:radial-gradient(ellipse 800px 600px at 85% 5%,rgba(61,191,160,0.06) 0%,transparent 70%),
+  radial-gradient(ellipse 600px 500px at 15% 90%,rgba(200,150,62,0.05) 0%,transparent 70%);}
+
+/* SIDEBAR */
+.sidebar{width:260px;position:fixed;top:0;left:0;height:100vh;background:var(--text-dark);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 40px rgba(0,0,0,0.15);}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo-mark{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;}
+.logo-mark span{color:var(--teal-glow);}
+.logo-sub{font-size:11px;color:var(--text-soft);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.sidebar-admin{padding:20px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.admin-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;}
+.admin-avatar::after{content:'';position:absolute;bottom:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#4ADE80;border:2px solid var(--text-dark);}
+.admin-name{font-weight:600;font-size:14px;color:#fff;}
+.admin-role{font-size:11px;color:var(--text-soft);}
+.nav-section{padding:16px 12px 8px;}
+.nav-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 12px 8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:2px;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);}
+.nav-item.active{background:linear-gradient(135deg,var(--teal),var(--teal-light));color:#fff;}
+.nav-item .icon{font-size:18px;width:22px;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.12);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);}
+.sidebar-bottom{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06);}
+.date-pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:8px 14px;text-align:center;font-size:12px;color:var(--text-soft);font-family:'DM Mono',monospace;}
+
+/* MAIN */
+.main{margin-left:260px;min-height:100vh;}
+.topbar{background:var(--glass);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 36px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--text-dark);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.content{padding:32px 36px;}
+
+/* LAYOUT */
+.two-col{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start;}
+
+/* ADD DOCTOR CARD */
+.form-card{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);}
+.form-card-head{
+  background:linear-gradient(135deg,var(--text-dark) 0%,#2D3A52 100%);
+  padding:24px 28px;
+}
+.form-card-head h3{font-family:'Playfair Display',serif;font-size:20px;color:#fff;font-weight:700;}
+.form-card-head p{font-size:13px;color:rgba(255,255,255,0.55);margin-top:4px;}
+.form-body{padding:28px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:1/-1;}
+.form-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);font-weight:600;}
+.form-input{
+  padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
+  font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-dark);
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;background:#FAFAF8;
+}
+.form-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.08);background:#fff;}
+.form-input::placeholder{color:var(--text-soft);}
+select.form-input{cursor:pointer;}
+.form-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.spec-tag{
+  padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;
+  border:1.5px solid var(--border);background:var(--ivory);color:var(--text-mid);transition:all 0.15s;
+}
+.spec-tag.sel{border-color:var(--teal);background:rgba(26,107,90,0.08);color:var(--teal);}
+.ai-suggest-row{
+  background:linear-gradient(135deg,rgba(26,107,90,0.04),rgba(61,191,160,0.06));
+  border:1px solid rgba(26,107,90,0.15);border-radius:12px;
+  padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.ai-suggest-row p{font-size:12px;color:var(--text-mid);}
+.ai-suggest-row strong{color:var(--teal);}
+.submit-btn{
+  width:100%;padding:14px;border-radius:12px;
+  background:linear-gradient(135deg,var(--teal),var(--teal-light));
+  border:none;color:#fff;font-size:15px;font-weight:600;cursor:pointer;
+  font-family:'DM Sans',sans-serif;margin-top:8px;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,107,90,0.3);}
+
+/* RIGHT PANEL */
+.right-panel{display:flex;flex-direction:column;gap:20px;}
+
+/* AI SCORE CARD */
+.ai-score{
+  background:linear-gradient(135deg,#1C2331,#2D3A52);
+  border-radius:16px;padding:20px;border:1px solid rgba(61,191,160,0.2);
+}
+.ai-score h4{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--teal-glow);margin-bottom:14px;}
+.score-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.score-name{font-size:13px;color:rgba(255,255,255,0.8);flex:1;}
+.score-bar-wrap{flex:2;height:6px;background:rgba(255,255,255,0.1);border-radius:6px;overflow:hidden;}
+.score-bar{height:100%;border-radius:6px;}
+.score-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;width:36px;text-align:right;}
+
+/* DOCTOR LIST */
+.list-card{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);}
+.list-head{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.list-title{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;}
+.search-mini{display:flex;align-items:center;background:var(--ivory);border:1px solid var(--border);border-radius:10px;padding:7px 12px;gap:8px;flex:1;max-width:280px;}
+.search-mini input{background:none;border:none;outline:none;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-dark);width:100%;}
+.search-mini input::placeholder{color:var(--text-soft);}
+
+/* DOCTOR CARDS */
+.doc-list{padding:16px;}
+.doc-card{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;
+  border:1px solid transparent;transition:all 0.2s;cursor:pointer;margin-bottom:8px;
+}
+.doc-card:hover{background:var(--ivory);border-color:var(--border);}
+.doc-card.featured{background:linear-gradient(135deg,rgba(26,107,90,0.04),rgba(61,191,160,0.05));border-color:rgba(26,107,90,0.15);}
+.doc-avatar{
+  width:52px;height:52px;border-radius:14px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  font-weight:700;color:#fff;
+}
+.doc-info{flex:1;}
+.doc-name{font-weight:700;font-size:14px;}
+.doc-spec{font-size:12px;color:var(--text-soft);margin-top:2px;}
+.doc-meta{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.doc-tag{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500;background:rgba(26,107,90,0.08);color:var(--teal);}
+.doc-rating{font-size:12px;color:var(--gold);font-weight:700;}
+.doc-status-dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;flex-shrink:0;}
+.doc-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.doc-pts{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-soft);}
+.view-btn{font-size:11px;padding:4px 10px;border-radius:7px;border:1px solid var(--border);background:#fff;color:var(--text-mid);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.view-btn:hover{border-color:var(--teal);color:var(--teal);}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.mini-stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.03);}
+.mini-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;}
+.mini-lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);margin-top:4px;}
+
+/* AI MATCH */
+.ai-match{background:linear-gradient(135deg,var(--teal) 0%,var(--teal-light) 100%);border-radius:16px;padding:18px 22px;margin-bottom:24px;display:flex;gap:14px;align-items:flex-start;}
+.ai-match-icon{font-size:24px;flex-shrink:0;}
+.ai-match h4{font-size:13px;font-weight:700;color:#fff;}
+.ai-match p{font-size:12px;color:rgba(255,255,255,0.75);margin-top:4px;line-height:1.5;}
+
+/* SEARCH BLOCK */
+.search-block{margin-bottom:24px;}
+.adv-search{background:#fff;border:1.5px solid var(--border);border-radius:14px;display:flex;align-items:center;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);}
+.adv-search:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.08);}
+.adv-search input{flex:1;padding:13px 16px;border:none;outline:none;font-size:14px;font-family:'DM Sans',sans-serif;background:transparent;}
+.adv-search input::placeholder{color:var(--text-soft);}
+.filter-pill{padding:7px 12px;margin:6px;border-radius:9px;border:1px solid var(--border);background:var(--ivory);font-size:12px;color:var(--text-mid);cursor:pointer;display:flex;align-items:center;gap:4px;position:relative;user-select:none;}
+.filter-pill.active-filter{border-color:var(--teal);background:rgba(26,107,90,0.07);color:var(--teal);}
+
+/* DROPDOWN MENU */
+.dd-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1.5px solid var(--border);border-radius:13px;box-shadow:0 8px 32px rgba(0,0,0,0.12);min-width:200px;z-index:500;overflow:hidden;animation:fadeUp 0.15s ease;}
+.dd-menu.open{display:block;}
+.dd-item{padding:10px 16px;font-size:13px;color:var(--text-mid);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.12s;}
+.dd-item:hover{background:var(--ivory);color:var(--text-dark);}
+.dd-item.selected{background:rgba(26,107,90,0.07);color:var(--teal);font-weight:600;}
+.dd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dd-divider{height:1px;background:var(--border);margin:4px 0;}
+.dd-clear{padding:8px 16px;font-size:12px;color:var(--rose);cursor:pointer;border-top:1px solid var(--border);}
+.dd-clear:hover{background:rgba(192,80,74,0.05);}
+.ai-btn{margin:6px;padding:8px 14px;border-radius:9px;background:var(--teal);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.tag{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);transition:all 0.15s;}
+.tag:hover,.tag.active{border-color:var(--teal);background:rgba(26,107,90,0.06);color:var(--teal);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.animate{animation:fadeUp 0.45s ease both;}
+.d1{animation-delay:0.05s;}.d2{animation-delay:0.1s;}.d3{animation-delay:0.15s;}.d4{animation-delay:0.2s;}
+
+<style>
+.toast{position:fixed;bottom:32px;right:32px;background:var(--text-dark);color:#fff;padding:14px 22px;border-radius:12px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;z-index:9000;transform:translateY(80px);opacity:0;transition:all 0.35s;box-shadow:0 8px 32px rgba(0,0,0,0.25);}
+.toast.show{transform:translateY(0);opacity:1;}
+</style>
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence Platform</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div>
+      <div class="admin-name">Admin Portal</div>
+      <div class="admin-role">Super Administrator</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Core</div>
+    <a href="admin_panel.html" class="nav-item " data-page="admin_panel.html"><span class="icon">🏥</span> Patients <span class="nav-badge">1001</span></a>
+    <a href="doctor_panel.html" class="nav-item active" data-page="doctor_panel.html"><span class="icon">👨‍⚕️</span> Doctors <span class="nav-badge">20</span></a>
+    <a href="ha_panel.html" class="nav-item" data-page="ha_panel.html"><span class="icon">👤</span> HA <span class="nav-badge">8</span></a>
+    <a href="cluster_panel.html" class="nav-item" data-page="cluster_panel.html"><span class="icon">🏘</span> Clusters <span class="nav-badge">6</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Operations</div>
+    <a href="medicine_panel.html" class="nav-item " data-page="medicine_panel.html"><span class="icon">💊</span> Medicine <span class="nav-badge alert">3</span></a>
+    <a href="all_services.html" class="nav-item " data-page="all_services.html"><span class="icon">🩺</span> Services <span class="nav-badge">20</span></a>
+    <a href="inventory_panel.html" class="nav-item " data-page="inventory_panel.html"><span class="icon">📦</span> Inventory</a>
+    <a href="billing.html" class="nav-item " data-page="billing.html"><span class="icon">💰</span> Billing</a>
+    <a href="reports.html" class="nav-item " data-page="reports.html"><span class="icon">📊</span> Reports</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div style="padding:0 12px 10px">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px">Quick Jump</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <a href="admin_panel.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">🏥 Patient Registry</a>
+          <a href="doctor_panel.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">👨‍⚕️ Doctor Panel</a>
+          <a href="all_services.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">🩺 New Visit</a>
+          <a href="medicine_panel.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">💊 Medicines</a>
+        </div>
+      </div>
+    </div>
+    <div class="date-pill">📅 Apr 24, 2026 · 11:30 AM</div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title">Doctor Management</div>
+    <div class="topbar-right">
+      <div onclick="navTo('admin_panel.html')" style="padding:7px 14px;border-radius:9px;background:var(--ivory);border:1px solid var(--border);color:var(--text-mid);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-mid)'">🏥 Patients</div>
+      <div onclick="navTo('medicine_panel.html')" style="padding:7px 14px;border-radius:9px;background:var(--ivory);border:1px solid var(--border);color:var(--text-mid);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-mid)'">💊 Medicine</div>
+      <div onclick="navTo('all_services.html')" style="padding:7px 14px;border-radius:9px;background:var(--ivory);border:1px solid var(--border);color:var(--text-mid);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-mid)'">🩺 Services</div>
+      <div style="padding:7px 14px;border-radius:9px;background:var(--teal);color:#fff;font-size:13px;font-weight:600;cursor:pointer">+ Add Doctor</div>
+      <div class="notif-btn-wrap">
+        <div class="notif-btn" onclick="toggleNotif()">🔔<span class="notif-badge">5</span></div>
+        <div class="notif-dropdown" id="notifDropdown"></div>
+      </div>
+      <div class="user-btn-wrap">
+        <div class="user-btn" onclick="toggleUser()">A</div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="ud-item" onclick="navTo('admin_panel.html')">🏥 Dashboard</div>
+          <div class="ud-item">👤 My Profile</div>
+          <div class="ud-item">⚙️ Settings</div>
+          <div class="ud-item">📊 My Reports</div>
+          <div class="ud-item">🚪 Sign Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS ROW -->
+    <div class="stats-row animate d1">
+      <div class="mini-stat">
+        <div class="mini-val" style="color:var(--teal)">20</div>
+        <div class="mini-lbl">Total Doctors</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-val" style="color:#16a34a">17</div>
+        <div class="mini-lbl">Active</div>
+      </div>
+      <div class="mini-stat">
+        <div class="mini-val" style="color:var(--gold)">6</div>
+        <div class="mini-lbl">Specialities</div>
+      </div>
+    </div>
+
+    <!-- AI MATCH BANNER -->
+    <div class="ai-match animate d2">
+      <div class="ai-match-icon">🤖</div>
+      <div>
+        <h4>✦ AI Doctor-Patient Matching</h4>
+        <p>Dr. Aryak is optimal for <strong>34 pending Berhampore patients</strong> based on specialization overlap. Dr. Soumarya has 92% availability for Jalpaiguri cluster. Consider load balancing — top 3 doctors handle <strong>67% of all patient visits</strong>.</p>
+      </div>
+      <button style="margin-left:auto;flex-shrink:0;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:8px 14px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Run Match →</button>
+    </div>
+
+    <div class="two-col">
+      <!-- LEFT: ADD FORM + LIST -->
+      <div>
+        <!-- SEARCH -->
+        <div class="search-block animate d2">
+          <div class="adv-search">
+            <input type="text" placeholder="Search doctors by name, reg no, specialization, location...">
+            <div class="filter-pill" id="dpSpecialty">
+              <span>🏥</span><span id="dpSpecLabel">Specialty</span><span>▾</span>
+              <div class="dd-menu" id="dpSpecMenu">
+                <div class="dd-item" data-val="">All Specialties</div>
+                <div class="dd-divider"></div>
+                <div class="dd-item" data-val="General Medicine"><span class="dd-dot" style="background:#1A6B5A"></span>General Medicine</div>
+                <div class="dd-item" data-val="Dermatology"><span class="dd-dot" style="background:#A0522D"></span>Dermatology</div>
+                <div class="dd-item" data-val="Pediatrics"><span class="dd-dot" style="background:#C8963E"></span>Pediatrics</div>
+                <div class="dd-item" data-val="Cardiology"><span class="dd-dot" style="background:#C0504A"></span>Cardiology</div>
+                <div class="dd-item" data-val="Gynecology"><span class="dd-dot" style="background:#7B5EA7"></span>Gynecology</div>
+                <div class="dd-item" data-val="Orthopedics"><span class="dd-dot" style="background:#8B6914"></span>Orthopedics</div>
+                <div class="dd-item" data-val="Psychiatry"><span class="dd-dot" style="background:#6B4226"></span>Psychiatry</div>
+                <div class="dd-item" data-val="TB / Chest"><span class="dd-dot" style="background:#1A5CA8"></span>TB / Chest</div>
+                <div class="dd-clear" id="dpSpecClear">✕ Clear filter</div>
+              </div>
+            </div>
+            <div class="filter-pill" id="dpArea">
+              <span>📍</span><span id="dpAreaLabel">Area</span><span>▾</span>
+              <div class="dd-menu" id="dpAreaMenu">
+                <div class="dd-item" data-val="">All Areas</div>
+                <div class="dd-divider"></div>
+                <div class="dd-item" data-val="WB-BRH">WB-BRH · Berhampore</div>
+                <div class="dd-item" data-val="WB-JRG">WB-JRG · Jalpaiguri</div>
+                <div class="dd-item" data-val="WB-MDN">WB-MDN · Midnapore</div>
+                <div class="dd-item" data-val="WB-HWH">WB-HWH · Howrah</div>
+                <div class="dd-item" data-val="WB-NDP">WB-NDP · Nadia</div>
+                <div class="dd-item" data-val="WB-BNK">WB-BNK · Bankura</div>
+                <div class="dd-clear" id="dpAreaClear">✕ Clear filter</div>
+              </div>
+            </div>
+            <button class="ai-btn">✦ AI Filter</button>
+          </div>
+          <div class="tag-row">
+            <span class="tag active">All</span>
+            <span class="tag">General Medicine</span>
+            <span class="tag">Dermatology</span>
+            <span class="tag">Pediatrics</span>
+            <span class="tag">Cardiology</span>
+            <span class="tag">Available Today</span>
+            <span class="tag">High Rated ⭐</span>
+          </div>
+        </div>
+
+        <!-- DOCTOR LIST CARD -->
+        <div class="list-card animate d3">
+          <div class="list-head">
+            <div class="list-title">👨‍⚕️ Doctor Directory</div>
+            <div style="font-size:12px;color:var(--text-soft)">20 registered physicians</div>
+          </div>
+          <div class="doc-list" id="docList"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: ADD FORM + AI PANEL -->
+      <div class="right-panel animate d2">
+        <!-- ADD FORM -->
+        <div class="form-card">
+          <div class="form-card-head">
+            <h3>Add New Doctor</h3>
+            <p>Complete physician registration with credentials</p>
+          </div>
+          <div class="form-body">
+            <div class="ai-suggest-row">
+              <span style="font-size:18px">✦</span>
+              <p><strong>AI Assist:</strong> Fill name & reg no — AI will auto-suggest specialization based on registration pattern.</p>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">First Name</label>
+                <input class="form-input" type="text" placeholder="Dr. First">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Name</label>
+                <input class="form-input" type="text" placeholder="Last Name">
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Registration No.</label>
+                <input class="form-input" type="text" placeholder="DRN-XXXXXXXXX">
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Address / Location</label>
+                <input class="form-input" type="text" placeholder="City, District">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input class="form-input" type="tel" placeholder="+91 XXXXXXXXXX">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input class="form-input" type="email" placeholder="doctor@hospital.com">
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Specialization</label>
+                <div class="form-tags" id="specTags">
+                  <span class="spec-tag" onclick="toggleSpec(this)">General Medicine</span>
+                  <span class="spec-tag" onclick="toggleSpec(this)">Dermatology</span>
+                  <span class="spec-tag" onclick="toggleSpec(this)">Pediatrics</span>
+                  <span class="spec-tag" onclick="toggleSpec(this)">Cardiology</span>
+                  <span class="spec-tag" onclick="toggleSpec(this)">Gynecology</span>
+                  <span class="spec-tag" onclick="toggleSpec(this)">Orthopedics</span>
+                  <span class="spec-tag" onclick="toggleSpec(this)">Psychiatry</span>
+                  <span class="spec-tag" onclick="toggleSpec(this)">TB / Chest</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cluster Assignment</label>
+                <select class="form-input">
+                  <option>Select cluster</option>
+                  <option>WB-BRH Berhampore</option>
+                  <option>WB-JRG Jalpaiguri</option>
+                  <option>WB-MDN Midnapore</option>
+                  <option>WB-HWH Howrah</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Availability</label>
+                <select class="form-input">
+                  <option>Mon–Fri</option>
+                  <option>Mon–Sat</option>
+                  <option>Weekends Only</option>
+                  <option>On-Call</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Notes / AI Bio (optional)</label>
+                <textarea class="form-input" rows="3" placeholder="Enter details or let AI generate a professional bio..." style="resize:vertical"></textarea>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:12px">
+              <button style="flex:1;padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">✦ Generate Bio</button>
+              <button class="submit-btn" style="flex:2;margin-top:0">✚ Register Doctor</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI WORKLOAD SCORE -->
+        <div class="ai-score">
+          <h4>✦ AI Workload Analysis</h4>
+          <div id="scoreRows"></div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:0.5px">Score based on patient load, visit frequency & cluster size</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const doctors = [
+  {name:'Dr. Aryak Sen',spec:'General Medicine',loc:'Dumdum',phone:'9876539833',reg:'DRN987654312',email:'aryak@gmail.com',pts:234,rating:'4.9',color:'#1A6B5A',avail:true,clusters:'WB-BRH'},
+  {name:'Dr. Soumarya Das',spec:'Dermatology',loc:'Garia',phone:'8976539833',reg:'DRN987867312',email:'sammy190@gmail.com',pts:187,rating:'4.7',color:'#3D4F8A',avail:true,clusters:'WB-JRG'},
+  {name:'Dr. Priya Mukherjee',spec:'Pediatrics',loc:'Salt Lake',phone:'7634521890',reg:'DRN654321987',email:'priya.m@health.in',pts:156,rating:'4.8',color:'#C8963E',avail:true,clusters:'WB-MDN'},
+  {name:'Dr. Rohit Karmakar',spec:'Cardiology',loc:'Park Street',phone:'9988776655',reg:'DRN112233445',email:'rohitk@clinic.com',pts:98,rating:'4.6',color:'#C0504A',avail:false,clusters:'WB-BRH'},
+  {name:'Dr. Anjali Singh',spec:'Gynecology',loc:'Behala',phone:'8877665544',reg:'DRN998877665',email:'anjali.s@hospital.in',pts:201,rating:'4.9',color:'#7B5EA7',avail:true,clusters:'WB-HWH'},
+  {name:'Dr. Deepa Rao',spec:'General Medicine',loc:'New Town',phone:'7766554433',reg:'DRN445566778',email:'deepa.r@health.in',pts:143,rating:'4.5',color:'#2A9076',avail:true,clusters:'WB-MDN'},
+  {name:'Dr. Suresh Pillai',spec:'Orthopedics',loc:'Esplanade',phone:'6655443322',reg:'DRN334455667',email:'suresh.p@bones.in',pts:89,rating:'4.7',color:'#8B6914',avail:false,clusters:'WB-NDP'},
+  {name:'Dr. Kavita Banerjee',spec:'TB / Chest',loc:'Kalighat',phone:'9123456780',reg:'DRN223344556',email:'kavita.b@tb.in',pts:176,rating:'4.8',color:'#1A5CA8',avail:true,clusters:'WB-NDP'},
+  {name:'Dr. Manoj Ghosh',spec:'Psychiatry',loc:'Tollygunge',phone:'8012345679',reg:'DRN556677889',email:'manoj.g@mind.in',pts:67,rating:'4.6',color:'#6B4226',avail:true,clusters:'WB-BNK'},
+  {name:'Dr. Sunita Sharma',spec:'Dermatology',loc:'Ballygunge',phone:'9876012345',reg:'DRN667788990',email:'sunita.s@skin.in',pts:112,rating:'4.7',color:'#A0522D',avail:true,clusters:'WB-HWH'},
+  {name:'Dr. Arun Joshi',spec:'General Medicine',loc:'Shyambazar',phone:'7890123456',reg:'DRN778899001',email:'arun.j@gen.in',pts:198,rating:'4.5',color:'#1A6B5A',avail:false,clusters:'WB-BRH'},
+  {name:'Dr. Rekha Nair',spec:'Gynecology',loc:'Jadavpur',phone:'6789012345',reg:'DRN889900112',email:'rekha.n@gyno.in',pts:145,rating:'4.8',color:'#7B5EA7',avail:true,clusters:'WB-JRG'},
+  {name:'Dr. Vikram Patel',spec:'Cardiology',loc:'Dum Dum',phone:'5678901234',reg:'DRN990011223',email:'vikram.p@heart.in',pts:88,rating:'4.6',color:'#C0504A',avail:true,clusters:'WB-MDN'},
+  {name:'Dr. Nandita Roy',spec:'Pediatrics',loc:'Barasat',phone:'4567890123',reg:'DRN001122334',email:'nandita.r@child.in',pts:167,rating:'4.9',color:'#C8963E',avail:true,clusters:'WB-BNK'},
+  {name:'Dr. Arjun Mehta',spec:'Orthopedics',loc:'Sodepur',phone:'3456789012',reg:'DRN112234456',email:'arjun.m@ortho.in',pts:76,rating:'4.4',color:'#8B6914',avail:false,clusters:'WB-HWH'},
+  {name:'Dr. Padmaja Iyer',spec:'TB / Chest',loc:'Rishra',phone:'9234567801',reg:'DRN223345567',email:'padmaja.i@chest.in',pts:134,rating:'4.7',color:'#1A5CA8',avail:true,clusters:'WB-NDP'},
+  {name:'Dr. Santanu Biswas',spec:'General Medicine',loc:'Uttarpara',phone:'8123456790',reg:'DRN334456678',email:'santanu.b@gp.in',pts:221,rating:'4.6',color:'#1A6B5A',avail:true,clusters:'WB-BRH'},
+  {name:'Dr. Lipika Das',spec:'Dermatology',loc:'Naihati',phone:'7012345689',reg:'DRN445567789',email:'lipika.d@skin.in',pts:93,rating:'4.5',color:'#A0522D',avail:true,clusters:'WB-JRG'},
+  {name:'Dr. Kaushik Bose',spec:'Psychiatry',loc:'Titagarh',phone:'6901234578',reg:'DRN556678890',email:'kaushik.b@psych.in',pts:54,rating:'4.8',color:'#6B4226',avail:false,clusters:'WB-MDN'},
+  {name:'Dr. Urmila Chatterjee',spec:'Gynecology',loc:'Kamarhati',phone:'5890123467',reg:'DRN667789901',email:'urmila.c@women.in',pts:188,rating:'4.9',color:'#7B5EA7',avail:true,clusters:'WB-HWH'},
+];
+
+const docList = document.getElementById('docList');
+
+function renderDoctors(list) {
+  docList.innerHTML = '';
+  list.forEach(d => {
+    const initial = d.name.split(' ')[1][0];
+    docList.innerHTML += `<div class="doc-card ${d.pts > 180 ? 'featured' : ''}">
+      <div class="doc-avatar" style="background:${d.color}">${initial}</div>
+      <div class="doc-info">
+        <div class="doc-name">${d.name}</div>
+        <div class="doc-spec">${d.spec} · ${d.loc}</div>
+        <div class="doc-meta">
+          <span class="doc-tag">${d.clusters}</span>
+          <span class="doc-rating">★ ${d.rating}</span>
+          <span style="font-size:11px;color:var(--text-soft)">${d.phone}</span>
+        </div>
+      </div>
+      <div class="doc-actions">
+        <div style="display:flex;align-items:center;gap:5px">
+          <div class="doc-status-dot" style="background:${d.avail ? '#4ADE80':'#FCA5A5'}"></div>
+          <span style="font-size:11px;color:var(--text-soft)">${d.avail ? 'Active' : 'Away'}</span>
+        </div>
+        <div class="doc-pts">${d.pts} pts</div>
+        <button class="view-btn" onclick="showDoctorDetail(${JSON.stringify(d).replace(/"/g,'&quot;')})">View</button>
+      </div>
+    </div>`;
+  });
+  document.querySelector('.list-head div:last-child').textContent = `${list.length} registered physicians`;
+}
+
+renderDoctors(doctors);
+
+// Workload scores
+const top5 = [...doctors].sort((a,b)=>b.pts-a.pts).slice(0,6);
+const maxPts = top5[0].pts;
+const scoreRows = document.getElementById('scoreRows');
+const barColors = ['#3DBFA0','#4ADE80','#E8B96A','#E8857F','#6B82C8','#A78BFA'];
+top5.forEach((d, i) => {
+  const pct = Math.round(d.pts/maxPts*100);
+  const shortName = d.name.replace('Dr. ','').split(' ')[0];
+  scoreRows.innerHTML += `<div class="score-row">
+    <div class="score-name">${shortName}</div>
+    <div class="score-bar-wrap"><div class="score-bar" style="width:${pct}%;background:${barColors[i]}"></div></div>
+    <div class="score-val" style="color:${barColors[i]}">${d.pts}</div>
+  </div>`;
+});
+
+function toggleSpec(el) { el.classList.toggle('sel'); }
+
+// ─── LIVE SEARCH ─────────────────────────────────────────────
+const searchInput = document.querySelector('.adv-search input');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase();
+  if (!q) { renderDoctors(doctors); return; }
+  renderDoctors(doctors.filter(d =>
+    d.name.toLowerCase().includes(q) ||
+    d.spec.toLowerCase().includes(q) ||
+    d.loc.toLowerCase().includes(q) ||
+    d.reg.toLowerCase().includes(q) ||
+    d.clusters.toLowerCase().includes(q)
+  ));
+});
+
+// ─── TAG FILTERS ─────────────────────────────────────────────
+const tagFilters = {
+  'All': () => true,
+  'General Medicine': d => d.spec === 'General Medicine',
+  'Dermatology': d => d.spec === 'Dermatology',
+  'Pediatrics': d => d.spec === 'Pediatrics',
+  'Cardiology': d => d.spec === 'Cardiology',
+  'Available Today': d => d.avail,
+  'High Rated ⭐': d => parseFloat(d.rating) >= 4.8
+};
+document.querySelectorAll('.tag').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tag').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const label = t.textContent.trim();
+    renderDoctors(doctors.filter(tagFilters[label] || (() => true)));
+  });
+});
+
+// ─── AI FILTER ────────────────────────────────────────────────
+document.querySelector('.ai-btn').addEventListener('click', async () => {
+  const query = searchInput.value.trim();
+  if (!query) { showToast('Enter a search query first', 'warning'); return; }
+  const btn = document.querySelector('.ai-btn');
+  btn.textContent = '⏳ Filtering…';
+  btn.disabled = true;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{
+          role: 'user',
+          content: `You are a doctor search AI. Query: "${query}". Doctors: ${JSON.stringify(doctors.map(d=>({name:d.name,spec:d.spec,loc:d.loc,clusters:d.clusters,pts:d.pts,rating:d.rating,avail:d.avail})))}.
+Return ONLY a JSON array of matching doctor names (exact "name" field). Consider specialization, location, availability, rating, patient load. No other text.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const names = JSON.parse(data.content[0].text.trim());
+    const filtered = doctors.filter(d => names.includes(d.name));
+    renderDoctors(filtered.length ? filtered : doctors);
+    showToast(filtered.length ? `✦ AI found ${filtered.length} doctors for "${query}"` : 'No exact AI matches — showing all', filtered.length ? 'success' : 'info');
+  } catch(e) {
+    const q = query.toLowerCase();
+    const filtered = doctors.filter(d => d.name.toLowerCase().includes(q) || d.spec.toLowerCase().includes(q) || d.loc.toLowerCase().includes(q));
+    renderDoctors(filtered.length ? filtered : doctors);
+    showToast(`Found ${filtered.length} matches for "${query}"`, 'success');
+  }
+  btn.textContent = '✦ AI Filter';
+  btn.disabled = false;
+});
+
+// ─── RUN MATCH ────────────────────────────────────────────────
+document.querySelector('.ai-match button').addEventListener('click', async () => {
+  const btn = document.querySelector('.ai-match button');
+  btn.textContent = '⏳ Matching…';
+  btn.disabled = true;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        messages: [{
+          role: 'user',
+          content: `You are an AI doctor-patient matching system. Given these doctors: ${JSON.stringify(doctors)}.
+Generate a matching report. Return ONLY JSON: {
+  matches: [{doctorName, cluster, reason, pendingPatients, matchScore}],
+  loadBalancing: "2-3 sentence recommendation",
+  topAlert: "most urgent action"
+}. Include top 4 matches. No markdown.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const result = JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+    showMatchModal(result);
+  } catch(e) {
+    showMatchModal({
+      matches: [
+        {doctorName:'Dr. Aryak Sen', cluster:'WB-BRH', reason:'General Medicine + highest patient volume', pendingPatients:34, matchScore:97},
+        {doctorName:'Dr. Soumarya Das', cluster:'WB-JRG', reason:'92% availability, Dermatology overlap', pendingPatients:22, matchScore:91},
+        {doctorName:'Dr. Santanu Biswas', cluster:'WB-BRH', reason:'General Medicine, Berhampore overflow', pendingPatients:18, matchScore:85},
+        {doctorName:'Dr. Anjali Singh', cluster:'WB-HWH', reason:'High rating 4.9, Gynecology cluster fit', pendingPatients:15, matchScore:82},
+      ],
+      loadBalancing: 'Top 3 doctors handle 67% of visits. Redistribute 40 patients from WB-BRH to WB-MDN cluster to balance load.',
+      topAlert: 'Immediately assign Dr. Aryak Sen to 34 pending Berhampore patients.'
+    });
+  }
+  btn.textContent = 'Run Match →';
+  btn.disabled = false;
+});
+
+// ─── GENERATE BIO ─────────────────────────────────────────────
+document.querySelector('button[onclick*="Generate Bio"], .form-body button:first-child')?.addEventListener?.('click', async function() {
+  const firstName = document.querySelector('.form-input[placeholder="Dr. First"]').value;
+  const lastName = document.querySelector('.form-input[placeholder="Last Name"]').value;
+  const specTags = [...document.querySelectorAll('.spec-tag.sel')].map(e=>e.textContent);
+  const location = document.querySelector('.form-input[placeholder="City, District"]').value;
+  if (!firstName) { showToast('Please enter a name first', 'warning'); return; }
+  this.textContent = '⏳ Generating…';
+  this.disabled = true;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 400,
+        messages: [{
+          role: 'user',
+          content: `Write a professional 2-sentence medical bio for: Dr. ${firstName} ${lastName}, specializing in ${specTags.join(', ')||'General Medicine'}, based in ${location||'West Bengal'}. Plain text only, no markdown.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    document.querySelector('.form-input[placeholder*="AI generate"]').value = data.content[0].text;
+    showToast('✦ AI bio generated!', 'success');
+  } catch(e) {
+    document.querySelector('.form-input[placeholder*="AI generate"]').value = `Dr. ${firstName} ${lastName} is a dedicated ${specTags[0]||'General Medicine'} physician with extensive clinical experience in ${location||'West Bengal'}. Known for compassionate patient care and evidence-based practice.`;
+    showToast('Bio generated', 'success');
+  }
+  this.textContent = '✦ Generate Bio';
+  this.disabled = false;
+});
+
+// Fix Generate Bio button — it's inside the form
+document.querySelectorAll('.form-body button').forEach(btn => {
+  if (btn.textContent.includes('Generate Bio')) {
+    btn.addEventListener('click', async function() {
+      const firstName = document.querySelector('.form-input[placeholder="Dr. First"]').value;
+      const lastName = document.querySelector('.form-input[placeholder="Last Name"]').value;
+      const specTags = [...document.querySelectorAll('.spec-tag.sel')].map(e=>e.textContent);
+      const location = document.querySelector('.form-input[placeholder="City, District"]').value;
+      if (!firstName) { showToast('Please enter a name first', 'warning'); return; }
+      this.textContent = '⏳ Generating…';
+      this.disabled = true;
+      try {
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 400,
+            messages: [{
+              role: 'user',
+              content: `Write a professional 2-sentence medical bio for: Dr. ${firstName} ${lastName}, specializing in ${specTags.join(', ')||'General Medicine'}, based in ${location||'West Bengal'}. Plain text only.`
+            }]
+          })
+        });
+        const data = await resp.json();
+        document.querySelector('textarea.form-input').value = data.content[0].text;
+        showToast('✦ AI bio generated!', 'success');
+      } catch(e) {
+        document.querySelector('textarea.form-input').value = `Dr. ${firstName} ${lastName} is a dedicated ${specTags[0]||'General Medicine'} physician with extensive clinical experience in ${location||'West Bengal'}. Known for compassionate patient care.`;
+        showToast('Bio generated', 'success');
+      }
+      this.textContent = '✦ Generate Bio';
+      this.disabled = false;
+    });
+  }
+  if (btn.textContent.includes('Register Doctor')) {
+    btn.addEventListener('click', () => {
+      const firstName = document.querySelector('.form-input[placeholder="Dr. First"]').value;
+      const lastName = document.querySelector('.form-input[placeholder="Last Name"]').value;
+      if (!firstName || !lastName) { showToast('Please fill in name fields', 'warning'); return; }
+      showToast(`✦ Dr. ${firstName} ${lastName} registered successfully!`, 'success');
+      document.querySelectorAll('.form-input').forEach(i => { if(i.tagName!=='SELECT') i.value=''; });
+      document.querySelectorAll('.spec-tag').forEach(t => t.classList.remove('sel'));
+    });
+  }
+});
+
+// ─── DOCTOR DETAIL MODAL ──────────────────────────────────────
+function showDoctorDetail(d) {
+  const overlay = createModal(`👨‍⚕️ ${d.name}`, `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:var(--ivory);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Specialization</div>
+        <div style="font-weight:700">${d.spec}</div>
+      </div>
+      <div style="background:var(--ivory);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cluster</div>
+        <div style="font-weight:700;color:var(--teal)">${d.clusters}</div>
+      </div>
+      <div style="background:var(--ivory);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Location</div>
+        <div style="font-weight:700">${d.loc}</div>
+      </div>
+      <div style="background:var(--ivory);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Patients</div>
+        <div style="font-weight:700;color:var(--teal)">${d.pts}</div>
+      </div>
+      <div style="background:var(--ivory);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Rating</div>
+        <div style="font-weight:700;color:var(--gold)">★ ${d.rating}</div>
+      </div>
+      <div style="background:var(--ivory);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Status</div>
+        <div style="font-weight:700;color:${d.avail?'#16a34a':'var(--rose)'}">${d.avail?'Active':'Away'}</div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--text-mid)">📞 ${d.phone} &nbsp;|&nbsp; ✉ ${d.email}</div>
+    <div style="font-size:12px;color:var(--text-soft);margin-top:8px;font-family:'DM Mono',monospace">${d.reg}</div>
+  `);
+  document.body.appendChild(overlay);
+}
+
+// ─── MATCH MODAL ──────────────────────────────────────────────
+function showMatchModal(result) {
+  const rows = result.matches.map(m => `
+    <div style="background:var(--ivory);border-radius:12px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0">${m.matchScore}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${m.doctorName}</div>
+        <div style="font-size:12px;color:var(--teal);margin-top:2px">${m.cluster} · ${m.pendingPatients} pending patients</div>
+        <div style="font-size:12px;color:var(--text-soft);margin-top:2px">${m.reason}</div>
+      </div>
+    </div>`).join('');
+  document.body.appendChild(createModal('✦ AI Doctor-Patient Matching Results', `
+    <div style="background:rgba(192,80,74,0.08);border:1px solid var(--rose-light);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--rose)">
+      🚨 <strong>Urgent:</strong> ${result.topAlert}
+    </div>
+    ${rows}
+    <div style="background:rgba(26,107,90,0.06);border-radius:10px;padding:12px 16px;margin-top:4px;font-size:13px;color:var(--teal)">
+      💡 ${result.loadBalancing}
+    </div>
+  `));
+}
+
+// ─── TOAST ────────────────────────────────────────────────────
+function showToast(msg, type='info') {
+  const toast = document.createElement('div');
+  const bg = type==='success'?'var(--teal)':type==='warning'?'var(--gold)':'var(--indigo)';
+  toast.style.cssText = `position:fixed;bottom:28px;right:28px;background:${bg};color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);animation:fadeUp 0.3s ease;font-family:'DM Sans',sans-serif;max-width:360px`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// ─── MODAL HELPER ─────────────────────────────────────────────
+function createModal(title, body) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  overlay.innerHTML = `<div style="background:#fff;border-radius:20px;width:540px;max-width:90vw;max-height:82vh;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.2)">
+    <div style="background:linear-gradient(135deg,var(--teal),var(--teal-light));padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;font-weight:700">${title}</div>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:18px">×</button>
+    </div>
+    <div style="padding:24px;overflow-y:auto;max-height:65vh">${body}</div>
+  </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  return overlay;
+}
+
+// ─── DROPDOWN FILTER LOGIC ────────────────────────────────────
+const dpState = { spec: '', area: '' };
+
+function applyDocFilters() {
+  const q = document.querySelector('.adv-search input').value.toLowerCase();
+  let list = doctors.filter(d => {
+    const matchText = !q || d.name.toLowerCase().includes(q) || d.spec.toLowerCase().includes(q) ||
+      d.loc.toLowerCase().includes(q) || d.reg.toLowerCase().includes(q) || d.clusters.toLowerCase().includes(q);
+    const matchSpec = !dpState.spec || d.spec === dpState.spec;
+    const matchArea = !dpState.area || d.clusters === dpState.area;
+    return matchText && matchSpec && matchArea;
+  });
+  renderDoctors(list);
+}
+
+function setupDocDropdown(triggerId, menuId, labelId, stateKey, defaultLabel) {
+  const trigger = document.getElementById(triggerId);
+  const menu    = document.getElementById(menuId);
+  const label   = document.getElementById(labelId);
+
+  trigger.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = menu.classList.contains('open');
+    document.querySelectorAll('.dd-menu.open').forEach(m => m.classList.remove('open'));
+    document.querySelectorAll('.filter-pill').forEach(f => f.classList.remove('open-state'));
+    if (!isOpen) {
+      menu.classList.add('open');
+      trigger.classList.add('open-state');
+    }
+  });
+
+  menu.querySelectorAll('.dd-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const val = item.dataset.val;
+      dpState[stateKey] = val;
+      label.textContent = val ? item.textContent.trim().replace(/^[^\w]*/, '').split('·')[0].trim() : defaultLabel;
+      menu.querySelectorAll('.dd-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      trigger.classList.toggle('active-filter', !!val);
+      menu.classList.remove('open');
+      trigger.classList.remove('open-state');
+      applyDocFilters();
+    });
+  });
+
+  const clearBtn = menu.querySelector('.dd-clear');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      dpState[stateKey] = '';
+      label.textContent = defaultLabel;
+      menu.querySelectorAll('.dd-item').forEach(i => i.classList.remove('selected'));
+      trigger.classList.remove('active-filter');
+      menu.classList.remove('open');
+      applyDocFilters();
+    });
+  }
+}
+
+setupDocDropdown('dpSpecialty', 'dpSpecMenu', 'dpSpecLabel', 'spec', 'Specialty');
+setupDocDropdown('dpArea',      'dpAreaMenu', 'dpAreaLabel', 'area', 'Area');
+
+// Re-wire live search to respect dropdown state
+document.querySelector('.adv-search input').addEventListener('input', applyDocFilters);
+
+// Close dropdowns on outside click
+document.addEventListener('click', () => {
+  document.querySelectorAll('.dd-menu.open').forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('.filter-pill.open-state').forEach(f => f.classList.remove('open-state'));
+});
+</script>
+
+<!-- HealthOS Global Nav & Transitions -->
+<style>
+/* Page transition overlay */
+.page-transition-overlay {
+  position: fixed; inset: 0; background: var(--cream);
+  z-index: 9999; opacity: 0; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.22s ease;
+}
+.page-transition-overlay.active { opacity: 1; pointer-events: all; }
+.pt-logo {
+  font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700;
+  color: var(--teal); opacity: 0; transform: translateY(8px);
+  transition: all 0.3s ease 0.08s;
+}
+.pt-logo span { color: var(--teal-glow); }
+.page-transition-overlay.active .pt-logo { opacity: 1; transform: translateY(0); }
+
+/* Smooth sidebar link hover underline */
+.sidebar .nav-item { position: relative; }
+
+/* Global notification bell dropdown */
+.notif-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 320px; background: #fff; border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,0.14);
+  z-index: 500; display: none;
+}
+.notif-dropdown.open { display: block; animation: fadeUp 0.22s ease; }
+.nd-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.nd-head h4 { font-size: 14px; font-weight: 700; }
+.nd-mark { font-size: 11px; color: var(--teal); cursor: pointer; font-weight: 600; }
+.nd-item { padding: 12px 18px; border-bottom: 1px solid #F5F0E8; display: flex; gap: 10px; cursor: pointer; transition: background 0.15s; }
+.nd-item:last-child { border-bottom: none; }
+.nd-item:hover { background: var(--ivory); }
+.nd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.nd-msg { font-size: 12.5px; color: var(--text-mid); line-height: 1.4; }
+.nd-time { font-size: 11px; color: var(--text-soft); margin-top: 3px; }
+.nd-footer { padding: 12px 18px; text-align: center; }
+.nd-footer a { font-size: 12px; color: var(--teal); font-weight: 600; text-decoration: none; }
+
+/* User menu dropdown */
+.user-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 200px; background: #fff; border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  z-index: 500; display: none;
+}
+.user-dropdown.open { display: block; animation: fadeUp 0.2s ease; }
+.ud-item { padding: 11px 16px; font-size: 13px; color: var(--text-mid); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
+.ud-item:first-child { border-radius: 14px 14px 0 0; }
+.ud-item:last-child { border-radius: 0 0 14px 14px; border-top: 1px solid var(--border); color: var(--rose); }
+.ud-item:hover { background: var(--ivory); }
+
+/* Enhanced notif btn */
+.notif-btn-wrap { position: relative; }
+.notif-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--ivory); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px; position: relative;
+  transition: all 0.15s;
+}
+.notif-btn:hover { border-color: var(--teal); background: rgba(26,107,90,0.05); }
+.notif-badge {
+  position: absolute; top: -5px; right: -5px;
+  background: var(--rose); color: #fff; font-size: 10px; font-weight: 700;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif; border: 2px solid var(--cream);
+}
+.user-btn-wrap { position: relative; }
+.user-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.15s;
+}
+.user-btn:hover { border-color: var(--teal-glow); box-shadow: 0 0 0 3px rgba(61,191,160,0.2); }
+
+/* Breadcrumb global style */
+.g-breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-soft); margin-top: 2px;
+}
+.g-breadcrumb a { color: var(--teal); text-decoration: none; font-weight: 500; }
+.g-breadcrumb a:hover { text-decoration: underline; }
+.g-breadcrumb span.sep { color: var(--border); }
+</style>
+
+<div class="page-transition-overlay" id="pageOverlay">
+  <div class="pt-logo">Health<span>OS</span></div>
+</div>
+
+<script>
+// ── PAGE TRANSITIONS ─────────────────────────────────────────────────────────
+(function(){
+  const overlay = document.getElementById('pageOverlay');
+  // fade IN on load (reverse: fade from white to transparent)
+  window.addEventListener('DOMContentLoaded', () => {
+    overlay.classList.add('active');
+    requestAnimationFrame(() => {
+      setTimeout(() => overlay.classList.remove('active'), 350);
+    });
+  });
+
+  // intercept all internal nav links
+  document.addEventListener('click', function(e){
+    const link = e.target.closest('a[href]');
+    if(!link) return;
+    const href = link.getAttribute('href');
+    if(!href || href === '#' || href.startsWith('http') || href.startsWith('mailto') || href.startsWith('data')) return;
+    if(href === window.location.pathname.split('/').pop()) return;
+    e.preventDefault();
+    overlay.classList.add('active');
+    setTimeout(() => { window.location.href = href; }, 280);
+  });
+
+  // also intercept onclick window.location.href calls via button wrapping
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('button[data-nav]');
+    if(btn){
+      e.preventDefault();
+      const dest = btn.getAttribute('data-nav');
+      overlay.classList.add('active');
+      setTimeout(() => { window.location.href = dest; }, 280);
+    }
+  });
+})();
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+const notifData = [
+  { color: '#C0504A', msg: '<strong>Low Stock Alert:</strong> Amoxicillin 500mg — reorder within 5 days', time: '2 min ago', page: 'medicine_panel.html' },
+  { color: '#C8963E', msg: '<strong>Patient Flagged:</strong> Chhanda Shit — BP critical, doctor notified', time: '14 min ago', page: 'report_services.html' },
+  { color: '#1A6B5A', msg: '<strong>New Registration:</strong> Debashish Nag added to WB-MDN cluster', time: '31 min ago', page: 'admin_panel.html' },
+  { color: '#3D4F8A', msg: '<strong>Doctor Camp Today:</strong> Dr. Priya Mukherjee — Pediatrics at 2PM', time: '1 hr ago', page: 'doctor_panel.html' },
+  { color: '#C8963E', msg: '<strong>Queue Alert:</strong> 327 patients in cluster queue — review needed', time: '2 hr ago', page: 'admin_panel.html' },
+];
+
+function buildNotifDropdown(){
+  const wrap = document.getElementById('notifDropdown');
+  if(!wrap) return;
+  let html = `<div class="nd-head"><h4>🔔 Notifications</h4><span class="nd-mark" onclick="markAllRead()">Mark all read</span></div>`;
+  notifData.forEach(n => {
+    html += `<div class="nd-item" onclick="navTo('${n.page}')">
+      <div class="nd-dot" style="background:${n.color}"></div>
+      <div><div class="nd-msg">${n.msg}</div><div class="nd-time">${n.time}</div></div>
+    </div>`;
+  });
+  html += `<div class="nd-footer"><a href="admin_panel.html">View all activity →</a></div>`;
+  wrap.innerHTML = html;
+}
+
+function toggleNotif(){
+  const d = document.getElementById('notifDropdown');
+  const u = document.getElementById('userDropdown');
+  if(u) u.classList.remove('open');
+  d.classList.toggle('open');
+}
+function toggleUser(){
+  const d = document.getElementById('userDropdown');
+  const n = document.getElementById('notifDropdown');
+  if(n) n.classList.remove('open');
+  d.classList.toggle('open');
+}
+function markAllRead(){
+  document.querySelector('.notif-badge') && (document.querySelector('.notif-badge').style.display='none');
+  document.getElementById('notifDropdown').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if(!e.target.closest('.notif-btn-wrap') && !e.target.closest('.notif-dropdown')){
+    document.querySelectorAll('.notif-dropdown').forEach(d=>d.classList.remove('open'));
+  }
+  if(!e.target.closest('.user-btn-wrap') && !e.target.closest('.user-dropdown')){
+    document.querySelectorAll('.user-dropdown').forEach(d=>d.classList.remove('open'));
+  }
+});
+
+function navTo(page){
+  const overlay = document.getElementById('pageOverlay');
+  overlay.classList.add('active');
+  setTimeout(() => { window.location.href = page; }, 280);
+}
+
+buildNotifDropdown();
+
+// ── LIVE CLOCK ────────────────────────────────────────────────────────────────
+function updateClock(){
+  const el = document.querySelector('.date-pill');
+  if(!el) return;
+  const now = new Date();
+  const opts = {weekday:'short',day:'2-digit',month:'short',year:'numeric'};
+  const date = now.toLocaleDateString('en-GB', opts);
+  const time = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  el.textContent = '📅 ' + date + ' · ' + time;
+}
+updateClock();
+setInterval(updateClock, 30000);
+</script>
+
+<div class="toast" id="toast"></div>
+
+<!-- Floating Dashboard Button -->
+<div onclick="navTo('admin_panel.html')" style="position:fixed;bottom:28px;left:290px;z-index:800;background:var(--text-dark);color:#fff;padding:10px 18px;border-radius:30px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.2);transition:all 0.2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='var(--teal)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--text-dark)';this.style.transform='none'">
+  🏥 <span>Back to Dashboard</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Smart Inventory Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --purple: #7B5EA7;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+  --shadow-lg: 0 12px 48px rgba(26,107,90,0.16);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;
+  background-image:radial-gradient(ellipse 800px 600px at 90% 10%,rgba(61,191,160,0.06) 0%,transparent 70%),
+  radial-gradient(ellipse 600px 500px at 10% 80%,rgba(200,150,62,0.05) 0%,transparent 70%);}
+
+/* SIDEBAR */
+.sidebar{width:260px;position:fixed;top:0;left:0;height:100vh;background:var(--text-dark);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 40px rgba(0,0,0,0.15);}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo-mark{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;}
+.logo-mark span{color:var(--teal-glow);}
+.logo-sub{font-size:11px;color:var(--text-soft);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.sidebar-admin{padding:20px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.admin-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;}
+.admin-avatar::after{content:'';position:absolute;bottom:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#4ADE80;border:2px solid var(--text-dark);}
+.admin-name{font-weight:600;font-size:14px;color:#fff;}
+.admin-role{font-size:11px;color:var(--text-soft);}
+.nav-section{padding:16px 12px 8px;}
+.nav-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 12px 8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:2px;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);}
+.nav-item.active{background:linear-gradient(135deg,var(--teal),var(--teal-light));color:#fff;}
+.nav-item .icon{font-size:18px;width:22px;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.12);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);}
+.nav-badge.alert{background:var(--rose);color:#fff;}
+.sidebar-bottom{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06);}
+.date-pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:8px 14px;text-align:center;font-size:12px;color:var(--text-soft);font-family:'DM Mono',monospace;}
+
+/* MAIN */
+.main{margin-left:260px;min-height:100vh;}
+.topbar{background:var(--glass);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 36px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--text-dark);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.notif-btn-wrap{position:relative;}
+.notif-btn{width:38px;height:38px;border-radius:10px;background:var(--ivory);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative;transition:all 0.15s;}
+.notif-btn:hover{border-color:var(--teal);background:rgba(26,107,90,0.05);}
+.notif-badge{position:absolute;top:-5px;right:-5px;background:var(--rose);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;border:2px solid var(--cream);}
+.content{padding:32px 36px;}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.animate{animation:fadeUp 0.5s ease both;}
+.d1{animation-delay:0.05s;}.d2{animation-delay:0.1s;}.d3{animation-delay:0.15s;}.d4{animation-delay:0.2s;}.d5{animation-delay:0.25s;}
+
+/* ALERT BANNER */
+.alert-strip{background:linear-gradient(135deg,#7B1E1E,var(--rose));border-radius:14px;padding:14px 22px;display:flex;align-items:center;gap:14px;margin-bottom:22px;animation:fadeUp 0.4s ease;border:1px solid rgba(255,255,255,0.15);}
+.alert-strip .a-icon{font-size:22px;animation:blink 1.5s infinite;}
+.alert-strip .a-text{flex:1;font-size:13px;color:#fff;font-weight:500;line-height:1.5;}
+.alert-strip .a-text strong{font-weight:700;}
+.alert-strip .a-close{color:rgba(255,255,255,0.6);cursor:pointer;font-size:18px;padding:2px 6px;border-radius:6px;transition:all 0.15s;}
+.alert-strip .a-close:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.alert-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.alert-btn:hover{background:rgba(255,255,255,0.3);}
+
+/* AI INTELLIGENCE PANEL */
+.ai-panel{background:linear-gradient(135deg,#1C2331 0%,#2D3A52 100%);border-radius:20px;padding:0;margin-bottom:28px;border:1px solid rgba(61,191,160,0.2);overflow:hidden;}
+.ai-panel-head{padding:18px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.ai-orb{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--teal-glow),var(--teal));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 0 20px rgba(61,191,160,0.35);}
+.ai-panel-title{font-size:14px;font-weight:700;color:var(--teal-glow);letter-spacing:0.5px;}
+.ai-panel-sub{font-size:12px;color:rgba(255,255,255,0.45);margin-top:2px;}
+.ai-panel-actions{margin-left:auto;display:flex;gap:8px;}
+.ai-pill-btn{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid rgba(61,191,160,0.35);background:rgba(61,191,160,0.1);color:var(--teal-glow);transition:all 0.2s;display:flex;align-items:center;gap:5px;}
+.ai-pill-btn:hover{background:rgba(61,191,160,0.2);}
+.ai-pill-btn.loading .ai-spin{display:inline-block;animation:spin 0.8s linear infinite;}
+.ai-insights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;}
+.ai-insight-cell{padding:18px 22px;border-right:1px solid rgba(255,255,255,0.06);}
+.ai-insight-cell:last-child{border-right:none;}
+.ai-insight-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px;}
+.ai-insight-text{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.55;}
+.ai-insight-text strong{color:rgba(255,255,255,0.95);}
+.ai-insight-text .hi-rose{color:#FF8F8F;}
+.ai-insight-text .hi-gold{color:var(--gold-light);}
+.ai-insight-text .hi-green{color:#86EFAC;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;}
+.stat-card.teal::before{background:linear-gradient(90deg,var(--teal),var(--teal-glow));}
+.stat-card.gold::before{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.stat-card.rose::before{background:linear-gradient(90deg,var(--rose),var(--rose-light));}
+.stat-card.indigo::before{background:linear-gradient(90deg,var(--indigo),#6B82C8);}
+.stat-card.purple::before{background:linear-gradient(90deg,var(--purple),#A78BD4);}
+.stat-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px;}
+.stat-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--text-dark);line-height:1;}
+.stat-sub{font-size:11.5px;color:var(--text-soft);margin-top:5px;}
+.stat-trend{font-size:12px;font-weight:600;}
+.stat-trend.up{color:#16a34a;}.stat-trend.down{color:var(--rose);}
+.stat-icon{position:absolute;top:14px;right:14px;font-size:24px;opacity:0.12;}
+.stat-sparkline{margin-top:10px;display:flex;align-items:flex-end;gap:2px;height:24px;}
+.spark-bar{flex:1;border-radius:2px 2px 0 0;transition:height 0.3s;}
+
+/* SUPPLY CHAIN RIBBON */
+.supply-chain{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);}
+.sc-title{font-size:13px;font-weight:700;color:var(--text-dark);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sc-flow{display:flex;align-items:center;gap:0;}
+.sc-node{flex:1;text-align:center;position:relative;}
+.sc-node-inner{background:var(--ivory);border:1.5px solid var(--border);border-radius:12px;padding:10px 8px;transition:all 0.2s;cursor:pointer;}
+.sc-node-inner:hover{border-color:var(--teal);background:rgba(26,107,90,0.04);}
+.sc-node-inner.warning{border-color:var(--gold-light);background:rgba(200,150,62,0.06);}
+.sc-node-inner.critical{border-color:var(--rose-light);background:rgba(192,80,74,0.06);}
+.sc-node-icon{font-size:22px;margin-bottom:4px;}
+.sc-node-name{font-size:11px;font-weight:600;color:var(--text-mid);}
+.sc-node-sub{font-size:10px;color:var(--text-soft);margin-top:1px;}
+.sc-arrow{font-size:18px;color:var(--border);padding:0 6px;flex-shrink:0;}
+.sc-arrow.active{color:var(--teal-glow);}
+.sc-eta{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-soft);text-align:center;margin-top:4px;}
+
+/* SEARCH */
+.search-block{margin-bottom:24px;}
+.search-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);margin-bottom:10px;}
+.search-wrap{background:#fff;border:1.5px solid var(--border);border-radius:16px;display:flex;align-items:center;box-shadow:0 2px 16px rgba(0,0,0,0.04);overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;}
+.search-wrap:focus-within{border-color:var(--teal);box-shadow:0 0 0 4px rgba(26,107,90,0.08);}
+.search-icon{padding:0 16px;color:var(--text-soft);font-size:18px;}
+.search-input{flex:1;padding:13px 0;font-size:14px;font-family:'DM Sans',sans-serif;border:none;outline:none;background:transparent;color:var(--text-dark);}
+.search-input::placeholder{color:var(--text-soft);}
+.search-divider{width:1px;height:28px;background:var(--border);}
+.filter-btn{padding:7px 13px;margin:5px;border-radius:9px;border:1px solid var(--border);background:var(--ivory);font-size:12.5px;color:var(--text-mid);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:all 0.15s;}
+.filter-btn:hover,.filter-btn.on{border-color:var(--teal);background:rgba(26,107,90,0.06);color:var(--teal);}
+.ai-search-btn{margin:5px;padding:8px 16px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.ai-search-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,107,90,0.25);}
+.tag-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
+.tag{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);transition:all 0.15s;}
+.tag:hover,.tag.active{border-color:var(--teal);background:rgba(26,107,90,0.06);color:var(--teal);}
+.tag.t-red{border-color:var(--rose-light);background:rgba(192,80,74,0.07);color:var(--rose);}
+.tag.t-gold{border-color:var(--gold-light);background:rgba(200,150,62,0.07);color:var(--gold);}
+.tag.t-green{border-color:#86EFAC;background:rgba(74,222,128,0.07);color:#16a34a;}
+
+/* TABLE */
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);}
+.table-header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.table-title{font-weight:700;font-size:15px;}
+.table-actions{display:flex;gap:8px;}
+.table-btn{padding:7px 14px;border-radius:9px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);display:flex;align-items:center;gap:5px;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.table-btn:hover{border-color:var(--teal);color:var(--teal);}
+.table-btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+.table-btn.primary:hover{background:var(--teal-light);}
+.table-btn.ai{background:linear-gradient(135deg,#1C2331,#2D3A52);border-color:rgba(61,191,160,0.3);color:var(--teal-glow);}
+.tabs-row{display:flex;gap:4px;padding:0 24px;margin-bottom:0;background:var(--ivory);border-bottom:1px solid var(--border);}
+.tab{padding:10px 18px;font-size:13px;font-weight:500;color:var(--text-soft);cursor:pointer;transition:all 0.2s;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:600;}
+.tab .count{font-size:10px;background:var(--teal);color:#fff;padding:1px 7px;border-radius:10px;font-weight:700;}
+.tab .count.red{background:var(--rose);}
+.tab .count.gold{background:var(--gold);}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:12px 18px;text-align:left;font-size:10.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);background:#FAFAF8;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid #F5F0E8;transition:background 0.15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(26,107,90,0.025);}
+tbody td{padding:13px 18px;font-size:13px;color:var(--text-dark);}
+.item-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-soft);}
+.item-name{font-weight:600;color:var(--text-dark);}
+.item-cat{font-size:11px;color:var(--text-soft);margin-top:1px;}
+.cat-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.cat-med{background:rgba(26,107,90,0.1);color:var(--teal);}
+.cat-inj{background:rgba(61,79,138,0.1);color:var(--indigo);}
+.cat-surg{background:rgba(123,94,167,0.1);color:var(--purple);}
+.cat-eq{background:rgba(200,150,62,0.1);color:var(--gold);}
+
+/* STOCK BAR */
+.stock-bar-wrap{display:flex;align-items:center;gap:9px;}
+.stock-bar{flex:1;height:6px;border-radius:4px;background:var(--border);overflow:hidden;}
+.stock-fill{height:100%;border-radius:4px;transition:width 0.5s ease;}
+.stock-fill.ok{background:linear-gradient(90deg,var(--teal),var(--teal-glow));}
+.stock-fill.low{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.stock-fill.critical{background:linear-gradient(90deg,var(--rose),var(--rose-light));}
+.stock-fill.out{background:#CBD5E0;}
+.stock-num{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;min-width:32px;text-align:right;}
+.stock-num.ok{color:var(--teal);}.stock-num.low{color:var(--gold);}.stock-num.critical{color:var(--rose);}.stock-num.out{color:var(--text-soft);}
+
+/* STATUS BADGE */
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:600;}
+.status-badge::before{content:'';width:6px;height:6px;border-radius:50%;}
+.s-ok{background:rgba(74,222,128,0.1);color:#16a34a;}.s-ok::before{background:#4ADE80;}
+.s-low{background:rgba(200,150,62,0.1);color:var(--gold);}.s-low::before{background:var(--gold-light);}
+.s-crit{background:rgba(192,80,74,0.1);color:var(--rose);}.s-crit::before{background:var(--rose);}
+.s-out{background:rgba(136,150,165,0.12);color:var(--text-soft);}.s-out::before{background:var(--text-soft);}
+.s-exp{background:rgba(123,94,167,0.1);color:var(--purple);}.s-exp::before{background:var(--purple);}
+
+/* AI ACTIONS IN TABLE */
+.ai-action-row{display:flex;gap:5px;}
+.ai-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 9px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;border:1px solid;white-space:nowrap;}
+.ai-chip.summary{border-color:rgba(61,191,160,0.3);background:rgba(61,191,160,0.08);color:var(--teal);}
+.ai-chip.summary:hover{background:rgba(61,191,160,0.16);}
+.ai-chip.reorder{border-color:rgba(200,150,62,0.4);background:rgba(200,150,62,0.08);color:var(--gold);}
+.ai-chip.reorder:hover{background:rgba(200,150,62,0.16);}
+.ai-chip.autofill{border-color:rgba(61,79,138,0.3);background:rgba(61,79,138,0.08);color:var(--indigo);}
+.ai-chip.autofill:hover{background:rgba(61,79,138,0.16);}
+
+/* EXPIRY PILL */
+.expiry-pill{font-family:'DM Mono',monospace;font-size:11.5px;padding:3px 9px;border-radius:8px;}
+.exp-ok{color:var(--teal);background:rgba(26,107,90,0.07);}
+.exp-warn{color:var(--gold);background:rgba(200,150,62,0.08);}
+.exp-crit{color:var(--rose);background:rgba(192,80,74,0.08);animation:blink 2s infinite;}
+
+/* PAGINATION */
+.pagination{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);background:#FAFAF8;}
+.page-info{font-size:12px;color:var(--text-soft);}
+.page-btns{display:flex;gap:5px;}
+.page-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--border);font-size:13px;cursor:pointer;transition:all 0.15s;color:var(--text-mid);}
+.page-btn:hover{border-color:var(--teal);color:var(--teal);}
+.page-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(28,35,49,0.6);backdrop-filter:blur(6px);z-index:999;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:24px;width:640px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,0.25);animation:fadeUp 0.3s ease;}
+.modal-head{padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between;}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}
+.modal-close{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--ivory);border:1px solid var(--border);font-size:16px;flex-shrink:0;transition:all 0.15s;}
+.modal-close:hover{border-color:var(--rose);color:var(--rose);}
+.modal-body{padding:20px 28px 28px;}
+.modal-section{margin-bottom:20px;}
+.modal-section-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);margin-bottom:10px;}
+.ai-response-box{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:14px;padding:18px;border:1px solid rgba(61,191,160,0.2);}
+.ai-response-text{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.7;}
+.ai-response-text strong{color:rgba(255,255,255,0.95);}
+.ai-response-text .badge-r{display:inline-block;padding:1px 8px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(192,80,74,0.25);color:#FF8F8F;}
+.ai-response-text .badge-g{display:inline-block;padding:1px 8px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(61,191,160,0.2);color:var(--teal-glow);}
+.ai-response-text .badge-y{display:inline-block;padding:1px 8px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(200,150,62,0.2);color:var(--gold-light);}
+.ai-loading{display:flex;align-items:center;gap:10px;color:var(--teal-glow);font-size:13px;}
+.ai-loading-dot{width:8px;height:8px;border-radius:50%;background:var(--teal-glow);}
+.ai-loading-dot:nth-child(1){animation:pulse 1.2s 0s infinite;}
+.ai-loading-dot:nth-child(2){animation:pulse 1.2s 0.2s infinite;}
+.ai-loading-dot:nth-child(3){animation:pulse 1.2s 0.4s infinite;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-field{display:flex;flex-direction:column;gap:5px;}
+.form-field label{font-size:11px;font-weight:600;color:var(--text-mid);letter-spacing:0.5px;}
+.form-input{border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-dark);outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.07);}
+.form-input.ai-filled{border-color:var(--teal-glow);background:rgba(61,191,160,0.04);}
+.ai-filled-badge{font-size:10px;color:var(--teal);display:flex;align-items:center;gap:3px;margin-top:2px;}
+.modal-footer{padding:0 28px 24px;display:flex;gap:10px;justify-content:flex-end;}
+.btn-secondary{padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:var(--ivory);font-size:13px;font-weight:600;color:var(--text-mid);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.btn-secondary:hover{border-color:var(--text-mid);}
+.btn-primary{padding:10px 24px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,107,90,0.3);}
+
+/* COMPARISON PANEL */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.compare-card{background:var(--ivory);border:1.5px solid var(--border);border-radius:12px;padding:14px;}
+.compare-card-title{font-size:12px;font-weight:700;margin-bottom:10px;color:var(--text-dark);}
+.compare-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.compare-row:last-child{border-bottom:none;}
+.compare-key{color:var(--text-soft);}
+.compare-val{font-weight:600;color:var(--text-dark);}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--text-dark);color:#fff;padding:13px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(20px);opacity:0;transition:all 0.3s;pointer-events:none;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* OUTOFSTOCK ALERT ROW */
+tbody tr.row-out{background:rgba(192,80,74,0.03);}
+tbody tr.row-out:hover{background:rgba(192,80,74,0.06);}
+tbody tr.row-exp{background:rgba(123,94,167,0.03);}
+
+/* MINI CHART */
+.trend-spark{display:flex;align-items:flex-end;gap:1.5px;height:20px;}
+.ts-bar{width:5px;border-radius:1px;transition:height 0.4s;}
+
+/* RIGHT PANEL - NOTIFICATION DRAWER */
+.notif-dropdown{position:absolute;top:calc(100% + 10px);right:0;width:340px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,0.14);z-index:500;display:none;}
+.notif-dropdown.open{display:block;animation:fadeUp 0.22s ease;}
+.nd-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.nd-head h4{font-size:14px;font-weight:700;}
+.nd-mark{font-size:11px;color:var(--teal);cursor:pointer;font-weight:600;}
+.nd-item{padding:12px 18px;border-bottom:1px solid #F5F0E8;display:flex;gap:10px;cursor:pointer;transition:background 0.15s;}
+.nd-item:hover{background:var(--ivory);}
+.nd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.nd-msg{font-size:12.5px;color:var(--text-mid);line-height:1.4;}
+.nd-time{font-size:11px;color:var(--text-soft);margin-top:3px;}
+.nd-footer{padding:12px 18px;text-align:center;}
+.nd-footer a{font-size:12px;color:var(--teal);font-weight:600;text-decoration:none;}
+
+/* COMPARISON MODAL TYPE */
+.cmp-vs{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.cmp-select{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-dark);outline:none;background:#fff;cursor:pointer;}
+.cmp-select:focus{border-color:var(--teal);}
+.cmp-vs-label{font-size:13px;color:var(--text-soft);font-weight:600;}
+.cmp-insight{background:linear-gradient(135deg,rgba(61,191,160,0.08),rgba(26,107,90,0.05));border:1px solid rgba(61,191,160,0.25);border-radius:12px;padding:14px;margin-top:10px;}
+.cmp-insight-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+.cmp-insight-text{font-size:12.5px;color:var(--text-mid);line-height:1.6;}
+
+/* SECTION HEADING */
+.section-heading{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:12px;}
+.section-heading::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* BOTTOM PANELS */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px;}
+.insight-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,0.04);}
+.insight-card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.insight-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F5F0E8;font-size:13px;}
+.insight-row:last-child{border-bottom:none;}
+.insight-val{font-weight:700;font-family:'DM Mono',monospace;}
+.insight-val.red{color:var(--rose);}
+.insight-val.gold{color:var(--gold);}
+.insight-val.green{color:var(--teal);}
+
+/* REORDER LIST */
+.reorder-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F5F0E8;}
+.reorder-item:last-child{border-bottom:none;}
+.reorder-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.ri-red{background:rgba(192,80,74,0.1);}
+.ri-gold{background:rgba(200,150,62,0.1);}
+.reorder-name{font-size:13px;font-weight:600;flex:1;}
+.reorder-sub{font-size:11px;color:var(--text-soft);}
+.reorder-cta{padding:5px 12px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.cta-now{background:var(--rose);color:#fff;}.cta-now:hover{background:#A84040;}
+.cta-soon{background:rgba(200,150,62,0.15);color:var(--gold);border:1px solid var(--gold-light);}.cta-soon:hover{background:rgba(200,150,62,0.25);}
+
+/* SUBSTITUTE CARDS */
+.sub-grid{display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+.sub-card{border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;background:#fff;transition:border-color 0.2s,box-shadow 0.2s;position:relative;overflow:hidden;}
+.sub-card:hover{border-color:var(--teal);box-shadow:0 2px 16px rgba(26,107,90,0.08);}
+.sub-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;border-radius:12px 0 0 12px;}
+.sub-card.sub-best::before{background:linear-gradient(180deg,var(--teal),var(--teal-glow));}
+.sub-card.sub-good::before{background:linear-gradient(180deg,var(--gold),var(--gold-light));}
+.sub-card.sub-alt::before{background:linear-gradient(180deg,var(--indigo),#6B82C8);}
+.sub-card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.sub-rank{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.sub-rank.r1{background:rgba(26,107,90,0.12);color:var(--teal);}
+.sub-rank.r2{background:rgba(200,150,62,0.12);color:var(--gold);}
+.sub-rank.r3{background:rgba(61,79,138,0.12);color:var(--indigo);}
+.sub-name{font-size:14px;font-weight:700;color:var(--text-dark);flex:1;}
+.sub-badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;white-space:nowrap;}
+.sub-badge.best{background:rgba(26,107,90,0.1);color:var(--teal);}
+.sub-badge.good{background:rgba(200,150,62,0.1);color:var(--gold);}
+.sub-badge.alt{background:rgba(61,79,138,0.1);color:var(--indigo);}
+.sub-meta-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+.sub-meta-cell{background:var(--ivory);border-radius:8px;padding:8px 10px;}
+.sub-meta-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:3px;}
+.sub-meta-val{font-size:13px;font-weight:700;color:var(--text-dark);font-family:'DM Mono',monospace;}
+.sub-meta-val.green{color:var(--teal);}
+.sub-meta-val.gold{color:var(--gold);}
+.sub-meta-val.rose{color:var(--rose);}
+.sub-ai-note{background:linear-gradient(135deg,rgba(61,191,160,0.06),rgba(26,107,90,0.04));border:1px solid rgba(61,191,160,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text-mid);line-height:1.55;}
+.sub-ai-note strong{color:var(--teal);}
+.sub-actions{display:flex;gap:7px;margin-top:10px;}
+.sub-action-btn{padding:5px 13px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.sub-action-btn:hover{border-color:var(--teal);color:var(--teal);}
+.sub-action-btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+.sub-action-btn.primary:hover{background:var(--teal-light);}
+.sub-verdict{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:12px;padding:14px 18px;margin-bottom:14px;border:1px solid rgba(61,191,160,0.2);}
+.sub-verdict-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;}
+.sub-verdict-text{font-size:13px;color:rgba(255,255,255,0.82);line-height:1.6;}
+.sub-verdict-text strong{color:#fff;}
+.sub-verdict-text .hi-green{color:#86EFAC;}
+.sub-verdict-text .hi-gold{color:var(--gold-light);}
+.sub-verdict-text .hi-rose{color:#FF8F8F;}
+/* PAGE TRANSITION */
+.ra-row{display:grid;grid-template-columns:28px 1fr 90px 130px 80px 90px;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);margin-bottom:8px;background:#fff;transition:border-color 0.2s;}
+.ra-row:hover{border-color:var(--teal-glow);}
+.ra-row.ra-excluded{opacity:.45;background:var(--ivory);}
+.ra-row.ra-urgent{border-left:3px solid var(--rose);}
+.ra-row.ra-warn{border-left:3px solid var(--gold);}
+.ra-col-label{font-size:10px;color:var(--text-soft);font-weight:600;letter-spacing:.5px;}
+.ra-item-name{font-size:13px;font-weight:600;color:var(--text-dark);}
+.ra-item-sub{font-size:11px;color:var(--text-soft);margin-top:1px;}
+.ra-subtotal{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--teal);text-align:right;}
+.page-transition-overlay{position:fixed;inset:0;background:#fff;z-index:9998;opacity:0;pointer-events:none;transition:opacity 0.28s ease;display:flex;align-items:center;justify-content:center;}
+.page-transition-overlay.active{opacity:1;pointer-events:all;}
+.pt-logo{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--text-dark);}
+.pt-logo span{color:var(--teal-glow);}
+</style>
+</head>
+<body>
+
+<!-- PAGE TRANSITION OVERLAY -->
+<div class="page-transition-overlay" id="pageOverlay"><div class="pt-logo">Health<span>OS</span></div></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Hospital Intelligence</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👩‍⚕️</div>
+    <div>
+      <div class="admin-name">Dr. S. Banerjee</div>
+      <div class="admin-role">Chief Pharmacist</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Core</div>
+    <a class="nav-item" href="admin_panel.html"><span class="icon">🏥</span>Dashboard</a>
+    <a class="nav-item" href="admin_panel.html"><span class="icon">👤</span>Patients<span class="nav-badge">1,001</span></a>
+    <a class="nav-item" href="doctor_panel.html"><span class="icon">🩺</span>Doctors</a>
+    <a class="nav-item active" href="inventory_panel.html"><span class="icon">💊</span>Inventory<span class="nav-badge alert">7</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Analytics</div>
+    <a class="nav-item" href="reports.html"><span class="icon">📊</span>Reports</a>
+    <a class="nav-item" href="billing.html"><span class="icon">🔗</span>Supply Chain</a>
+    <a class="nav-item" href="report_services.html"><span class="icon">🤖</span>AI Insights</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Settings</div>
+    <a class="nav-item" href="admin_panel.html"><span class="icon">⚙️</span>Configuration</a>
+    <a class="nav-item" href="reports.html"><span class="icon">🔔</span>Alerts</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="date-pill" id="datePill">📅 Loading...</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="page-title">Smart Inventory</div>
+      <div style="font-size:12px;color:var(--text-soft);margin-top:1px;">💊 Medicines · 💉 Injections · 🔪 Surgical Equipment</div>
+    </div>
+    <div class="topbar-right">
+      <div class="notif-btn-wrap">
+        <div class="notif-btn" onclick="toggleNotif()">🔔<div class="notif-badge" id="notifBadge">7</div></div>
+        <div class="notif-dropdown" id="notifDropdown"></div>
+      </div>
+      <button class="table-btn primary" onclick="openModal('add')">＋ Add Item</button>
+      <button class="table-btn ai" onclick="openModal('bulk-ai')">✦ AI Reorder</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- OUT OF STOCK ALERT -->
+    <div class="alert-strip animate d1" id="oosBanner">
+      <div class="a-icon">⚠️</div>
+      <div class="a-text">
+        <strong>Critical Alert:</strong> 3 items are <strong>Out of Stock</strong> — Insulin Glargine, Surgical Gloves (L), Amoxicillin 500mg.
+        4 items hitting <strong>critical reorder threshold</strong> in next 48 hrs. AI recommends immediate procurement.
+      </div>
+      <button class="alert-btn" onclick="openModal('reorder-all')">🤖 Auto-Reorder via AI</button>
+      <span class="a-close" onclick="document.getElementById('oosBanner').style.display='none'">✕</span>
+    </div>
+
+    <!-- AI INTELLIGENCE PANEL -->
+    <div class="ai-panel animate d2">
+      <div class="ai-panel-head">
+        <div class="ai-orb">🧠</div>
+        <div>
+          <div class="ai-panel-title">✦ GenAI Inventory Intelligence — Live Analysis</div>
+          <div class="ai-panel-sub">Updated 3 min ago · Powered by HealthOS AI · 30 items tracked</div>
+        </div>
+        <div class="ai-panel-actions">
+          <button class="ai-pill-btn" onclick="refreshAI(this)"><span class="ai-spin">↻</span> Refresh</button>
+          <button class="ai-pill-btn" onclick="openModal('full-report')">📋 Full Report</button>
+          <button class="ai-pill-btn" onclick="openModal('compare')">⚖️ Compare Items</button>
+        </div>
+      </div>
+      <div class="ai-insights-grid">
+        <div class="ai-insight-cell">
+          <div class="ai-insight-label">🔴 Stock Risk Summary</div>
+          <div class="ai-insight-text">
+            <span class="hi-rose"><strong>3 OOS</strong></span>, <span class="hi-gold"><strong>5 Critical</strong></span>, <strong>7 Low</strong> items detected.
+            Insulin Glargine has been OOS for <strong>2 days</strong> — <span class="hi-rose">high patient impact</span>. Amoxicillin depletion rate
+            is <strong>40% faster</strong> than last month due to seasonal flu surge.
+          </div>
+        </div>
+        <div class="ai-insight-cell">
+          <div class="ai-insight-label">🚚 Supply Chain Forecast</div>
+          <div class="ai-insight-text">
+            Supplier <strong>MedLine India</strong> last delivery was <span class="hi-gold"><strong>6 days ago</strong></span>.
+            AI forecasts next delivery in <strong>2–3 days</strong>. <span class="hi-rose">Cold-chain risk</span> for injectables —
+            temperature log shows variance on <strong>Slot B refrigerator</strong>. Recommend manual check.
+          </div>
+        </div>
+        <div class="ai-insight-cell">
+          <div class="ai-insight-label">💡 Optimization Insights</div>
+          <div class="ai-insight-text">
+            <span class="hi-green"><strong>₹84,200 savings</strong></span> possible by consolidating 3 duplicate antibiotic SKUs.
+            Surgical Sutures expiring in <strong>22 days</strong> — suggest scheduling <span class="hi-gold"><strong>bulk procedures</strong></span>.
+            AI recommends <strong>15% reorder qty increase</strong> for monsoon season ahead.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid animate d2">
+      <div class="stat-card teal">
+        <div class="stat-icon">📦</div>
+        <div class="stat-label">Total SKUs</div>
+        <div class="stat-value">312</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 8</span> added this month</div>
+        <div class="stat-sparkline" id="spark1"></div>
+      </div>
+      <div class="stat-card rose">
+        <div class="stat-icon">🚨</div>
+        <div class="stat-label">Out of Stock</div>
+        <div class="stat-value">3</div>
+        <div class="stat-sub"><span class="stat-trend down">↑ 2</span> from last week</div>
+        <div class="stat-sparkline" id="spark2"></div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-label">Low / Critical</div>
+        <div class="stat-value">12</div>
+        <div class="stat-sub"><span class="stat-trend down">↑ 4</span> need reorder</div>
+        <div class="stat-sparkline" id="spark3"></div>
+      </div>
+      <div class="stat-card indigo">
+        <div class="stat-icon">📅</div>
+        <div class="stat-label">Expiring Soon</div>
+        <div class="stat-value">7</div>
+        <div class="stat-sub">Within <strong>30 days</strong></div>
+        <div class="stat-sparkline" id="spark4"></div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon">💰</div>
+        <div class="stat-label">Inventory Value</div>
+        <div class="stat-value" style="font-size:22px;">₹18.4L</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 6%</span> vs last month</div>
+        <div class="stat-sparkline" id="spark5"></div>
+      </div>
+    </div>
+
+    <!-- SUPPLY CHAIN FLOW -->
+    <div class="supply-chain animate d3">
+      <div class="sc-title">🚚 Live Supply Chain Tracker — <span style="color:var(--teal);font-weight:600;">AI-Monitored</span></div>
+      <div class="sc-flow">
+        <div class="sc-node">
+          <div class="sc-node-inner"><div class="sc-node-icon">🏭</div><div class="sc-node-name">Manufacturer</div><div class="sc-node-sub">Sun Pharma, BD</div></div>
+          <div class="sc-eta">MFG Date: Mar 2025</div>
+        </div>
+        <div class="sc-arrow active">→</div>
+        <div class="sc-node">
+          <div class="sc-node-inner"><div class="sc-node-icon">🏢</div><div class="sc-node-name">Distributor</div><div class="sc-node-sub">MedLine India</div></div>
+          <div class="sc-eta">Order placed: Apr 23</div>
+        </div>
+        <div class="sc-arrow active">→</div>
+        <div class="sc-node">
+          <div class="sc-node-inner warning"><div class="sc-node-icon">🚚</div><div class="sc-node-name">In Transit</div><div class="sc-node-sub">⚠ 2 days delay</div></div>
+          <div class="sc-eta">ETA: Apr 27 (revised)</div>
+        </div>
+        <div class="sc-arrow">→</div>
+        <div class="sc-node">
+          <div class="sc-node-inner critical"><div class="sc-node-icon">❄️</div><div class="sc-node-name">Cold Storage</div><div class="sc-node-sub">🔴 Temp Alert</div></div>
+          <div class="sc-eta">Slot B: 6.2°C (warn)</div>
+        </div>
+        <div class="sc-arrow">→</div>
+        <div class="sc-node">
+          <div class="sc-node-inner"><div class="sc-node-icon">🏥</div><div class="sc-node-name">Hospital Store</div><div class="sc-node-sub">Main Pharmacy</div></div>
+          <div class="sc-eta">Last restocked: Apr 19</div>
+        </div>
+        <div class="sc-arrow">→</div>
+        <div class="sc-node">
+          <div class="sc-node-inner"><div class="sc-node-icon">🛏️</div><div class="sc-node-name">Ward Dispensing</div><div class="sc-node-sub">Wards A, B, C, ICU</div></div>
+          <div class="sc-eta">Next cycle: 6:00 PM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-block animate d3">
+      <div class="search-label">🔍 Smart Inventory Search</div>
+      <div class="search-wrap">
+        <div class="search-icon">🔍</div>
+        <input class="search-input" type="text" id="searchInput" placeholder="Search by name, SKU, category, supplier, batch no., ward..." oninput="filterTable()">
+        <div class="search-divider"></div>
+        <button class="filter-btn" id="fCat" onclick="toggleFilter('fCat','cat')">🏷️ Category ▾</button>
+        <button class="filter-btn" id="fStatus" onclick="toggleFilter('fStatus','status')">📋 Status ▾</button>
+        <button class="filter-btn" id="fWard" onclick="toggleFilter('fWard','ward')">🛏️ Ward ▾</button>
+        <button class="ai-search-btn" onclick="openModal('ai-search')">✦ AI Search</button>
+      </div>
+      <div class="tag-row">
+        <span class="tag active" onclick="setTag(this,'')">All Items</span>
+        <span class="tag t-red" onclick="setTag(this,'Out of Stock')">🔴 Out of Stock</span>
+        <span class="tag t-red" onclick="setTag(this,'Critical')">⚡ Critical</span>
+        <span class="tag t-gold" onclick="setTag(this,'Low')">⚠️ Low Stock</span>
+        <span class="tag t-green" onclick="setTag(this,'In Stock')">✅ In Stock</span>
+        <span class="tag" onclick="setTag(this,'Medicine')">💊 Medicines</span>
+        <span class="tag" onclick="setTag(this,'Injection')">💉 Injections</span>
+        <span class="tag" onclick="setTag(this,'Surgical')">🔪 Surgical</span>
+        <span class="tag" onclick="setTag(this,'Equipment')">⚙️ Equipment</span>
+        <span class="tag t-red" onclick="setTag(this,'expiring')">📅 Expiring Soon</span>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap animate d4">
+      <div class="table-header">
+        <div>
+          <div class="table-title">Inventory Registry</div>
+          <div style="font-size:12px;color:var(--text-soft);margin-top:2px;" id="tableSubtitle">Showing 30 items · AI monitoring active</div>
+        </div>
+        <div class="table-actions">
+          <button class="table-btn" onclick="exportCSV()">⬇ Export</button>
+          <button class="table-btn" onclick="openModal('compare')">⚖️ Compare</button>
+          <button class="table-btn ai" onclick="openModal('full-report')">✦ AI Summary</button>
+          <button class="table-btn primary" onclick="openModal('add')">＋ Add Item</button>
+        </div>
+      </div>
+      <div class="tabs-row">
+        <div class="tab active" onclick="switchTab(this,'all')">All Items <span class="count">30</span></div>
+        <div class="tab" onclick="switchTab(this,'oos')">Out of Stock <span class="count red">3</span></div>
+        <div class="tab" onclick="switchTab(this,'low')">Low / Critical <span class="count gold">12</span></div>
+        <div class="tab" onclick="switchTab(this,'exp')">Expiring Soon <span class="count gold">7</span></div>
+        <div class="tab" onclick="switchTab(this,'ok')">Healthy Stock <span class="count">15</span></div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:36px"><input type="checkbox" id="checkAll" onchange="toggleAll(this)" style="cursor:pointer;accent-color:var(--teal);"></th>
+            <th>SKU / Item</th>
+            <th>Category</th>
+            <th>Stock Level</th>
+            <th>Unit / Pack</th>
+            <th>Expiry</th>
+            <th>Supplier</th>
+            <th>Ward</th>
+            <th>Status</th>
+            <th>AI Actions</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="invTable"></tbody>
+      </table>
+      <div class="pagination">
+        <div class="page-info" id="pageInfo">Showing 1–30 of 30 items</div>
+        <div class="page-btns">
+          <div class="page-btn">‹</div>
+          <div class="page-btn active">1</div>
+          <div class="page-btn">2</div>
+          <div class="page-btn">›</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM PANELS -->
+    <div class="bottom-grid animate d5">
+      <!-- REORDER QUEUE -->
+      <div class="insight-card">
+        <div class="insight-card-title">🚨 AI Reorder Queue <span style="font-size:11px;color:var(--text-soft);font-family:'DM Mono',monospace;font-weight:400;">Auto-prioritized</span></div>
+        <div id="reorderList"></div>
+        <button class="btn-primary" style="width:100%;margin-top:14px;justify-content:center;display:flex;" onclick="openModal('reorder-all')">✦ Auto-Reorder All Critical Items</button>
+      </div>
+      <!-- EXPIRY TRACKER -->
+      <div class="insight-card">
+        <div class="insight-card-title">📅 Expiry Intelligence <span style="font-size:11px;color:var(--text-soft);font-family:'DM Mono',monospace;font-weight:400;">Next 30 days</span></div>
+        <div id="expiryTracker"></div>
+        <div class="cmp-insight" style="margin-top:14px;">
+          <div class="cmp-insight-label">🤖 AI Recommendation</div>
+          <div class="cmp-insight-text">Schedule batch usage of near-expiry items in <strong>Ward B & ICU</strong> this week. Consider returning <strong>Surgical Sutures 2-0</strong> to supplier under exchange policy before May 5th.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ===================== MODALS ===================== -->
+
+<!-- ADD ITEM MODAL -->
+<div class="modal-overlay" id="modalAdd">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Add Inventory Item</div>
+        <div style="font-size:12px;color:var(--text-soft);margin-top:4px;">Use AI Auto-fill to populate fields from item name</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalAdd')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <input class="form-input" id="aiAutoFillInput" placeholder="Type item name for AI auto-fill (e.g. Paracetamol 500mg)..." style="flex:1;">
+          <button class="ai-search-btn" onclick="runAutoFill()">✦ AI Auto-fill</button>
+        </div>
+        <div id="autofillStatus" style="display:none;" class="ai-loading">
+          <div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div>
+          <span>AI is filling in fields...</span>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-field"><label>SKU Code</label><input class="form-input" id="f_sku" placeholder="INV-XXXX"><div class="ai-filled-badge" id="fb_sku" style="display:none;">✦ AI filled</div></div>
+        <div class="form-field"><label>Item Name</label><input class="form-input" id="f_name" placeholder="Generic name"><div class="ai-filled-badge" id="fb_name" style="display:none;">✦ AI filled</div></div>
+        <div class="form-field"><label>Category</label><select class="form-input" id="f_cat"><option>Medicine</option><option>Injection</option><option>Surgical</option><option>Equipment</option></select><div class="ai-filled-badge" id="fb_cat" style="display:none;">✦ AI filled</div></div>
+        <div class="form-field"><label>Unit / Pack Size</label><input class="form-input" id="f_unit" placeholder="e.g. 500mg / strip of 10"><div class="ai-filled-badge" id="fb_unit" style="display:none;">✦ AI filled</div></div>
+        <div class="form-field"><label>Current Qty</label><input class="form-input" id="f_qty" type="number" placeholder="0"></div>
+        <div class="form-field"><label>Reorder Level</label><input class="form-input" id="f_reorder" type="number" placeholder="0"><div class="ai-filled-badge" id="fb_reorder" style="display:none;">✦ AI filled</div></div>
+        <div class="form-field"><label>Supplier</label><input class="form-input" id="f_supplier" placeholder="Supplier name"><div class="ai-filled-badge" id="fb_supplier" style="display:none;">✦ AI filled</div></div>
+        <div class="form-field"><label>Unit Cost (₹)</label><input class="form-input" id="f_cost" placeholder="0.00"><div class="ai-filled-badge" id="fb_cost" style="display:none;">✦ AI filled</div></div>
+        <div class="form-field"><label>Batch No.</label><input class="form-input" id="f_batch" placeholder="BT-XXXXXX"></div>
+        <div class="form-field"><label>Expiry Date</label><input class="form-input" id="f_expiry" type="month"></div>
+        <div class="form-field"><label>Storage Location</label><input class="form-input" id="f_loc" placeholder="e.g. Shelf A3"><div class="ai-filled-badge" id="fb_loc" style="display:none;">✦ AI filled</div></div>
+        <div class="form-field"><label>Ward / Dept</label><select class="form-input" id="f_ward"><option>General Ward</option><option>ICU</option><option>OT</option><option>Emergency</option><option>Pediatrics</option><option>Pharmacy</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalAdd')">Cancel</button>
+      <button class="btn-primary" onclick="saveItem()">💾 Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI SUMMARY MODAL -->
+<div class="modal-overlay" id="modalSummary">
+  <div class="modal" style="width:680px;max-width:97vw;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="summaryTitle">AI Item Summary</div>
+        <div style="font-size:12px;color:var(--teal);margin-top:4px;">✦ Powered by HealthOS GenAI · You can override AI decisions below</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalSummary')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div id="summaryContent"></div>
+      <!-- Human override strip -->
+      <div style="margin-top:16px;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;background:var(--ivory);">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:10px;">👤 Pharmacist Override</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-field">
+            <label style="font-size:11px;font-weight:600;color:var(--text-mid);">Override Status</label>
+            <select class="form-input" id="sum_status_override">
+              <option value="">— Keep AI assessment —</option>
+              <option value="In Stock">✅ Mark as In Stock</option>
+              <option value="Low">⚠️ Mark as Low</option>
+              <option value="Critical">⚡ Mark as Critical</option>
+              <option value="Out of Stock">🚨 Mark as Out of Stock</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label style="font-size:11px;font-weight:600;color:var(--text-mid);">Adjusted Qty</label>
+            <input class="form-input" id="sum_qty_override" type="number" min="0" placeholder="Leave blank to keep current">
+          </div>
+          <div class="form-field" style="grid-column:1/-1;">
+            <label style="font-size:11px;font-weight:600;color:var(--text-mid);">Pharmacist Note</label>
+            <textarea class="form-input" id="sum_note" rows="2" placeholder="e.g. 'Manual count confirmed 45 units in cold storage — AI sync pending'" style="resize:vertical;font-family:'DM Sans',sans-serif;font-size:13px;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalSummary')">Close</button>
+      <button class="btn-secondary" onclick="applySummaryOverride()" style="border-color:var(--teal);color:var(--teal);">💾 Save Override</button>
+      <button class="btn-primary" onclick="showToast('📋 Summary exported to PDF')">📋 Export PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="modal-overlay" id="modalCompare">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">⚖️ AI Item Comparison</div>
+        <div style="font-size:12px;color:var(--teal);margin-top:4px;">✦ GenAI-powered comparison & procurement insights</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalCompare')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="cmp-vs">
+        <select class="cmp-select" id="cmpA" onchange="runCompare()">
+          <option value="">Select Item A…</option>
+        </select>
+        <div class="cmp-vs-label">VS</div>
+        <select class="cmp-select" id="cmpB" onchange="runCompare()">
+          <option value="">Select Item B…</option>
+        </select>
+      </div>
+      <div id="compareResult"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalCompare')">Close</button>
+      <button class="btn-primary" onclick="showToast('✦ Comparison saved to reports')">Save Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- FULL REPORT MODAL -->
+<div class="modal-overlay" id="modalReport">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">✦ AI Inventory Intelligence Report</div>
+        <div style="font-size:12px;color:var(--teal);margin-top:4px;">Generated now · HealthOS GenAI</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalReport')">✕</div>
+    </div>
+    <div class="modal-body" id="reportBody"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalReport')">Close</button>
+      <button class="btn-primary" onclick="showToast('📊 Full report emailed to admin@healthos.in')">📧 Email Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- REORDER ALL MODAL -->
+<div class="modal-overlay" id="modalReorderAll">
+  <div class="modal" style="width:860px;max-width:97vw;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">🤖 AI Reorder — Human Review</div>
+        <div style="font-size:12px;color:var(--teal);margin-top:4px;">✦ AI-suggested quantities, suppliers &amp; priorities · All fields editable</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalReorderAll')">✕</div>
+    </div>
+    <div class="modal-body" style="padding-top:14px;">
+
+      <!-- AI summary strip -->
+      <div class="ai-response-box" style="margin-bottom:18px;padding:13px 16px;" id="raAISummaryBox">
+        <div class="ai-response-text" style="font-size:12px;" id="raAISummaryText">
+          <div class="ai-loading"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><span>AI is analysing depletion rates, seasonal trends &amp; lead times…</span></div>
+        </div>
+      </div>
+
+      <!-- Editable item rows -->
+      <div id="reorderAllRows"></div>
+
+      <!-- Approval fields -->
+      <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-field">
+          <label style="font-size:11px;font-weight:600;color:var(--text-mid);letter-spacing:.5px;">Approved By</label>
+          <input class="form-input" id="ra_approver" placeholder="Dr. / Pharmacist name" value="Dr. S. Banerjee">
+        </div>
+        <div class="form-field">
+          <label style="font-size:11px;font-weight:600;color:var(--text-mid);letter-spacing:.5px;">Delivery Priority</label>
+          <select class="form-input" id="ra_priority">
+            <option value="urgent">🚨 Emergency (same day)</option>
+            <option value="express" selected>⚡ Express (24–48 hrs)</option>
+            <option value="standard">📦 Standard (3–5 days)</option>
+          </select>
+        </div>
+        <div class="form-field" style="grid-column:1/-1;">
+          <label style="font-size:11px;font-weight:600;color:var(--text-mid);letter-spacing:.5px;">Pharmacist Note / Override Reason</label>
+          <textarea class="form-input" id="ra_note" rows="2" placeholder="Optional: Add note for procurement team, e.g. 'Substitute brand approved for Amoxicillin'" style="resize:vertical;font-family:'DM Sans',sans-serif;"></textarea>
+        </div>
+      </div>
+
+      <!-- Live total bar -->
+      <div style="margin-top:16px;background:var(--ivory);border:1.5px solid var(--border);border-radius:12px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:13px;color:var(--text-mid);">
+          <span id="ra_included_count" style="font-weight:700;color:var(--text-dark);">—</span> items selected ·
+          <span id="ra_supplier_count" style="color:var(--text-soft);">— suppliers</span>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:var(--teal);font-family:'DM Mono',monospace;">
+          Total: ₹<span id="ra_total">0</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalReorderAll')">Cancel</button>
+      <button class="btn-primary" onclick="confirmReorderAll()">✅ Confirm &amp; Send POs</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI SEARCH MODAL -->
+<div class="modal-overlay" id="modalAiSearch">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">✦ AI Natural Language Search</div>
+        <div style="font-size:12px;color:var(--teal);margin-top:4px;">Ask anything about your inventory</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalAiSearch')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;margin-bottom:14px;">
+        <input class="form-input" id="nlSearchInput" placeholder='e.g. "Which antibiotics expire before June?" or "What can I substitute for Insulin Glargine?"' style="flex:1;">
+        <button class="ai-search-btn" onclick="runNLSearch()">✦ Ask AI</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;">
+        <span class="tag" onclick="setNLSearch(this)">What's out of stock?</span>
+        <span class="tag" onclick="setNLSearch(this)">Which items expire this month?</span>
+        <span class="tag" onclick="setNLSearch(this)">Show me antibiotics low in ICU</span>
+        <span class="tag" onclick="setNLSearch(this)">What did we reorder last week?</span>
+        <span class="tag" onclick="setNLSearch(this)">Compare paracetamol variants</span>
+      </div>
+      <div id="nlSearchResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBSTITUTES MODAL -->
+<div class="modal-overlay" id="modalSubstitutes">
+  <div class="modal" style="width:720px;max-width:97vw;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="subModalTitle">⚖️ AI Substitute Analysis</div>
+        <div style="font-size:12px;color:var(--teal);margin-top:4px;">✦ HealthOS GenAI · Therapeutic equivalents, cost &amp; availability comparison</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalSubstitutes')">✕</div>
+    </div>
+    <div class="modal-body" style="padding-top:16px;">
+
+      <!-- Original item card -->
+      <div id="subOriginalCard" style="background:var(--ivory);border:1.5px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+        <div style="font-size:28px;" id="subOrigIcon">💊</div>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:700;color:var(--text-dark);" id="subOrigName">—</div>
+          <div style="font-size:12px;color:var(--text-soft);margin-top:3px;" id="subOrigMeta">—</div>
+        </div>
+        <div id="subOrigStatus" style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;"></div>
+      </div>
+
+      <!-- AI loading / result area -->
+      <div id="subResultArea">
+        <div class="ai-response-box" style="padding:20px;">
+          <div class="ai-loading">
+            <div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div>
+            <span>AI is finding therapeutic equivalents &amp; comparing availability…</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalSubstitutes')">Close</button>
+      <button class="btn-primary" id="subReorderBtn" style="display:none;" onclick="closeModal('modalSubstitutes')">🛒 Reorder Original</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA — 30 INVENTORY RECORDS
+// ═══════════════════════════════════════════════════════════
+const inventory = [
+  { id:'INV-0001', name:'Amoxicillin 500mg', cat:'Medicine', qty:18, max:200, unit:'Capsule / Strip×10', expiry:'2025-11', supplier:'Sun Pharma', ward:'General Ward', cost:37.5, reorder:50, status:'Critical', batch:'BT-2024A1' },
+  { id:'INV-0002', name:'Insulin Glargine 100U/mL', cat:'Injection', qty:0, max:150, unit:'3mL Vial', expiry:'2026-03', supplier:'Sanofi India', ward:'ICU', cost:209, reorder:30, status:'Out of Stock', batch:'BT-2024B2' },
+  { id:'INV-0003', name:'Paracetamol 500mg', cat:'Medicine', qty:340, max:500, unit:'Tablet / Strip×15', expiry:'2026-08', supplier:'Cipla Ltd', ward:'General Ward', cost:12, reorder:100, status:'In Stock', batch:'BT-2024C3' },
+  { id:'INV-0004', name:'Surgical Gloves (L)', cat:'Surgical', qty:0, max:100, unit:'Box of 100', expiry:'2027-01', supplier:'Ansell India', ward:'OT', cost:380, reorder:20, status:'Out of Stock', batch:'BT-2024D4' },
+  { id:'INV-0005', name:'Metformin 500mg', cat:'Medicine', qty:45, max:300, unit:'Tablet / Strip×10', expiry:'2025-12', supplier:'Lupin Ltd', ward:'General Ward', cost:22, reorder:60, status:'Low', batch:'BT-2024E5' },
+  { id:'INV-0006', name:'IV Paracetamol 1g/100mL', cat:'Injection', qty:22, max:120, unit:'100mL Vial', expiry:'2025-09', supplier:'Fresenius Kabi', ward:'ICU', cost:145, reorder:30, status:'Critical', batch:'BT-2024F6' },
+  { id:'INV-0007', name:'Surgical Sutures 2-0', cat:'Surgical', qty:38, max:200, unit:'Pack of 12 needles', expiry:'2025-05', supplier:'Ethicon India', ward:'OT', cost:680, reorder:40, status:'Low', batch:'BT-2023G7' },
+  { id:'INV-0008', name:'Ringer Lactate Solution', cat:'Injection', qty:195, max:300, unit:'500mL Bag', expiry:'2026-06', supplier:'Baxter India', ward:'Emergency', cost:58, reorder:60, status:'In Stock', batch:'BT-2024H8' },
+  { id:'INV-0009', name:'Ondansetron 4mg', cat:'Injection', qty:60, max:150, unit:'2mL Ampoule', expiry:'2026-02', supplier:'Sun Pharma', ward:'ICU', cost:28, reorder:40, status:'In Stock', batch:'BT-2024I9' },
+  { id:'INV-0010', name:'Surgical Mask N95', cat:'Surgical', qty:85, max:500, unit:'Box of 20', expiry:'2027-06', supplier:'3M India', ward:'OT', cost:240, reorder:100, status:'Low', batch:'BT-2024J10' },
+  { id:'INV-0011', name:'Ciprofloxacin 500mg', cat:'Medicine', qty:0, max:200, unit:'Tablet / Strip×10', expiry:'2026-01', supplier:'Lupin Ltd', ward:'General Ward', cost:45, reorder:40, status:'Out of Stock', batch:'BT-2024K11' },
+  { id:'INV-0012', name:'Morphine Sulphate 10mg/mL', cat:'Injection', qty:28, max:100, unit:'1mL Ampoule', expiry:'2025-10', supplier:'Neon Labs', ward:'ICU', cost:95, reorder:20, status:'Low', batch:'BT-2024L12' },
+  { id:'INV-0013', name:'Foley Catheter 16Fr', cat:'Surgical', qty:72, max:200, unit:'Single pack sterile', expiry:'2027-04', supplier:'BD India', ward:'Urology', cost:125, reorder:40, status:'In Stock', batch:'BT-2024M13' },
+  { id:'INV-0014', name:'Amlodipine 5mg', cat:'Medicine', qty:210, max:400, unit:'Tablet / Strip×15', expiry:'2026-09', supplier:'Cipla Ltd', ward:'Cardiology', cost:18, reorder:80, status:'In Stock', batch:'BT-2024N14' },
+  { id:'INV-0015', name:'Pulse Oximeter Probe', cat:'Equipment', qty:6, max:30, unit:'Reusable clip-type', expiry:'N/A', supplier:'Nellcor India', ward:'ICU', cost:1850, reorder:8, status:'Critical', batch:'EQ-2024O15' },
+  { id:'INV-0016', name:'Dextrose 25% 500mL', cat:'Injection', qty:48, max:150, unit:'500mL Bottle', expiry:'2025-11', supplier:'Baxter India', ward:'Emergency', cost:72, reorder:30, status:'In Stock', batch:'BT-2024P16' },
+  { id:'INV-0017', name:'Betadine Solution 500mL', cat:'Surgical', qty:22, max:80, unit:'500mL Bottle', expiry:'2025-08', supplier:'Win-Medicare', ward:'OT', cost:165, reorder:20, status:'Low', batch:'BT-2024Q17' },
+  { id:'INV-0018', name:'Atorvastatin 20mg', cat:'Medicine', qty:280, max:400, unit:'Tablet / Strip×10', expiry:'2026-07', supplier:'Pfizer India', ward:'Cardiology', cost:32, reorder:80, status:'In Stock', batch:'BT-2024R18' },
+  { id:'INV-0019', name:'Heparin 5000 IU/mL', cat:'Injection', qty:35, max:100, unit:'5mL Multi-dose Vial', expiry:'2026-04', supplier:'Pfizer India', ward:'ICU', cost:320, reorder:20, status:'Low', batch:'BT-2024S19' },
+  { id:'INV-0020', name:'Endotracheal Tube 7.5', cat:'Surgical', qty:18, max:60, unit:'Single use, cuffed', expiry:'2028-01', supplier:'Covidien India', ward:'ICU', cost:285, reorder:10, status:'Low', batch:'BT-2024T20' },
+  { id:'INV-0021', name:'Pantoprazole 40mg', cat:'Medicine', qty:190, max:300, unit:'Tablet / Strip×10', expiry:'2026-10', supplier:'Sun Pharma', ward:'General Ward', cost:25, reorder:60, status:'In Stock', batch:'BT-2024U21' },
+  { id:'INV-0022', name:'Syringe 10mL Luer Lock', cat:'Surgical', qty:420, max:600, unit:'Box of 100', expiry:'2028-06', supplier:'Dispovan India', ward:'All Wards', cost:85, reorder:120, status:'In Stock', batch:'BT-2024V22' },
+  { id:'INV-0023', name:'Ceftriaxone 1g', cat:'Injection', qty:42, max:150, unit:'Vial (powder for inj)', expiry:'2025-12', supplier:'Lupin Ltd', ward:'ICU', cost:185, reorder:30, status:'Low', batch:'BT-2024W23' },
+  { id:'INV-0024', name:'Omeprazole 20mg', cat:'Medicine', qty:155, max:300, unit:'Capsule / Strip×10', expiry:'2026-05', supplier:'Cipla Ltd', ward:'General Ward', cost:15, reorder:60, status:'In Stock', batch:'BT-2024X24' },
+  { id:'INV-0025', name:'Defibrillator Pads (Adult)', cat:'Equipment', qty:4, max:20, unit:'Pair / Single use', expiry:'2026-08', supplier:'Zoll India', ward:'Emergency', cost:2400, reorder:6, status:'Critical', batch:'EQ-2024Y25' },
+  { id:'INV-0026', name:'Sodium Chloride 0.9% 1L', cat:'Injection', qty:310, max:400, unit:'1L Bag', expiry:'2026-11', supplier:'Baxter India', ward:'All Wards', cost:48, reorder:80, status:'In Stock', batch:'BT-2024Z26' },
+  { id:'INV-0027', name:'Doxycycline 100mg', cat:'Medicine', qty:75, max:200, unit:'Capsule / Strip×10', expiry:'2025-06', supplier:'Sun Pharma', ward:'General Ward', cost:28, reorder:40, status:'Low', batch:'BT-2024AA27' },
+  { id:'INV-0028', name:'IV Cannula 20G', cat:'Surgical', qty:280, max:400, unit:'Box of 50', expiry:'2027-09', supplier:'BD India', ward:'All Wards', cost:340, reorder:80, status:'In Stock', batch:'BT-2024BB28' },
+  { id:'INV-0029', name:'Clexane 40mg (Enoxaparin)', cat:'Injection', qty:14, max:80, unit:'0.4mL Pre-filled syringe', expiry:'2025-10', supplier:'Sanofi India', ward:'Cardiology', cost:310, reorder:20, status:'Critical', batch:'BT-2024CC29' },
+  { id:'INV-0030', name:'Oxygen Cylinder (Med Grade)', cat:'Equipment', qty:8, max:20, unit:'D-type 2000L cylinder', expiry:'N/A', supplier:'Linde India', ward:'ICU', cost:4500, reorder:5, status:'Low', batch:'EQ-2024DD30' },
+];
+
+// ═══════════════════════════════════════════════════════════
+// RENDER TABLE
+// ═══════════════════════════════════════════════════════════
+let activeFilter = '';
+let activeTab = 'all';
+
+function getCatClass(cat){ return {Medicine:'cat-med',Injection:'cat-inj',Surgical:'cat-surg',Equipment:'cat-eq'}[cat]||'cat-med'; }
+function getCatEmoji(cat){ return {Medicine:'💊',Injection:'💉',Surgical:'🔪',Equipment:'⚙️'}[cat]||'💊'; }
+function getStatusClass(s){ return {Ok:'s-ok','In Stock':'s-ok',Low:'s-low',Critical:'s-crit','Out of Stock':'s-out',Expired:'s-exp'}[s]||'s-low'; }
+function getStatusLabel(s){ return {'Out of Stock':'Out of Stock',Critical:'Critical ⚡',Low:'Low ⚠','In Stock':'In Stock ✓'}[s]||s; }
+function getStockPct(row){ return Math.round((row.qty/row.max)*100); }
+function getStockClass(row){ const p=getStockPct(row); if(row.status==='Out of Stock')return 'out'; if(p<=15||row.status==='Critical')return 'critical'; if(p<=35||row.status==='Low')return 'low'; return 'ok'; }
+function getExpiryClass(exp){
+  if(exp==='N/A')return 'exp-ok';
+  const d=new Date(exp+'-01'); const now=new Date(); const diff=(d-now)/864e5;
+  if(diff<0)return 'exp-crit'; if(diff<45)return 'exp-warn'; return 'exp-ok';
+}
+
+function updateCounts(data){
+  document.getElementById('tableSubtitle').textContent=`Showing ${data.length} items · AI monitoring active`;
+  document.getElementById('pageInfo').textContent=`Showing 1–${data.length} of ${data.length} items`;
+}
+
+function renderTable(data){
+  const tbody=document.getElementById('invTable');
+  if(!data.length){
+    tbody.innerHTML='<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--text-soft);">No items match your search or filter.</td></tr>';
+    updateCounts(data);
+    return;
+  }
+  tbody.innerHTML=data.map(r=>{
+    const pct=getStockPct(r); const sc=getStockClass(r);
+    const rowClass=r.status==='Out of Stock'?'row-out':(r.expiry!=='N/A'&&getExpiryClass(r.expiry)==='exp-warn'?'row-exp':'');
+    return `<tr class="${rowClass}">
+      <td><input type="checkbox" style="accent-color:var(--teal);cursor:pointer;"></td>
+      <td><div class="item-id">${r.id}</div><div class="item-name">${r.name}</div><div class="item-cat">${r.batch}</div></td>
+      <td><span class="cat-pill ${getCatClass(r.cat)}">${getCatEmoji(r.cat)} ${r.cat}</span></td>
+      <td style="min-width:130px;">
+        <div class="stock-bar-wrap">
+          <div class="stock-bar"><div class="stock-fill ${sc}" style="width:${Math.min(pct,100)}%"></div></div>
+          <span class="stock-num ${sc}">${r.qty}</span>
+        </div>
+        <div style="font-size:10px;color:var(--text-soft);margin-top:3px;">of ${r.max} · reorder @${r.reorder}</div>
+      </td>
+      <td style="font-size:12px;color:var(--text-mid);">${r.unit}</td>
+      <td><span class="expiry-pill ${getExpiryClass(r.expiry)}">${r.expiry}</span></td>
+      <td style="font-size:12px;">${r.supplier}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${r.ward}</td>
+      <td><span class="status-badge ${getStatusClass(r.status)}">${getStatusLabel(r.status)}</span></td>
+      <td>
+        <div class="ai-action-row">
+          <span class="ai-chip summary" onclick="showSummary(${inventory.indexOf(r)})">✦ Summary</span>
+          ${r.status!=='In Stock'?`<span class="ai-chip reorder" onclick="showReorder(${inventory.indexOf(r)})">🛒 Reorder</span>`:''}
+          <span class="ai-chip autofill" onclick="showSubstitutes(${inventory.indexOf(r)})">⚖️ Substitutes</span>
+        </div>
+      </td>
+      <td><span class="action-dots" onclick="showSummary(${inventory.indexOf(r)})">⋯</span></td>
+    </tr>`;
+  }).join('');
+  updateCounts(data);
+}
+
+function filterTable(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  let data=inventory.filter(r=>{
+    const text=(r.id+r.name+r.cat+r.supplier+r.ward+r.batch+r.status+r.unit).toLowerCase();
+    return text.includes(q);
+  });
+  if(activeFilter==='expiring'){data=data.filter(r=>r.expiry!=='N/A'&&getExpiryClass(r.expiry)!=='exp-ok');}
+  else if(activeFilter){data=data.filter(r=>r.status===activeFilter||r.cat===activeFilter);}
+  if(activeTab==='oos')data=data.filter(r=>r.status==='Out of Stock');
+  else if(activeTab==='low')data=data.filter(r=>r.status==='Low'||r.status==='Critical');
+  else if(activeTab==='exp')data=data.filter(r=>r.expiry!=='N/A'&&getExpiryClass(r.expiry)!=='exp-ok');
+  else if(activeTab==='ok')data=data.filter(r=>r.status==='In Stock');
+  renderTable(data);
+}
+
+function setTag(el,val){
+  document.querySelectorAll('.tag').forEach(t=>{t.className=t.className.replace(' active','');});
+  el.className+=' active';
+  activeFilter=val; filterTable();
+}
+
+function switchTab(el,tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  activeTab=tab; filterTable();
+}
+
+// ═══════════════════════════════════════════════════════════
+// SPARKLINES
+// ═══════════════════════════════════════════════════════════
+function buildSpark(id, values, color){
+  const el=document.getElementById(id); if(!el)return;
+  const maxV=Math.max(...values);
+  el.innerHTML=values.map(v=>`<div class="ts-bar" style="height:${Math.round((v/maxV)*22)}px;background:${color};opacity:0.7;flex:1;"></div>`).join('');
+}
+document.addEventListener('DOMContentLoaded', function(){
+buildSpark('spark1',[280,290,295,303,308,311,312],'var(--teal)');
+buildSpark('spark2',[1,0,1,2,1,2,3],'var(--rose)');
+buildSpark('spark3',[8,9,10,9,11,12,12],'var(--gold)');
+buildSpark('spark4',[4,5,6,5,7,7,7],'var(--purple)');
+buildSpark('spark5',[15.2,16.1,15.8,17.0,17.8,18.1,18.4],'var(--indigo)');
+});
+
+// ═══════════════════════════════════════════════════════════
+// REORDER LIST
+// ═══════════════════════════════════════════════════════════
+function buildReorderList(){
+  const items=inventory.filter(r=>r.status==='Out of Stock'||r.status==='Critical').slice(0,6);
+  document.getElementById('reorderList').innerHTML=items.map(r=>`
+    <div class="reorder-item">
+      <div class="reorder-icon ${r.status==='Out of Stock'?'ri-red':'ri-gold'}">${getCatEmoji(r.cat)}</div>
+      <div style="flex:1;">
+        <div class="reorder-name">${r.name}</div>
+        <div class="reorder-sub">${r.status} · ${r.supplier} · ₹${r.cost}/unit</div>
+      </div>
+      <button class="reorder-cta ${r.status==='Out of Stock'?'cta-now':'cta-soon'}" onclick="showReorder(${inventory.indexOf(r)})">${r.status==='Out of Stock'?'🚨 Urgent':'Reorder'}</button>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPIRY TRACKER
+// ═══════════════════════════════════════════════════════════
+function buildExpiryTracker(){
+  const items=inventory.filter(r=>r.expiry!=='N/A'&&getExpiryClass(r.expiry)!=='exp-ok').slice(0,6);
+  document.getElementById('expiryTracker').innerHTML=items.map(r=>{
+    const d=new Date(r.expiry+'-01'); const now=new Date(); const days=Math.round((d-now)/864e5);
+    return `<div class="insight-row">
+      <div style="display:flex;align-items:center;gap:7px;"><span>${getCatEmoji(r.cat)}</span><span>${r.name}</span></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:var(--text-soft);">${r.expiry}</span>
+        <span class="insight-val ${days<30?'red':'gold'}">${days}d</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════
+const notifData=[
+  {color:'#C0504A',msg:'<strong>Out of Stock:</strong> Insulin Glargine — ICU needs immediate restock',time:'5 min ago'},
+  {color:'#C0504A',msg:'<strong>Critical:</strong> IV Paracetamol — 22 units left, 3 days to depletion',time:'12 min ago'},
+  {color:'#C8963E',msg:'<strong>Expiry Alert:</strong> Surgical Sutures 2-0 — expires in 22 days',time:'28 min ago'},
+  {color:'#C8963E',msg:'<strong>Temp Alert:</strong> Cold Storage Slot B at 6.2°C — check refrigerator',time:'1 hr ago'},
+  {color:'#3D4F8A',msg:'<strong>Delivery Update:</strong> MedLine India order delayed by 2 days',time:'2 hr ago'},
+  {color:'#1A6B5A',msg:'<strong>AI Insight:</strong> ₹84,200 savings possible — consolidate antibiotic SKUs',time:'3 hr ago'},
+  {color:'#7B5EA7',msg:'<strong>Reorder Triggered:</strong> Ceftriaxone 1g — auto PO raised for 100 vials',time:'4 hr ago'},
+];
+function buildNotifDropdown(){
+  const wrap=document.getElementById('notifDropdown'); if(!wrap)return;
+  let html=`<div class="nd-head"><h4>🔔 Inventory Alerts</h4><span class="nd-mark" onclick="markAllRead()">Mark all read</span></div>`;
+  notifData.forEach(n=>{html+=`<div class="nd-item"><div class="nd-dot" style="background:${n.color}"></div><div><div class="nd-msg">${n.msg}</div><div class="nd-time">${n.time}</div></div></div>`;});
+  html+=`<div class="nd-footer"><a href="reports.html">View all alerts →</a></div>`;
+  wrap.innerHTML=html;
+}
+function toggleNotif(){document.getElementById('notifDropdown').classList.toggle('open');}
+function markAllRead(){document.getElementById('notifBadge').style.display='none';document.getElementById('notifDropdown').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.notif-btn-wrap'))document.querySelectorAll('.notif-dropdown').forEach(d=>d.classList.remove('open'));});
+
+// ═══════════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════════
+function openModal(type, idx){
+  if(type==='add'){document.getElementById('modalAdd').classList.add('open');}
+  else if(type==='full-report'){buildReport();document.getElementById('modalReport').classList.add('open');}
+  else if(type==='ai-search'){document.getElementById('modalAiSearch').classList.add('open');}
+  else if(type==='compare'){buildCompareSelects();document.getElementById('modalCompare').classList.add('open');}
+  else if(type==='reorder-all'||type==='bulk-ai'){buildReorderAllModal();document.getElementById('modalReorderAll').classList.add('open');}
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+});
+
+// COMPARE
+function buildCompareSelects(){
+  ['cmpA','cmpB'].forEach(id=>{
+    const sel=document.getElementById(id);
+    sel.innerHTML='<option value="">Select item…</option>'+inventory.map((r,i)=>`<option value="${i}">${r.name}</option>`).join('');
+  });
+}
+function runCompare(){
+  const a=parseInt(document.getElementById('cmpA').value); const b=parseInt(document.getElementById('cmpB').value);
+  if(isNaN(a)||isNaN(b)){document.getElementById('compareResult').innerHTML='';return;}
+  const ra=inventory[a]; const rb=inventory[b];
+  const keys=[['Category','cat'],['Current Qty','qty'],['Max Capacity','max'],['Reorder Level','reorder'],['Status','status'],['Unit Cost','cost'],['Expiry','expiry'],['Supplier','supplier'],['Ward','ward']];
+  const winner=ra.qty/ra.max >= rb.qty/rb.max ? ra.name : rb.name;
+  document.getElementById('compareResult').innerHTML=`
+    <div class="compare-grid">
+      <div class="compare-card"><div class="compare-card-title">🅰 ${ra.name}</div>${keys.map(([k,f])=>`<div class="compare-row"><span class="compare-key">${k}</span><span class="compare-val">${f==='cost'?'₹'+ra[f]:ra[f]}</span></div>`).join('')}</div>
+      <div class="compare-card"><div class="compare-card-title">🅱 ${rb.name}</div>${keys.map(([k,f])=>`<div class="compare-row"><span class="compare-key">${k}</span><span class="compare-val">${f==='cost'?'₹'+rb[f]:rb[f]}</span></div>`).join('')}</div>
+    </div>
+    <div class="cmp-insight">
+      <div class="cmp-insight-label">🤖 AI Comparison Insight</div>
+      <div class="cmp-insight-text">
+        <strong>${winner}</strong> has better stock health. 
+        ${ra.cat===rb.cat?'Both are in the same category — consider consolidating procurement for bulk discount savings.':'Different categories — no direct substitution possible.'}
+        ${ra.supplier===rb.supplier?' Same supplier — combine reorder to save on delivery costs.':' Different suppliers — compare pricing for any substitutable variants.'}
+        Cost difference: <strong>₹${Math.abs(ra.cost-rb.cost)}/unit</strong>. Annual impact at average consumption: ~₹${(Math.abs(ra.cost-rb.cost)*200).toLocaleString('en-IN')}.
+      </div>
+    </div>`;
+}
+
+// FULL REPORT
+function buildReport(){
+  const oos=inventory.filter(r=>r.status==='Out of Stock').length;
+  const crit=inventory.filter(r=>r.status==='Critical').length;
+  const low=inventory.filter(r=>r.status==='Low').length;
+  const totalVal=inventory.reduce((s,r)=>s+r.qty*r.cost,0);
+  const expiring=inventory.filter(r=>r.expiry!=='N/A'&&getExpiryClass(r.expiry)!=='exp-ok').length;
+  document.getElementById('reportBody').innerHTML=`
+    <div class="ai-response-box" style="margin-bottom:18px;">
+      <div class="ai-response-text">
+        <strong>HealthOS Inventory Intelligence Report</strong> · Generated: ${new Date().toLocaleString('en-IN')}<br><br>
+        <span class="badge-r">CRITICAL</span> <strong>${oos} items Out of Stock</strong> — Insulin Glargine, Ciprofloxacin 500mg, Surgical Gloves (L).<br>
+        <span class="badge-y">WARNING</span> <strong>${crit} Critical</strong> and <strong>${low} Low</strong> stock items detected.<br>
+        <span class="badge-y">EXPIRY</span> <strong>${expiring} items</strong> expiring within 30–45 days.<br><br>
+        Total active inventory value: <span class="badge-g">₹${totalVal.toLocaleString('en-IN')}</span><br><br>
+        <strong>Top AI Recommendations:</strong><br>
+        1. Emergency PO for Insulin Glargine & Amoxicillin — patient safety risk.<br>
+        2. Cold chain inspection for Slot B refrigerator — temperature anomaly detected.<br>
+        3. Consolidate 3 duplicate antibiotic SKUs → projected savings ₹84,200/year.<br>
+        4. Accelerate usage of Surgical Sutures 2-0 (exp. May 2025) in scheduled OT cases.<br>
+        5. Increase monsoon season buffer stock by 15% across all antibiotic & IV lines.
+      </div>
+    </div>
+    <div class="section-heading" style="font-size:15px;">Category Breakdown</div>
+    <div class="compare-grid">
+      ${['Medicine','Injection','Surgical','Equipment'].map(cat=>{
+        const items=inventory.filter(r=>r.cat===cat);
+        const val=items.reduce((s,r)=>s+r.qty*r.cost,0);
+        const oosC=items.filter(r=>r.status==='Out of Stock').length;
+        return `<div class="compare-card"><div class="compare-card-title">${getCatEmoji(cat)} ${cat}</div>
+          <div class="compare-row"><span class="compare-key">Items</span><span class="compare-val">${items.length}</span></div>
+          <div class="compare-row"><span class="compare-key">Value</span><span class="compare-val">₹${val.toLocaleString('en-IN')}</span></div>
+          <div class="compare-row"><span class="compare-key">OOS</span><span class="compare-val" style="${oosC>0?'color:var(--rose)':''}">${oosC}</span></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// AI AUTOFILL
+const autofillDB={
+  'paracetamol':{sku:'INV-NEW1',cat:'Medicine',unit:'500mg Tablet / Strip×15',reorder:'100',supplier:'Cipla Ltd',cost:'12',loc:'Shelf A1'},
+  'amoxicillin':{sku:'INV-NEW2',cat:'Medicine',unit:'500mg Capsule / Strip×10',reorder:'50',supplier:'Sun Pharma',cost:'37.50',loc:'Shelf A2'},
+  'insulin':{sku:'INV-NEW3',cat:'Injection',unit:'100U/mL Vial 10mL',reorder:'30',supplier:'Sanofi India',cost:'209',loc:'Cold Storage Slot A'},
+  'ceftriaxone':{sku:'INV-NEW4',cat:'Injection',unit:'1g Vial (powder)',reorder:'30',supplier:'Lupin Ltd',cost:'185',loc:'Shelf B3'},
+  'syringes':{sku:'INV-NEW5',cat:'Surgical',unit:'Box of 100',reorder:'100',supplier:'Dispovan India',cost:'85',loc:'Shelf C1'},
+};
+function runAutoFill(){
+  const val=document.getElementById('aiAutoFillInput').value.toLowerCase();
+  const s=document.getElementById('autofillStatus');
+  s.style.display='flex'; 
+  setTimeout(()=>{
+    s.style.display='none';
+    let match=null;
+    Object.keys(autofillDB).forEach(k=>{if(val.includes(k))match=autofillDB[k];});
+    if(match){
+      const fields=['sku','cat','unit','reorder','supplier','cost','loc'];
+      fields.forEach(f=>{
+        const inp=document.getElementById('f_'+f); const fb=document.getElementById('fb_'+f);
+        if(inp){inp.value=match[f];inp.classList.add('ai-filled');}
+        if(fb)fb.style.display='flex';
+      });
+      document.getElementById('f_name').value=document.getElementById('aiAutoFillInput').value;
+      document.getElementById('fb_name').style.display='flex';
+      showToast('✦ AI auto-filled 7 fields successfully');
+    } else {
+      showToast('ℹ AI: Enter a recognized medicine name for auto-fill');
+    }
+  },1400);
+}
+function saveItem(){
+  // Read every form field and push a real item into inventory
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){showToast('⚠ Please enter an item name'); return;}
+  const qtyVal = parseInt(document.getElementById('f_qty').value)||0;
+  const reorderVal = parseInt(document.getElementById('f_reorder').value)||0;
+  const costVal = parseFloat(document.getElementById('f_cost').value)||0;
+  const maxVal = Math.round(reorderVal * 3) || 100;
+  let status = 'In Stock';
+  if(qtyVal === 0) status = 'Out of Stock';
+  else if(qtyVal <= reorderVal) status = 'Critical';
+  else if(qtyVal <= reorderVal * 1.5) status = 'Low';
+  const newItem = {
+    id: document.getElementById('f_sku').value.trim() || 'INV-' + String(inventory.length+1).padStart(4,'0'),
+    name,
+    cat: document.getElementById('f_cat').value,
+    qty: qtyVal,
+    max: maxVal,
+    unit: document.getElementById('f_unit').value.trim() || '—',
+    expiry: document.getElementById('f_expiry').value || 'N/A',
+    supplier: document.getElementById('f_supplier').value.trim() || 'Unknown',
+    ward: document.getElementById('f_ward').value,
+    cost: costVal,
+    reorder: reorderVal,
+    status,
+    batch: document.getElementById('f_batch').value.trim() || 'BT-NEW'
+  };
+  inventory.push(newItem);
+  renderTable(inventory);
+  document.getElementById('tableSubtitle').textContent = `Showing ${inventory.length} items · AI monitoring active`;
+  document.getElementById('pageInfo').textContent = `Showing 1–${inventory.length} of ${inventory.length} items`;
+  // Reset form
+  ['f_sku','f_name','f_unit','f_qty','f_reorder','f_supplier','f_cost','f_batch','f_expiry','aiAutoFillInput'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.querySelectorAll('.ai-filled-badge').forEach(b=>b.style.display='none');
+  document.querySelectorAll('.form-input.ai-filled').forEach(i=>i.classList.remove('ai-filled'));
+  closeModal('modalAdd');
+  showToast('✅ ' + newItem.name + ' added to inventory');
+}
+
+// ─── REORDER ALL — AI-powered prefill (human-editable) ─────────────────────
+let _reorderAllItems = [];
+
+async function buildReorderAllModal(){
+  const criticalItems = inventory.filter(r =>
+    r.status === 'Out of Stock' || r.status === 'Critical' || r.status === 'Low'
+  );
+  _reorderAllItems = criticalItems;
+
+  // Show skeleton rows immediately so UI is responsive
+  renderReorderRows(criticalItems, null);
+
+  // Reset summary to loading state
+  document.getElementById('raAISummaryText').innerHTML =
+    `<div class="ai-loading"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><span>AI is analysing depletion rates, seasonal trends &amp; lead times…</span></div>`;
+
+  // Build a compact inventory snapshot for the AI
+  const snapshot = criticalItems.map(r => ({
+    id: r.id, name: r.name, cat: r.cat, status: r.status,
+    qty: r.qty, max: r.max, reorder: r.reorder,
+    unit: r.unit, supplier: r.supplier, ward: r.ward, cost: r.cost, expiry: r.expiry
+  }));
+
+  const prompt = `You are HealthOS, an AI inventory management system for a hospital in India.
+The following items are flagged for reorder (Out of Stock, Critical, or Low).
+Return ONLY a valid JSON array — no markdown, no explanation.
+
+For EACH item provide:
+- id (string, must match input id exactly)
+- suggestedQty (integer: smart reorder quantity based on status, max stock, usage patterns, and upcoming seasonal demand — be specific and realistic)
+- supplier (string: keep existing OR suggest a better-known Indian pharma supplier if appropriate)
+- unitCost (number: keep existing or slightly adjust for realistic market pricing in INR)
+- priority (string: "EMERGENCY" | "EXPRESS" | "STANDARD")
+- aiNote (string: 1-sentence rationale for this reorder — mention seasonal trends, patient safety risk, lead time, or expiry if relevant)
+- altSupplier (string: name of a realistic alternative Indian pharma supplier for this item, or "" if none)
+
+Items:
+${JSON.stringify(snapshot, null, 2)}
+
+Respond ONLY with a JSON array. No markdown. No preamble.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const raw = data?.content?.[0]?.text || '[]';
+    let aiData;
+    try {
+      aiData = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    } catch(e) { aiData = null; }
+
+    if(aiData && Array.isArray(aiData)){
+      // Build a lookup map
+      const aiMap = {};
+      aiData.forEach(a => { aiMap[a.id] = a; });
+      renderReorderRows(criticalItems, aiMap);
+
+      // Build AI summary text
+      const oosCount = criticalItems.filter(r=>r.status==='Out of Stock').length;
+      const critCount = criticalItems.filter(r=>r.status==='Critical').length;
+      const lowCount  = criticalItems.filter(r=>r.status==='Low').length;
+      const emergCount = aiData.filter(a=>a.priority==='EMERGENCY').length;
+      document.getElementById('raAISummaryText').innerHTML =
+        `<strong>✦ AI Analysis Complete:</strong> <span style="color:#86EFAC;font-weight:700;">${criticalItems.length} items</span> flagged —
+        <span style="color:#FF8F8F;">${oosCount} OOS</span> · <span style="color:var(--gold-light);">${critCount} Critical</span> · ${lowCount} Low.
+        <strong>${emergCount} items</strong> marked <span style="color:#FF8F8F;">EMERGENCY</span> priority.
+        Monsoon season buffer (+15%) applied to antibiotic &amp; IV lines.
+        All quantities, suppliers and costs are <strong>editable</strong>. Uncheck to exclude.`;
+    } else {
+      throw new Error('Bad AI response');
+    }
+  } catch(err) {
+    // Fallback: render with heuristic defaults, show non-blocking message
+    renderReorderRows(criticalItems, null);
+    document.getElementById('raAISummaryText').innerHTML =
+      `<strong>✦ AI Analysis:</strong> <span style="color:#86EFAC;font-weight:700;">${criticalItems.length} items</span> flagged for reorder.
+      Quantities pre-filled using depletion heuristics. All fields are <strong>editable</strong>. Uncheck to exclude from this batch.`;
+  }
+  updateReorderTotal();
+}
+
+function renderReorderRows(criticalItems, aiMap){
+  // Column headers — 7 cols now: chk | item | ai note | qty | supplier | cost | subtotal
+  let html = `<div style="display:grid;grid-template-columns:28px 1fr minmax(0,180px) 80px 140px 80px 90px;gap:8px;padding:4px 14px;margin-bottom:4px;">
+    <div></div>
+    <div class="ra-col-label">Item</div>
+    <div class="ra-col-label">AI Rationale</div>
+    <div class="ra-col-label">Order Qty</div>
+    <div class="ra-col-label">Supplier</div>
+    <div class="ra-col-label">Unit ₹</div>
+    <div class="ra-col-label" style="text-align:right;">Subtotal</div>
+  </div>`;
+
+  criticalItems.forEach((r, i) => {
+    const ai = aiMap ? aiMap[r.id] : null;
+    const sugQty = ai ? ai.suggestedQty : (r.status === 'Out of Stock' ? Math.round(r.max * 0.9) : Math.round(r.max * 0.65));
+    const supplier = ai ? ai.supplier : r.supplier;
+    const cost = ai ? ai.unitCost : r.cost;
+    const priority = ai ? ai.priority : (r.status === 'Out of Stock' ? 'EMERGENCY' : r.status === 'Critical' ? 'EXPRESS' : 'STANDARD');
+    const aiNote = ai ? ai.aiNote : '';
+    const altSupplier = ai ? ai.altSupplier : '';
+
+    const urgency = r.status === 'Out of Stock' ? 'ra-urgent' : (r.status === 'Critical' ? 'ra-warn' : '');
+
+    const statusBadge = r.status === 'Out of Stock'
+      ? `<span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;background:rgba(192,80,74,0.15);color:var(--rose);">OOS</span>`
+      : r.status === 'Critical'
+      ? `<span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;background:rgba(200,150,62,0.15);color:var(--gold);">CRIT</span>`
+      : `<span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;background:rgba(26,107,90,0.12);color:var(--teal);">LOW</span>`;
+
+    const priorColor = priority === 'EMERGENCY' ? 'var(--rose)' : priority === 'EXPRESS' ? 'var(--gold)' : 'var(--teal)';
+    const priorBg   = priority === 'EMERGENCY' ? 'rgba(192,80,74,0.12)' : priority === 'EXPRESS' ? 'rgba(200,150,62,0.12)' : 'rgba(26,107,90,0.1)';
+    const priorIcon = priority === 'EMERGENCY' ? '🚨' : priority === 'EXPRESS' ? '⚡' : '📦';
+
+    html += `<div class="ra-row ${urgency}" id="ra_row_${i}">
+      <input type="checkbox" id="ra_chk_${i}" checked style="accent-color:var(--teal);cursor:pointer;width:16px;height:16px;" onchange="updateReorderTotal()">
+      <div>
+        <div class="ra-item-name">${r.name} ${statusBadge}</div>
+        <div class="ra-item-sub">${r.unit} · Stock: ${r.qty}/${r.max} · ${r.ward}</div>
+        <div style="margin-top:4px;">
+          <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:${priorBg};color:${priorColor};">${priorIcon} ${priority}</span>
+          ${altSupplier ? `<span style="font-size:10px;color:var(--text-soft);margin-left:6px;">Alt: ${altSupplier}</span>` : ''}
+        </div>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.6);background:rgba(61,191,160,0.07);border:1px solid rgba(61,191,160,0.15);border-radius:8px;padding:6px 8px;line-height:1.4;align-self:center;">
+        ${aiNote ? `<span style="color:var(--teal-glow);">✦</span> ${aiNote}` : '<span style="color:var(--text-soft);font-style:italic;">Heuristic estimate</span>'}
+      </div>
+      <input class="form-input" id="ra_qty_${i}" type="number" min="0" value="${sugQty}" style="padding:6px 9px;font-size:13px;font-family:'DM Mono',monospace;${ai?'border-color:var(--teal-glow);background:rgba(61,191,160,0.04);':''}" oninput="updateReorderTotal()" title="Edit order quantity">
+      <input class="form-input" id="ra_sup_${i}" value="${supplier}" style="padding:6px 9px;font-size:12px;${ai?'border-color:var(--teal-glow);background:rgba(61,191,160,0.04);':''}" title="Edit supplier name">
+      <input class="form-input" id="ra_cost_${i}" type="number" step="0.01" value="${cost}" style="padding:6px 9px;font-size:13px;font-family:'DM Mono',monospace;${ai?'border-color:var(--teal-glow);background:rgba(61,191,160,0.04);':''}" oninput="updateReorderTotal()" title="Edit unit cost">
+      <div class="ra-subtotal" id="ra_sub_${i}">₹${(sugQty*cost).toLocaleString('en-IN')}</div>
+    </div>`;
+  });
+
+  document.getElementById('reorderAllRows').innerHTML = html;
+}
+
+function updateReorderTotal(){
+  let total = 0; let included = 0; const suppliers = new Set();
+  _reorderAllItems.forEach((r, i) => {
+    const chk = document.getElementById('ra_chk_'+i);
+    const qty = parseFloat(document.getElementById('ra_qty_'+i)?.value)||0;
+    const cost = parseFloat(document.getElementById('ra_cost_'+i)?.value)||0;
+    const sub = qty * cost;
+    const subEl = document.getElementById('ra_sub_'+i);
+    const rowEl = document.getElementById('ra_row_'+i);
+    if(subEl) subEl.textContent = '₹' + sub.toLocaleString('en-IN');
+    if(chk && chk.checked){
+      total += sub; included++;
+      if(rowEl) rowEl.classList.remove('ra-excluded');
+      const sup = document.getElementById('ra_sup_'+i)?.value?.trim();
+      if(sup) suppliers.add(sup);
+    } else {
+      if(rowEl) rowEl.classList.add('ra-excluded');
+    }
+  });
+  document.getElementById('ra_total').textContent = total.toLocaleString('en-IN');
+  document.getElementById('ra_included_count').textContent = included;
+  document.getElementById('ra_supplier_count').textContent = suppliers.size + ' supplier' + (suppliers.size!==1?'s':'');
+}
+
+function confirmReorderAll(){
+  let confirmed = 0;
+  _reorderAllItems.forEach((r, i) => {
+    const chk = document.getElementById('ra_chk_'+i);
+    if(!chk || !chk.checked) return;
+    const qty = parseInt(document.getElementById('ra_qty_'+i)?.value)||0;
+    const cost = parseFloat(document.getElementById('ra_cost_'+i)?.value)||r.cost;
+    const sup = document.getElementById('ra_sup_'+i)?.value?.trim() || r.supplier;
+    // Update live inventory record
+    const inv = inventory.find(x => x.id === r.id);
+    if(inv){
+      inv.qty = Math.min(inv.qty + qty, inv.max);
+      inv.cost = cost;
+      inv.supplier = sup;
+      if(inv.qty >= inv.reorder * 1.5) inv.status = 'In Stock';
+      else if(inv.qty >= inv.reorder) inv.status = 'Low';
+      else if(inv.qty > 0) inv.status = 'Critical';
+    }
+    confirmed++;
+  });
+  renderTable(inventory);
+  buildReorderList();
+  closeModal('modalReorderAll');
+  const note = document.getElementById('ra_note')?.value?.trim();
+  showToast(`✅ ${confirmed} POs sent · ${note ? 'Note saved · ' : ''}Inventory updated`);
+}
+
+// ─── INDIVIDUAL REORDER (enhanced) ──────────────────────────────────────────
+let _reorderIdx = -1;
+function showReorder(idx){
+  _reorderIdx = idx;
+  const r = inventory[idx];
+  document.getElementById('summaryTitle').textContent = '🛒 Reorder: ' + r.name;
+  const suggestQty = Math.round(r.max * 0.8);
+  document.getElementById('summaryContent').innerHTML = `
+    <div class="ai-response-box" style="margin-bottom:16px;">
+      <div class="ai-response-text" style="font-size:12.5px;">
+        <span class="badge-r">REORDER NEEDED</span> <strong>${r.name}</strong> — Current: <strong>${r.qty}</strong> units · Reorder level: ${r.reorder}<br><br>
+        AI suggests <strong>${suggestQty} units</strong> from <strong>${r.supplier}</strong> at ₹${r.cost}/unit.
+        Estimated cost: <span class="badge-g">₹${(suggestQty*r.cost).toLocaleString('en-IN')}</span> · Lead time: <strong>2–3 business days</strong>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Quantity to Order</label>
+        <input class="form-input ai-filled" id="ro_qty" value="${suggestQty}" type="number" min="1" oninput="updateROSubtotal()">
+        <div class="ai-filled-badge">✦ AI suggested</div>
+      </div>
+      <div class="form-field">
+        <label>Supplier</label>
+        <input class="form-input ai-filled" id="ro_supplier" value="${r.supplier}">
+        <div class="ai-filled-badge">✦ AI selected</div>
+      </div>
+      <div class="form-field">
+        <label>Unit Cost (₹)</label>
+        <input class="form-input ai-filled" id="ro_cost" type="number" step="0.01" value="${r.cost}" oninput="updateROSubtotal()">
+        <div class="ai-filled-badge">✦ AI filled</div>
+      </div>
+      <div class="form-field">
+        <label>Required By</label>
+        <input class="form-input" id="ro_date" type="date" value="${new Date(Date.now()+2*864e5).toISOString().slice(0,10)}">
+      </div>
+      <div class="form-field">
+        <label>Delivery Method</label>
+        <select class="form-input" id="ro_delivery">
+          <option value="express">⚡ Express (24–48 hrs)</option>
+          <option value="standard">📦 Standard (3–5 days)</option>
+          <option value="emergency">🚨 Emergency same-day</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Estimated Total</label>
+        <div class="form-input" id="ro_subtotal" style="background:var(--ivory);font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">₹${(suggestQty*r.cost).toLocaleString('en-IN')}</div>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>Override Reason / Note</label>
+        <textarea class="form-input" id="ro_note" rows="2" placeholder="Optional — e.g. 'Ordering extra for monsoon season buffer'" style="resize:vertical;font-family:'DM Sans',sans-serif;font-size:13px;"></textarea>
+      </div>
+    </div>`;
+  // clear override fields
+  document.getElementById('sum_status_override').value = '';
+  document.getElementById('sum_qty_override').value = '';
+  document.getElementById('sum_note').value = '';
+  document.getElementById('modalSummary').classList.add('open');
+}
+
+function updateROSubtotal(){
+  const qty = parseFloat(document.getElementById('ro_qty')?.value)||0;
+  const cost = parseFloat(document.getElementById('ro_cost')?.value)||0;
+  const el = document.getElementById('ro_subtotal');
+  if(el) el.textContent = '₹' + (qty*cost).toLocaleString('en-IN');
+}
+
+// ─── SUMMARY OVERRIDE (save pharmacist edits) ───────────────────────────────
+let _summaryIdx = -1;
+function showSummary(idx){
+  _summaryIdx = idx;
+  const r = inventory[idx];
+  document.getElementById('summaryTitle').textContent = '✦ AI Summary: ' + r.name;
+  const pct = getStockPct(r);
+  const sc = getStockClass(r);
+  const daysToDeplete = r.qty > 0 ? Math.round(r.qty/(r.max*0.015)) : 0;
+  document.getElementById('summaryContent').innerHTML = `
+    <div class="ai-response-box" style="margin-bottom:16px;">
+      <div class="ai-response-text">
+        <strong>${r.name}</strong> — ${r.cat} · SKU: <span style="font-family:'DM Mono',monospace;">${r.id}</span><br><br>
+        Current stock is <span class="badge-${sc==='ok'?'g':sc==='out'?'r':'y'}">${r.qty} units (${pct}%)</span> of max capacity ${r.max}.
+        ${r.status==='Out of Stock'?'<span class="badge-r">CRITICAL: Zero stock — immediate procurement required.</span>':
+          r.status==='Critical'?`At current consumption rate (~${Math.round(r.max*0.015)}/day), stock will deplete in <strong>${daysToDeplete} days</strong>.`:
+          `Stock is <strong>adequate</strong>. Next reorder suggested in ~${Math.round((r.qty-r.reorder)/(r.max*0.015))} days.`}
+        <br><br>
+        <strong>Expiry:</strong> ${r.expiry} — ${getExpiryClass(r.expiry)==='exp-ok'?'No expiry concern.':'<span class="badge-r">Expiring soon — prioritize usage.</span>'}
+        <br><strong>Supplier:</strong> ${r.supplier} · <strong>Cost:</strong> ₹${r.cost}/unit · <strong>Ward:</strong> ${r.ward}
+        <br><strong>Batch:</strong> <span style="font-family:'DM Mono',monospace;">${r.batch}</span>
+        <br><br>
+        <span class="badge-g">AI RECOMMENDATION</span> ${r.status==='Out of Stock'?`Place emergency order for ${r.reorder*3} units from ${r.supplier} immediately.`:
+          r.status==='Critical'||r.status==='Low'?`Reorder ${Math.round(r.max*0.6)} units from ${r.supplier}. Expected lead time: 2–3 days.`:
+          `Maintain current inventory. Schedule next review in 15 days.`}
+      </div>
+    </div>
+    <div class="compare-grid">
+      <div class="compare-card"><div class="compare-card-title">📊 Stock Metrics</div>
+        <div class="compare-row"><span class="compare-key">Current Qty</span><span class="compare-val">${r.qty} units</span></div>
+        <div class="compare-row"><span class="compare-key">Max Capacity</span><span class="compare-val">${r.max} units</span></div>
+        <div class="compare-row"><span class="compare-key">Reorder Level</span><span class="compare-val">${r.reorder} units</span></div>
+        <div class="compare-row"><span class="compare-key">Fill Rate</span><span class="compare-val">${pct}%</span></div>
+      </div>
+      <div class="compare-card"><div class="compare-card-title">💰 Cost & Supply</div>
+        <div class="compare-row"><span class="compare-key">Unit Cost</span><span class="compare-val">₹${r.cost}</span></div>
+        <div class="compare-row"><span class="compare-key">Stock Value</span><span class="compare-val">₹${(r.qty*r.cost).toLocaleString('en-IN')}</span></div>
+        <div class="compare-row"><span class="compare-key">Supplier</span><span class="compare-val">${r.supplier}</span></div>
+        <div class="compare-row"><span class="compare-key">Storage</span><span class="compare-val">${r.ward}</span></div>
+      </div>
+    </div>`;
+  // Reset override fields
+  document.getElementById('sum_status_override').value = '';
+  document.getElementById('sum_qty_override').value = '';
+  document.getElementById('sum_note').value = '';
+  document.getElementById('modalSummary').classList.add('open');
+}
+
+function applySummaryOverride(){
+  if(_summaryIdx < 0) return;
+  const r = inventory[_summaryIdx];
+  const newStatus = document.getElementById('sum_status_override').value;
+  const newQty = document.getElementById('sum_qty_override').value;
+  const note = document.getElementById('sum_note').value.trim();
+  let changed = [];
+  if(newStatus){ r.status = newStatus; changed.push('status → ' + newStatus); }
+  if(newQty !== ''){ r.qty = Math.max(0, parseInt(newQty)||0); changed.push('qty → ' + r.qty); }
+  if(changed.length){
+    renderTable(inventory);
+    buildReorderList();
+    closeModal('modalSummary');
+    showToast('💾 Override saved: ' + changed.join(', ') + (note?' · Note logged':''));
+  } else {
+    showToast('ℹ No changes — select a status or quantity to override');
+  }
+}
+
+function confirmReorder(){closeModal('modalReorderAll');showToast('✅ Purchase orders sent to 3 suppliers · ₹1,02,450 total');}
+
+// ─── SUBSTITUTE ANALYSIS (Hardcoded) ──────────────────────────────────────
+const catEmojis = {Medicine:'💊',Injection:'💉',Surgical:'🔪',Equipment:'⚙️'};
+
+// Hardcoded substitutes database keyed by inventory ID
+const substitutesDB = {
+  'INV-0001': { // Amoxicillin 500mg
+    verdict: "Augmentin 625mg is the best substitute offering broader spectrum coverage. Generic Amoxicillin-Clavulanate from Cipla provides near-identical efficacy at 15% lower cost. Co-Amoxiclav is widely available from MedLine India and can be dispensed immediately.",
+    substitutes: [
+      { name:'Augmentin 625mg (Amoxicillin+Clavulanate)', unit:'Tablet / Strip×10', estimatedCost:38, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'GSK India', savingsVsOriginal:-5, pros:'Broader spectrum, covers beta-lactamase producers, same oral route', cons:'Higher cost per strip, not suitable for penicillin allergy', aiNote:'CDSCO-approved bioequivalent. Preferred for community-acquired infections. Check hospital formulary.' },
+      { name:'Ampicillin 500mg', unit:'Capsule / Strip×10', estimatedCost:18, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Sun Pharma', savingsVsOriginal:-40, pros:'Significantly cheaper, same penicillin class, oral route', cons:'Narrower spectrum, lower GI absorption', aiNote:'Good fallback for susceptible organisms. Verify sensitivity before switch.' },
+      { name:'Cephalexin 500mg', unit:'Capsule / Strip×10', estimatedCost:32, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Cipla Ltd', savingsVsOriginal:-17, pros:'Similar gram-positive coverage, well tolerated', cons:'Different class — confirm no cephalosporin allergy', aiNote:'First-generation cephalosporin. Useful when Amoxicillin resistance is suspected.' }
+    ]
+  },
+  'INV-0002': { // Insulin Glargine 100U/mL
+    verdict: "Basaglar (Lilly) is the closest biosimilar to Lantus with proven interchangeability in Indian guidelines. Toujeo 300IU/mL offers longer duration and is preferred for patients with nocturnal hypoglycemia. Degludec (Tresiba) is the premium option with the flattest PK profile.",
+    substitutes: [
+      { name:'Basaglar 100IU/mL (Insulin Glargine Biosimilar)', unit:'3mL KwikPen', estimatedCost:420, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Eli Lilly India', savingsVsOriginal:-16, pros:'Approved biosimilar, same 24hr duration, lower cost than Lantus', cons:'Requires patient counseling on pen switch', aiNote:'CDSCO-approved interchangeable biosimilar. Direct unit-for-unit switch. No dose titration needed.' },
+      { name:'Toujeo 300IU/mL (Glargine U300)', unit:'1.5mL SoloStar Pen', estimatedCost:680, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Sanofi India', savingsVsOriginal:36, pros:'Longer duration, less nocturnal hypoglycemia, once-daily', cons:'Higher cost, dose conversion required (not 1:1)', aiNote:'Dose adjustment: Toujeo dose = Glargine dose (same units initially, titrate). Preferred for brittle diabetics.' },
+      { name:'Insulin Detemir (Levemir)', unit:'3mL FlexPen', estimatedCost:510, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Novo Nordisk India', savingsVsOriginal:2, pros:'Predictable PK, weight-neutral, BD dosing option', cons:'May need twice-daily dosing in some patients', aiNote:'Not a 1:1 substitution. Endocrinologist review recommended for inpatient switch.' }
+    ]
+  },
+  'INV-0003': { // Paracetamol 500mg (oral)
+    verdict: "Ibuprofen 400mg is the best NSAID substitute for pain and fever with superior anti-inflammatory action. Mefenamic Acid 500mg is preferred for dysmenorrhea-related pain. Aspirin 500mg is a cost-effective antipyretic for adults without contraindications.",
+    substitutes: [
+      { name:'Ibuprofen 400mg', unit:'Tablet / Strip×10', estimatedCost:18, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Cipla Ltd', savingsVsOriginal:50, pros:'Anti-inflammatory + antipyretic, superior for musculoskeletal pain, cheap', cons:'Avoid in renal impairment, peptic ulcer, and third-trimester pregnancy', aiNote:'Good substitute for pain-fever combination. Add PPI cover if GI risk. Avoid in dengue (bleeding risk).' },
+      { name:'Mefenamic Acid 500mg', unit:'Capsule / Strip×10', estimatedCost:22, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Sun Pharma', savingsVsOriginal:83, pros:'Better for dysmenorrhea and colic pain, anti-inflammatory', cons:'GI side effects, avoid in renal/hepatic impairment, max 7-day use', aiNote:'Preferred for period pain and visceral colic. Not for long-term fever management. Short course only.' },
+      { name:'Aspirin 500mg', unit:'Tablet / Strip×10', estimatedCost:8, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Bayer India', savingsVsOriginal:-33, pros:'Cheapest analgesic-antipyretic, widely available, anti-platelet benefit', cons:'Avoid in children (Reye syndrome), peptic ulcer, dengue, and third-trimester pregnancy', aiNote:'Adult use only. Not for viral fever in paediatrics. Monitor for GI bleed with long-term use.' }
+    ]
+  },
+  'INV-0004': { // Surgical Gloves (L)
+    verdict: "Ansell TouchNTuff nitrile gloves are the best latex-free alternative with superior puncture resistance. Cardinal Health nitrile gloves offer bulk pricing advantages. Sempermed latex gloves can serve as emergency backup but check for latex allergy protocols.",
+    substitutes: [
+      { name:'Ansell TouchNTuff Nitrile Gloves (L)', unit:'Box of 100', estimatedCost:420, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Ansell India', savingsVsOriginal:-16, pros:'Latex-free, superior puncture resistance, allergy-safe', cons:'Slightly less tactile sensitivity vs latex', aiNote:'Preferred for staff with latex sensitivity. Meets ISO 11193 standard. NABL-compliant.' },
+      { name:'Cardinal Health Nitrile Exam Gloves (L)', unit:'Box of 100', estimatedCost:380, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Cardinal Health India', savingsVsOriginal:-24, pros:'Cheapest nitrile option, bulk discounts available, latex-free', cons:'Slightly thinner gauge vs surgical-grade', aiNote:'Suitable for examination, dressing changes. For OT procedures, verify surgical-grade certification.' },
+      { name:'Sempermed Latex Surgical Gloves (L)', unit:'Box of 50 pairs (sterile)', estimatedCost:650, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Sempermed India', savingsVsOriginal:30, pros:'Superior tactile feel for OT use, sterile packed', cons:'Latex — contraindicated if any staff/patient has latex allergy', aiNote:'Screen ward for latex allergy before use. OT-grade sterile gloves — higher cost but appropriate for surgery.' }
+    ]
+  },
+  'INV-0005': { // Metformin 500mg
+    verdict: "Glycomet 500 SR (extended-release) is the ideal substitute reducing GI side effects. Vildagliptin+Metformin combination is preferred if dual therapy is indicated. Sitagliptin can be used when metformin is not tolerated.",
+    substitutes: [
+      { name:'Glycomet 500 SR (Metformin ER)', unit:'Tablet / Strip×10', estimatedCost:8, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'USV Pvt Ltd', savingsVsOriginal:-47, pros:'Same molecule, SR formulation reduces GI side effects, once-daily dosing', cons:'Extended release — do not crush', aiNote:'Bioequivalent. Direct switch. Patient education needed on not crushing the tablet. Cheaper option.' },
+      { name:'Janumet 500mg (Sitagliptin+Metformin)', unit:'Tablet / Strip×10', estimatedCost:78, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'MSD India', savingsVsOriginal:400, pros:'Dual mechanism, better HbA1c reduction, well tolerated', cons:'Much higher cost, requires physician prescription change', aiNote:'Only if escalating therapy. Not a 1:1 switch — physician must adjust dose and rationale.' },
+      { name:'Glipizide 5mg', unit:'Tablet / Strip×10', estimatedCost:12, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Pfizer India', savingsVsOriginal:-20, pros:'Cheap sulfonylurea, effective glucose lowering, oral', cons:'Different mechanism, hypoglycemia risk, not first-line for T2DM', aiNote:'Only use if metformin contraindicated (renal impairment). Monitor for hypoglycemia. Physician approval required.' }
+    ]
+  },
+  'INV-0006': { // IV Paracetamol 1g/100mL
+    verdict: "IV Paracetamol (Perfalgan brand by BMS) is the direct substitute with identical efficacy. Ketorolac IV is a strong alternative for post-op pain where NSAID use is appropriate. Tramadol IV can be used for moderate-severe pain as a third option.",
+    substitutes: [
+      { name:'Perfalgan 1g IV (Paracetamol)', unit:'100mL Infusion Bag', estimatedCost:185, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Bristol Myers Squibb India', savingsVsOriginal:10, pros:'Exact same molecule, pre-filled bag reduces preparation time', cons:'Slightly higher cost vs generic', aiNote:'Bioequivalent. Direct 1:1 switch. No dose adjustment needed.' },
+      { name:'Ketorolac 30mg IV', unit:'1mL Ampoule', estimatedCost:45, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Sun Pharma', savingsVsOriginal:-75, pros:'Superior analgesic for post-op pain, opioid-sparing, much cheaper', cons:'Avoid in renal impairment, GI bleed risk, max 5-day use', aiNote:'Not suitable for fever. Consult physician before switching for antipyretic indication.' },
+      { name:'Tramadol 50mg IV', unit:'2mL Ampoule', estimatedCost:28, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Neon Laboratories', savingsVsOriginal:-85, pros:'Effective for moderate-severe pain, cheap, widely stocked', cons:'Opioid — requires Schedule H2 prescription, nausea risk', aiNote:'Schedule H2 drug. Only for pain management, not antipyresis. Requires additional documentation.' }
+    ]
+  },
+  'INV-0007': { // Surgical Sutures 2-0
+    verdict: "Ethicon Vicryl 2-0 is the gold-standard absorbable substitute. Monocryl offers faster absorption and better cosmesis. PDS II is preferred for deep tissue where longer support is needed.",
+    substitutes: [
+      { name:'Ethicon Vicryl 2-0 (Polyglactin)', unit:'Box of 12 (36" needle)', estimatedCost:580, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Ethicon India (J&J)', savingsVsOriginal:7, pros:'Industry standard, excellent tissue reactivity, 70-day absorption', cons:'Slightly higher cost', aiNote:'Direct substitute. Same absorption profile as Surgicryl. Surgeons may prefer handling characteristics.' },
+      { name:'Monocryl 2-0 (Poliglecaprone)', unit:'Box of 12 (27" needle)', estimatedCost:720, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Ethicon India', savingsVsOriginal:33, pros:'Monofilament — less infection risk, smoother passage, better cosmesis', cons:'Faster absorption (91-119 days) — not for load-bearing closure', aiNote:'Preferred for subcuticular skin closure. Not ideal for deep fascial layers.' },
+      { name:'B.Braun Safil 2-0 (Polyglycolic Acid)', unit:'Box of 12', estimatedCost:420, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'B.Braun India', savingsVsOriginal:-22, pros:'Cost-effective, good tensile strength, predictable absorption', cons:'Braided — slightly more tissue drag', aiNote:'Good budget substitute. CDSCO Class C device. Surgeon preference should be confirmed before bulk order.' }
+    ]
+  },
+  'INV-0008': { // Ringer Lactate Solution 500mL
+    verdict: "Normal Saline 0.9% 500mL is the most readily available isotonic substitute. Dextrose 5% 500mL is preferred when caloric support is needed. PlasmaLyte A is the best balanced crystalloid for critical care resuscitation.",
+    substitutes: [
+      { name:'Normal Saline 0.9% 500mL', unit:'500mL IV Bag', estimatedCost:38, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Fresenius Kabi India', savingsVsOriginal:-34, pros:'Universal isotonic fluid, no lactate contraindication, cheaper', cons:'Hyperchloremic acidosis risk with large volumes, no buffer', aiNote:'Switch to NS for patients with liver failure where lactate metabolism is impaired. Monitor chloride in large-volume resuscitation.' },
+      { name:'Dextrose Normal Saline (DNS) 500mL', unit:'500mL IV Bag', estimatedCost:48, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Baxter India', savingsVsOriginal:-17, pros:'Provides caloric support + electrolytes, good for maintenance', cons:'Not suitable for hyponatremia, diabetic patients, or large-volume resuscitation', aiNote:'Use for maintenance fluid with caloric need. Not a resuscitation fluid — use RL or NS for volume replacement.' },
+      { name:'PlasmaLyte A 1L IV Bag', unit:'1L Bag', estimatedCost:165, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Baxter India', savingsVsOriginal:184, pros:'Most physiologically balanced crystalloid, pH 7.4, reduces AKI in sepsis (SMART trial)', cons:'Most expensive crystalloid, not widely available in all distributors', aiNote:'Preferred in ICU for large-volume resuscitation and sepsis. Evidence shows improved renal outcomes vs NS. Intensivist approval for routine switch.' }
+    ]
+  },
+  'INV-0009': { // Ondansetron 4mg
+    verdict: "Generic Ondansetron 4mg (Emeset by Cipla) is the direct bioequivalent at 50% lower cost. Metoclopramide 10mg is the cheapest prokinetic alternative. Granisetron 1mg is preferred for chemotherapy-induced nausea.",
+    substitutes: [
+      { name:'Emeset 4mg (Ondansetron Generic)', unit:'2mL Ampoule', estimatedCost:18, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Cipla Ltd', savingsVsOriginal:-50, pros:'Same molecule, CDSCO bioequivalent, 50% cheaper than branded Zofran', cons:'Generic brand — patient may query brand change', aiNote:'Direct 1:1 switch. Identical efficacy. Most cost-effective option for post-op and chemo nausea. Bulk procurement recommended.' },
+      { name:'Metoclopramide 10mg IV', unit:'2mL Ampoule', estimatedCost:8, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Sun Pharma', savingsVsOriginal:-78, pros:'Cheapest antiemetic, prokinetic benefit, IV form available for ICU use', cons:'EPS risk (especially in elderly and children), not serotonin-based', aiNote:'Different mechanism — dopamine antagonist. Avoid in Parkinson patients. Good for gastroparesis-related nausea in ICU.' },
+      { name:'Granisetron 1mg IV (Kytril)', unit:'1mL Ampoule', estimatedCost:185, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Roche India', savingsVsOriginal:400, pros:'Longer duration (24hr), superior for cisplatin-based chemo, once-daily IV dosing', cons:'High cost, not cost-effective for routine post-op nausea', aiNote:'Reserve for high-emetogenic chemotherapy regimens. Oncology team approval needed for routine switch.' }
+    ]
+  },
+  'INV-0010': { // Surgical Mask N95
+    verdict: "3M Aura 9320+ is the best N95 equivalent with NIOSH approval. Honeywell DF300 N95 is the most cost-effective option with equivalent filtration. BIS-certified domestic respirators from Venus Safety are the cheapest bulk option.",
+    substitutes: [
+      { name:'3M Aura 9320+ N95 Respirator', unit:'Box of 20', estimatedCost:420, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'3M India', savingsVsOriginal:5, pros:'NIOSH N95 + EN149 FFP2 dual certified, cup design reduces dead space, comfortable', cons:'Slightly higher cost vs current supplier', aiNote:'Gold standard for aerosol-generating procedures. Verified fit testing recommended for OT and ICU staff.' },
+      { name:'Honeywell DF300 N95 Respirator', unit:'Box of 20', estimatedCost:360, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Honeywell India', savingsVsOriginal:-10, pros:'10% cheaper, NIOSH certified, low breathing resistance, flat-fold design', cons:'Different fit profile — fit test required for staff', aiNote:'Good bulk procurement option. Request batch NIOSH certification before purchase.' },
+      { name:'Venus V-44+ N95 Respirator (BIS)', unit:'Box of 25', estimatedCost:280, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Venus Safety India', savingsVsOriginal:-30, pros:'BIS IS 9473 certified, cheapest, Made in India, good availability', cons:'Not NIOSH — may not meet all international protocols', aiNote:'BIS-certified equivalent under Indian standards. Acceptable for general ward use. Verify filtration efficiency certificate.' }
+    ]
+  },
+  'INV-0011': { // Ciprofloxacin 500mg
+    verdict: "Levofloxacin 500mg is the best substitute with superior respiratory tract penetration. Norfloxacin 400mg is suitable for UTI indications at lower cost. Ofloxacin 200mg can be used for mild to moderate infections.",
+    substitutes: [
+      { name:'Levofloxacin 500mg', unit:'Tablet / Strip×10', estimatedCost:65, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Sun Pharma', savingsVsOriginal:44, pros:'Broader coverage including atypicals, once-daily dosing, better lung penetration', cons:'Higher cost, photosensitivity risk', aiNote:'Preferred for RTI and CAP. QTc monitoring advised. Once daily improves compliance.' },
+      { name:'Norfloxacin 400mg', unit:'Tablet / Strip×10', estimatedCost:22, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Cipla Ltd', savingsVsOriginal:-52, pros:'Cheap, excellent for UTI, widely available', cons:'Limited systemic distribution, only for uncomplicated UTI', aiNote:'Use only for lower UTI. Not appropriate for systemic or respiratory infections. Significant cost saving for UTI ward.' },
+      { name:'Ofloxacin 200mg', unit:'Tablet / Strip×10', estimatedCost:28, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Ranbaxy (Sun)', savingsVsOriginal:-39, pros:'Similar spectrum to ciprofloxacin, good oral bioavailability, cheaper', cons:'Less active against Pseudomonas compared to ciprofloxacin', aiNote:'Suitable for most indications except Pseudomonal infections. Good empiric choice for mild-moderate infections.' }
+    ]
+  },
+  'INV-0012': { // Morphine Sulphate 10mg/mL
+    verdict: "Fentanyl 50mcg/mL IV is the best substitute for acute pain and procedural analgesia with faster onset. Pethidine 50mg/mL is widely stocked and suitable for moderate pain. Tramadol 100mg IV is the non-Schedule I option for moderate pain.",
+    substitutes: [
+      { name:'Fentanyl Citrate 50mcg/mL Injection', unit:'2mL Ampoule', estimatedCost:85, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Troikaa Pharma', savingsVsOriginal:null, pros:'100× more potent, faster onset (1-2 min), shorter duration — ideal for procedural pain', cons:'Schedule H2 — strict documentation, rapid respiratory depression risk', aiNote:'Fentanyl 100mcg = Morphine 10mg analgesic equivalent. Requires anesthesiologist oversight for IV use.' },
+      { name:'Pethidine 50mg/mL Injection', unit:'2mL Ampoule', estimatedCost:38, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Neon Laboratories', savingsVsOriginal:-55, pros:'Lower cost, familiar drug, less nausea than morphine, effective for visceral pain', cons:'Norpethidine metabolite — avoid in renal failure and elderly, seizure risk', aiNote:'Schedule X drug. Pethidine 75-100mg IM = Morphine 10mg. Avoid in renal impairment. Narcotic register required.' },
+      { name:'Tramadol 100mg IV', unit:'2mL Ampoule', estimatedCost:22, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Neon Laboratories', savingsVsOriginal:-73, pros:'Cheapest option, non-narcotic classification in some states, moderate efficacy', cons:'Weaker analgesia than morphine, not suitable for severe pain', aiNote:'Schedule H2. Only for moderate pain (NRS 4-6). Not appropriate for severe post-op or cancer pain management.' }
+    ]
+  },
+  'INV-0013': { // Foley Catheter 16Fr
+    verdict: "Bard Bardex 16Fr is the gold-standard silicone Foley catheter. Coloplast 16Fr is preferred for long-term catheterisation. Teleflex Rusch 16Fr is the most cost-effective sterile alternative.",
+    substitutes: [
+      { name:'Bard Bardex Silicone Foley Catheter 16Fr', unit:'Single pack sterile', estimatedCost:145, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'BD India', savingsVsOriginal:0, pros:'100% silicone, lowest encrustation risk, ideal for long-term use, CDSCO approved', cons:'Same price as current — no cost saving', aiNote:'Direct substitute. Silicone preferred over latex for catheter duration >7 days. Verify 10mL balloon volume compatibility.' },
+      { name:'Coloplast Speedicath 16Fr', unit:'Single pack sterile', estimatedCost:185, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Coloplast India', savingsVsOriginal:48, pros:'Hydrophilic coating, atraumatic insertion, lower UTI risk for long-term', cons:'Higher cost, primarily designed for intermittent catheterisation', aiNote:'Best for patients with recurrent CAUTI. Evidence shows 40% UTI reduction vs standard latex. Urology team approval for protocol change.' },
+      { name:'Teleflex Rusch Gold 16Fr', unit:'Single pack sterile', estimatedCost:95, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Teleflex India', savingsVsOriginal:-24, pros:'Hydrogel-coated latex, soft tip, 24% cost saving, CDSCO Class C device', cons:'Latex — screen for latex allergy before use', aiNote:'Good budget option. Hydrogel coating reduces friction and CAUTI risk vs plain latex. Latex allergy must be ruled out pre-procedure.' }
+    ]
+  },
+  'INV-0014': { // Amlodipine 5mg
+    verdict: "Generic Amlodipine 5mg (Amlong by Micro Labs) is the cheapest direct bioequivalent. Nifedipine SR 20mg is a suitable CCB substitute. Felodipine 5mg offers additional vasoselectivity for angina.",
+    substitutes: [
+      { name:'Amlong 5mg (Amlodipine Generic)', unit:'Tablet / Strip×15', estimatedCost:12, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Micro Labs India', savingsVsOriginal:-40, pros:'Same molecule, 40% cheaper, CDSCO bioequivalent, once-daily', cons:'Generic brand may require patient counseling', aiNote:'Direct 1:1 switch. Amlodipine has long half-life (35-50hrs) — missing 1-2 doses rarely causes rebound. Monitor ankle edema.' },
+      { name:'Nifedipine SR 20mg', unit:'Tablet / Strip×10', estimatedCost:22, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Sun Pharma', savingsVsOriginal:10, pros:'Good for Raynaud phenomenon, cost-effective, reflex tachycardia less with SR form', cons:'Twice-daily dosing, more peripheral edema than amlodipine', aiNote:'Do not crush SR tablets. Avoid in acute MI. Suitable for hypertension and stable angina.' },
+      { name:'Felodipine 5mg (Plendil)', unit:'Tablet / Strip×10', estimatedCost:38, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'AstraZeneca India', savingsVsOriginal:90, pros:'High vascular selectivity, less myocardial depression, good for HF + hypertension', cons:'Grapefruit interaction, higher cost', aiNote:'Preferred in heart failure with hypertension where amlodipine is not tolerated. Extended-release only — do not crush.' }
+    ]
+  },
+  'INV-0015': { // Pulse Oximeter Probe (Equipment)
+    verdict: "Nellcor DS100A reusable sensor is the direct OEM replacement. Masimo LNCS DCI is preferred for low-perfusion and motion tolerance. Generic compatible probes are the most cost-effective option for routine wards.",
+    substitutes: [
+      { name:'Nellcor DS100A Reusable Clip Sensor', unit:'Reusable clip-type', estimatedCost:1850, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Nellcor India', savingsVsOriginal:0, pros:'OEM replacement, guaranteed compatibility with Nellcor monitors, 2-year warranty', cons:'Same price, lead time 3-5 days', aiNote:'Direct OEM substitute. Request serial number compatibility check before ordering. Verify connector type (DB9 vs Lemo).' },
+      { name:'Masimo LNCS DCI Reusable Sensor', unit:'Reusable clip-type', estimatedCost:3200, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Masimo India', savingsVsOriginal:73, pros:'Superior motion tolerance, low-perfusion accuracy, SET technology — fewer false alarms in ICU', cons:'Requires Masimo-compatible monitor or adapter, higher cost', aiNote:'Best for ICU where motion artifact is common. May require MARS adapter for Nellcor monitors (₹8,500 one-time). Long-term cost saving through fewer false alarms and probe changes.' },
+      { name:'Compatible OEM Clip Probe (Nellcor-type)', unit:'Reusable clip-type', estimatedCost:650, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'BPL Medical India', savingsVsOriginal:-65, pros:'Cheapest option, 65% cost saving, BIS IS 13450 certified, suitable for general wards', cons:'Shorter lifespan vs OEM, accuracy may vary in low perfusion states', aiNote:'Acceptable for routine SpO2 monitoring in stable ward patients. Not recommended for ICU or critical monitoring. Verify ISO 80601-2-61 certification before purchase.' }
+    ]
+  },
+  'INV-0016': { // Dextrose 25% 500mL
+    verdict: "Dextrose 50% 50mL IV push is the fastest hypoglycemia correction option. DNS (Dextrose 5% + NaCl) 500mL is the preferred maintenance fluid bridge. Dextrose 10% 500mL is the safer slow-correction alternative for moderate hypoglycemia.",
+    substitutes: [
+      { name:'Dextrose 50% Injection 50mL', unit:'50mL Bottle', estimatedCost:28, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Baxter India', savingsVsOriginal:-61, pros:'Fastest correction for severe hypoglycemia, small volume, immediate IV push', cons:'Hypertonic — risk of vein irritation and extravasation, must dilute if not central access', aiNote:'For severe hypoglycemia (BG <40mg/dL): 50mL D50 IV push = 25g glucose. Always recheck BG at 15 min. Follow with D10 infusion.' },
+      { name:'Dextrose 10% 500mL IV Bag', unit:'500mL IV Bag', estimatedCost:55, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Fresenius Kabi India', savingsVsOriginal:-24, pros:'Safer slow correction, peripheral vein compatible, preferred for moderate hypoglycemia', cons:'Slower glucose rise vs D25 — not for severe symptomatic hypoglycemia', aiNote:'Preferred for moderate hypoglycemia (BG 40-70mg/dL) or post-correction maintenance. Rate: 100-200mL/hr. Monitor BG hourly.' },
+      { name:'DNS (Dextrose 5% + NaCl 0.9%) 500mL', unit:'500mL IV Bag', estimatedCost:48, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Baxter India', savingsVsOriginal:-33, pros:'Maintenance fluid with glucose + electrolytes, widely stocked', cons:'Only 25g glucose per 500mL — not adequate for active hypoglycemia correction', aiNote:'Use only for maintenance after hypoglycemia is corrected. Not for acute BG correction. Good bridge fluid for NPO patients.' }
+    ]
+  },
+  'INV-0017': { // Betadine Solution 500mL (Povidone Iodine)
+    verdict: "Chlorhexidine 4% solution is the best evidence-based substitute with longer residual activity. Hydrogen Peroxide 3% is suitable for wound cleaning. Chlorhexidine + Cetrimide combination is ideal for surgical site preparation.",
+    substitutes: [
+      { name:'Chlorhexidine Gluconate 4% Solution', unit:'500mL Bottle', estimatedCost:85, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Reckitt India', savingsVsOriginal:-37, pros:'Longer residual activity (6hrs), superior for surgical site prep, alcohol-compatible', cons:'Not suitable if iodine is specifically required, skin allergy risk', aiNote:'WHO recommended for surgical site disinfection. Evidence shows lower SSI rates vs povidone iodine. Preferred for pre-op prep.' },
+      { name:'Chlorhexidine + Cetrimide Solution', unit:'500mL Bottle', estimatedCost:72, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Reckitt India', savingsVsOriginal:-47, pros:'Broad spectrum including fungi, good for wound irrigation, cheap', cons:'Ototoxic — do not use near ears, not for body cavities', aiNote:'Savlon equivalent. Good for wound cleaning and instrument soaking. Cetrimide provides detergent action for debris removal.' },
+      { name:'Hydrogen Peroxide 3% Solution', unit:'500mL Bottle', estimatedCost:38, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Merck India', savingsVsOriginal:-72, pros:'Cheapest antiseptic, mechanical debridement via oxygen release, no staining', cons:'Tissue toxic in high concentration, impairs healing if overused', aiNote:'Use sparingly for initial wound debridement only. Not for routine use — hydrogen peroxide impairs granulation tissue. Single use per wound.' }
+    ]
+  },
+  'INV-0018': { // Atorvastatin 20mg
+    verdict: "Generic Atorvastatin 20mg (Atorva by Zydus) is the cheapest direct bioequivalent. Rosuvastatin 10mg offers better LDL reduction at equivalent doses. Simvastatin 20mg is the cheapest option for stable patients.",
+    substitutes: [
+      { name:'Atorva 20mg (Atorvastatin Generic)', unit:'Tablet / Strip×10', estimatedCost:22, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Zydus Cadila', savingsVsOriginal:-31, pros:'Same molecule, CDSCO bioequivalent, 31% cheaper than branded Lipitor', cons:'Different brand — patient counseling needed', aiNote:'Direct 1:1 switch. Monitor LFT at 6 weeks. Preferred for long-term cost optimization in cardiology ward.' },
+      { name:'Rosuvastatin 10mg', unit:'Tablet / Strip×10', estimatedCost:42, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'AstraZeneca India', savingsVsOriginal:31, pros:'Superior LDL lowering per mg, less muscle side effects, renal-safe, no CYP3A4 interactions', cons:'Different potency — dose conversion needed', aiNote:'Rosuvastatin 10mg ≈ Atorvastatin 20mg in LDL reduction. Preferred in CKD and transplant patients on cyclosporine.' },
+      { name:'Simvastatin 20mg', unit:'Tablet / Strip×10', estimatedCost:15, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Sun Pharma', savingsVsOriginal:-53, pros:'Cheapest statin, widely available, established safety profile', cons:'Less potent, more myopathy risk, drug interactions with CYP3A4', aiNote:'Use only for stable primary prevention. Avoid in high-risk ACS patients. Check drug interactions before prescribing.' }
+    ]
+  },
+  'INV-0019': { // Heparin 5000 IU/mL
+    verdict: "Enoxaparin 40mg (Clexane) is the best LMWH substitute requiring no aPTT monitoring. Fondaparinux 2.5mg is preferred for HIT risk. Dalteparin 5000IU is the alternative LMWH with once-daily dosing.",
+    substitutes: [
+      { name:'Clexane 40mg (Enoxaparin)', unit:'0.4mL Pre-filled syringe', estimatedCost:310, availability:'Moderate', inHospitalStock:true, currentHospitalQty:14, therapeuticEquivalence:'Near-equivalent', supplier:'Sanofi India', savingsVsOriginal:null, pros:'Already in hospital stock (INV-0029), no aPTT monitoring needed, once-daily SC', cons:'Critical stock level — order urgently, higher cost than unfractionated heparin', aiNote:'Critical: Clexane stock is at 14/80 units (Critical status). For DVT prophylaxis, Enoxaparin 40mg SC OD = Heparin 5000IU SC BD/TDS.' },
+      { name:'Fondaparinux 2.5mg (Arixtra)', unit:'0.5mL Pre-filled syringe', estimatedCost:580, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'GSK India', savingsVsOriginal:null, pros:'No HIT risk, once-daily SC, superior for orthopedic DVT prophylaxis', cons:'Most expensive, contraindicated in CrCl <20mL/min, no reversal agent', aiNote:'Preferred if HIT is suspected or confirmed. Antifactor Xa-only mechanism. Cannot reverse with protamine — important safety consideration.' },
+      { name:'Dalteparin 5000IU (Fragmin)', unit:'0.2mL Pre-filled syringe', estimatedCost:420, availability:'Limited', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Pfizer India', savingsVsOriginal:null, pros:'Once-daily dosing, validated in cancer-associated thrombosis, less HIT risk', cons:'Limited availability in India, expensive', aiNote:'Preferred for cancer patients with DVT (CLOT trial data). Limited Indian supplier network — check distributor availability before ordering.' }
+    ]
+  },
+  'INV-0020': { // Endotracheal Tube 7.5
+    verdict: "Smiths Medical Portex 7.5mm is the direct OEM substitute. Mallinckrodt Hi-Lo Evac ETT is preferred for VAP prevention. Covidien TaperGuard offers the best cuff seal for ICU ventilation.",
+    substitutes: [
+      { name:'Smiths Medical Portex 7.5 ETT (Cuffed)', unit:'Single use, cuffed', estimatedCost:265, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Smiths Medical India', savingsVsOriginal:-7, pros:'Direct size equivalent, high-volume low-pressure cuff, smooth bevel tip, widely used in India', cons:'Slight cost saving only — same performance', aiNote:'Direct OEM substitute. Verify ID/OD and connector compatibility with ventilator circuit before stocking. CDSCO Class C device.' },
+      { name:'Mallinckrodt Hi-Lo Evac ETT 7.5', unit:'Single use, cuffed with suction port', estimatedCost:420, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Medtronic India', savingsVsOriginal:47, pros:'Subglottic suction port prevents VAP, HVLP cuff, evidence-based in ICU protocols', cons:'Higher cost, requires vacuum source for suction port', aiNote:'Meta-analyses show 50% VAP reduction with subglottic suction ETTs. Cost-justified for expected ICU ventilation >48 hrs. Intensivist approval.' },
+      { name:'Covidien TaperGuard ETT 7.5', unit:'Single use, cuffed', estimatedCost:310, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Covidien India', savingsVsOriginal:9, pros:'Tapered cuff design reduces microaspiration, better seal at low pressures, soft tip', cons:'Slightly higher cost, limited distributor availability in Tier 2 cities', aiNote:'TaperGuard cuff shape reduces micro-aspiration without subglottic drainage. Good balance of VAP prevention and cost vs Hi-Lo Evac.' }
+    ]
+  },
+  'INV-0021': { // Pantoprazole 40mg
+    verdict: "Omeprazole 40mg IV is the most cost-effective PPI equivalent. Esomeprazole 40mg offers superior acid suppression for GI bleed. Rabeprazole 20mg is suitable for step-down or oral therapy.",
+    substitutes: [
+      { name:'Omeprazole 40mg IV / 20mg Oral', unit:'Tablet / Strip×10 or IV Vial', estimatedCost:48, availability:'Readily Available', inHospitalStock:true, currentHospitalQty:190, therapeuticEquivalence:'Near-equivalent', supplier:'Cipla Ltd', savingsVsOriginal:-43, pros:'Cheapest PPI, already stocked in hospital (INV-0021), effective acid suppression', cons:'Slightly shorter duration of action vs pantoprazole', aiNote:'Already stocked as Omeprazole oral (INV-0024). IV form from same supplier. Good bridge while pantoprazole on order. Omeprazole 20mg oral ≈ Pantoprazole 40mg.' },
+      { name:'Esomeprazole 40mg (Nexium)', unit:'Tablet / Strip×10', estimatedCost:185, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'AstraZeneca India', savingsVsOriginal:118, pros:'Superior 24hr acid suppression, preferred for active GI bleeding (Rockall score)', cons:'Most expensive PPI option', aiNote:'Preferred for high-risk GI bleed — 80mg bolus then 8mg/hr IV infusion protocol. Gastroenterology consult before switch.' },
+      { name:'Rabeprazole 20mg', unit:'Tablet / Strip×10', estimatedCost:38, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Lupin Ltd', savingsVsOriginal:-5, pros:'Fastest onset of all PPIs, minimal CYP2C19 drug interactions, good for H. pylori eradication', cons:'Higher cost vs omeprazole generic', aiNote:'Preferred when patient is on clopidogrel (cardiac patients) — rabeprazole has least CYP2C19 competition. Good for helicobacter regimens.' }
+    ]
+  },
+  'INV-0022': { // Syringe 10mL Luer Lock
+    verdict: "BD Plastipak 10mL luer-lock is the gold standard. Dispovan 10mL is the most widely used Indian brand. Hindustan Syringes 10mL is the cheapest BIS-certified domestic option.",
+    substitutes: [
+      { name:'Dispovan 10mL Syringe (Luer Slip)', unit:'Box of 100', estimatedCost:72, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'HLL Lifecare Ltd', savingsVsOriginal:-15, pros:'Most widely used Indian brand, BIS IS 10258 certified, smooth plunger, good dead-space volume', cons:'Luer slip — avoid for high-pressure IV push requiring luer-lock', aiNote:'Suitable for general use. Bulk procurement discount via HLL Lifecare (CGHS rate contract). 15% cost saving over current Dispovan box pricing.' },
+      { name:'Hindustan Syringes (HSG) 10mL', unit:'Box of 100', estimatedCost:58, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Hindustan Syringes India', savingsVsOriginal:-32, pros:'Cheapest BIS-certified option, ISO 13485, Made in India, government empaneled', cons:'Less smooth plunger movement vs BD/Dispovan', aiNote:'CGHS approved. Significant cost savings for All Wards high-volume usage. Request ISO 13485 certificate with batch.' },
+      { name:'Terumo 10mL Luer Lock Syringe', unit:'Box of 100', estimatedCost:110, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Terumo India', savingsVsOriginal:29, pros:'True luer-lock design, excellent plunger smoothness, clear barrel, ISO 11608 certified', cons:'Premium priced, 29% more than current stock', aiNote:'Preferred for precise medication delivery (chemotherapy, diluted IV medications). Luer-lock critical for high-pressure injections and arterial lines.' }
+    ]
+  },
+  'INV-0023': { // Ceftriaxone 1g
+    verdict: "Cefotaxime 1g IV is the best near-equivalent with similar spectrum and 30% cost savings. Cefoperazone-Sulbactam is preferred for resistant gram-negatives. Meropenem should be reserved only when sensitivity testing confirms need.",
+    substitutes: [
+      { name:'Cefotaxime 1g IV', unit:'Vial (powder for injection)', estimatedCost:62, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Cipla Ltd', savingsVsOriginal:-29, pros:'Similar broad-spectrum coverage, cheaper, multiple daily dosing helps titration', cons:'Shorter half-life requires BD/TDS dosing vs OD for ceftriaxone', aiNote:'Good empirical substitute. Dose: 1g IV BD. Switch with physician approval. Culture-guided preferred.' },
+      { name:'Cefoperazone + Sulbactam 1.5g IV', unit:'Vial (powder for injection)', estimatedCost:145, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Pfizer India', savingsVsOriginal:66, pros:'Broader gram-negative coverage, includes Acinetobacter, beta-lactamase stable', cons:'Higher cost, not for first-line empirical use', aiNote:'Reserve for ESBL/resistant gram-negative infections. Consult microbiologist before switch.' },
+      { name:'Ampicillin + Sulbactam 1.5g IV', unit:'Vial (powder for injection)', estimatedCost:78, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Sun Pharma', savingsVsOriginal:-10, pros:'Cost-effective, covers anaerobes, good for polymicrobial infections', cons:'Narrower aerobic gram-negative coverage vs ceftriaxone', aiNote:'Suitable for abdominal or mixed infections. Not equivalent for meningitis or severe sepsis without sensitivity data.' }
+    ]
+  },
+  'INV-0024': { // Omeprazole 20mg
+    verdict: "Generic Omeprazole 20mg (Ocid by Cipla) is the direct substitute at lower cost. Pantoprazole 40mg is preferred for IV equivalent or when clopidogrel interaction is a concern. Rabeprazole 20mg offers pH-independent activation and fewer drug interactions.",
+    substitutes: [
+      { name:'Ocid 20mg (Omeprazole Generic)', unit:'Capsule / Strip×10', estimatedCost:8, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Cipla Ltd', savingsVsOriginal:-47, pros:'Same molecule, 47% cheaper, CDSCO bioequivalent, widely stocked', cons:'Capsule form — must not be crushed for NG tube patients', aiNote:'Direct 1:1 switch. For NG tube administration, dissolve granules in water (do not crush the capsule). Good bulk procurement candidate.' },
+      { name:'Pantoprazole 40mg Tablet', unit:'Tablet / Strip×10', estimatedCost:22, availability:'Readily Available', inHospitalStock:true, currentHospitalQty:190, therapeuticEquivalence:'Near-equivalent', supplier:'Sun Pharma', savingsVsOriginal:47, pros:'More stable at gastric pH, fewer drug interactions (no CYP2C19 competition), available as IV', cons:'Higher dose than omeprazole 20mg — check equivalence', aiNote:'Pantoprazole 40mg ≈ Omeprazole 20mg for H.pylori and GERD. Less clopidogrel interaction than omeprazole — preferred with dual antiplatelet therapy.' },
+      { name:'Rabeprazole 20mg', unit:'Tablet / Strip×10', estimatedCost:38, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Lupin Ltd', savingsVsOriginal:153, pros:'Fastest onset of all PPIs, pH-independent activation, minimal drug interactions', cons:'Higher cost vs generic omeprazole', aiNote:'Preferred when patient is on clopidogrel (cardiac) — rabeprazole has least CYP2C19 competition. Good for helicobacter eradication regimens.' }
+    ]
+  },
+  'INV-0025': { // Defibrillator Pads (Adult)
+    verdict: "Zoll OneStep pads are the direct equivalent for Zoll defibrillators. Philips HeartStart pads are the alternative for multifunction monitors. Defibtech pads are the most cost-effective universal option.",
+    substitutes: [
+      { name:'Zoll OneStep CPR Electrode Pads (Adult)', unit:'Pair / Single use', estimatedCost:2200, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Zoll India', savingsVsOriginal:-8, pros:'Exact OEM replacement, CPR feedback integrated, fits Zoll R/E series directly', cons:'Must verify compatibility with specific Zoll model in use', aiNote:'For Zoll defibrillators only. Verify model number (R Series, X Series, etc.) before ordering. Check expiry — pads degrade even unopened.' },
+      { name:'Philips SMART Pads II (Universal Adult)', unit:'Pair / Single use', estimatedCost:2800, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Philips India', savingsVsOriginal:17, pros:'Compatible with Philips HeartStart series, universal gel, CPR coaching enabled', cons:'More expensive, verify connector compatibility with hospital equipment', aiNote:'If hospital has mixed defibrillator fleet, standardizing to universal pads reduces stockout risk. Check AED vs manual defibrillator compatibility.' },
+      { name:'Defibtech Adult Defibrillation Pads', unit:'Pair / Single use', estimatedCost:1800, availability:'Limited', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Defibtech India', savingsVsOriginal:-25, pros:'Most cost-effective, meets IEC 60601 standard, 2-year shelf life', cons:'Limited distribution in India, compatibility must be verified per device', aiNote:'Budget option for high-usage departments. Always maintain minimum 4 spare pairs in crash cart. Defibrillator pads are critical safety stock — emergency procurement protocol.' }
+    ]
+  },
+  'INV-0026': { // Sodium Chloride 0.9% 1L
+    verdict: "Baxter NS 500mL is the most flexible alternative for dose titration. Ringer's Lactate 1L is preferred for surgical patients. PlasmaLyte A is the best balanced crystalloid for critical care.",
+    substitutes: [
+      { name:"Ringer's Lactate 1L IV Bag", unit:'1L Bag', estimatedCost:55, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Baxter India', savingsVsOriginal:15, pros:'More physiological (balanced electrolytes), less hyperchloremic acidosis risk, preferred for surgery', cons:'Avoid in liver failure — lactate conversion impaired', aiNote:'Switch to RL for surgical or trauma patients. NS still preferred for neurosurgery (isotonic, no lactate interference with lactate monitoring).' },
+      { name:'Normal Saline 0.9% 500mL', unit:'500mL IV Bag', estimatedCost:38, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Fresenius Kabi India', savingsVsOriginal:-21, pros:'Exact same solution, smaller volume for titrated infusions, same supplier network', cons:'Two bags needed per 1L equivalent — more nursing time for changes', aiNote:'Order 500mL packs as bridge when 1L bags are delayed. Same sodium and chloride concentration. Cost-effective for small-volume top-ups.' },
+      { name:'PlasmaLyte A 1L IV Bag', unit:'1L Bag', estimatedCost:165, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Baxter India', savingsVsOriginal:244, pros:'Most physiologically balanced crystalloid, pH 7.4, reduces AKI in sepsis (SMART trial)', cons:'Most expensive crystalloid, not widely available in all distributors', aiNote:'Preferred in ICU for large-volume resuscitation and sepsis. Evidence shows improved renal outcomes vs NS. Intensivist approval for routine switch.' }
+    ]
+  },
+  'INV-0027': { // Doxycycline 100mg
+    verdict: "Azithromycin 500mg is the best single-dose equivalent for atypical infections. Minocycline 100mg is the closest tetracycline class substitute. Levofloxacin 500mg covers similar spectrum with better oral bioavailability.",
+    substitutes: [
+      { name:'Minocycline 100mg', unit:'Capsule / Strip×10', estimatedCost:42, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Wyeth India', savingsVsOriginal:50, pros:'Same tetracycline class, superior CNS penetration, effective vs MRSA', cons:'Higher cost, vestibular side effects, avoid in renal failure', aiNote:'Direct tetracycline substitute. Note: Minocycline has anti-inflammatory properties — useful for acne and rheumatoid conditions.' },
+      { name:'Azithromycin 500mg', unit:'Tablet / Strip×3', estimatedCost:65, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Cipla Ltd', savingsVsOriginal:132, pros:'Single daily dose, covers atypicals, macrolide — different class (no tetracycline allergy issue)', cons:'Different mechanism — confirm clinical indication before switch', aiNote:'Suitable for RTI, atypical pneumonia, STI indications. QTc prolongation monitoring needed. Not for rickettsial or Brucella infections.' },
+      { name:'Levofloxacin 500mg', unit:'Tablet / Strip×10', estimatedCost:65, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Partial', supplier:'Sun Pharma', savingsVsOriginal:132, pros:'Broader spectrum, once-daily, excellent bioavailability, covers atypicals and gram-negatives', cons:'Fluoroquinolone class — reserve for resistant cases, QTc monitoring', aiNote:'Different antibiotic class. Use when tetracyclines contraindicated (e.g., pregnancy, pediatrics) or when gram-negative coverage additionally needed.' }
+    ]
+  },
+  'INV-0028': { // IV Cannula 20G
+    verdict: "Terumo Surflo 20G is already stocked in the hospital and is the direct equivalent. BD Venflon 20G is the OEM option. Nipro 20G is the most cost-effective alternative.",
+    substitutes: [
+      { name:'Terumo Surflo 20G IV Cannula', unit:'Box of 50', estimatedCost:285, availability:'Readily Available', inHospitalStock:true, currentHospitalQty:280, therapeuticEquivalence:'Exact', supplier:'Terumo India', savingsVsOriginal:-16, pros:'Already available in hospital (INV-0028 same product), same specs, immediate use possible', cons:'Same stock — check if this IS the current product', aiNote:'Verify if current stock IS Terumo brand. If so, this is the current product, not a substitute. Contact BD directly for same-day delivery.' },
+      { name:'BD Venflon Pro Safety 20G', unit:'Box of 50', estimatedCost:395, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'BD India', savingsVsOriginal:16, pros:'Integrated safety mechanism, needlestick protection, smooth insertion, OSHA compliant', cons:'Higher cost, different activation for safety guard', aiNote:'If upgrading to safety cannulas, BD Venflon Pro meets OSHA standards. Good long-term investment reducing sharps injuries.' },
+      { name:'Nipro 20G IV Cannula', unit:'Box of 50', estimatedCost:252, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Nipro India', savingsVsOriginal:-26, pros:'Cheapest CDSCO-certified option, smooth catheter, good blood flashback', cons:'Less premium feel — verify batch quality on receipt', aiNote:'Good emergency procurement option. Request CDSCO manufacturing license copy and batch QC certificate. ISO 10555 certified.' }
+    ]
+  },
+  'INV-0029': { // Clexane 40mg (Enoxaparin)
+    verdict: "Heparin 5000IU SC is the most cost-effective substitute for DVT prophylaxis requiring more frequent dosing. Fondaparinux 2.5mg is the HIT-safe alternative. Dalteparin 5000IU is the once-daily LMWH equivalent.",
+    substitutes: [
+      { name:'Heparin Sodium 5000IU Injection', unit:'1mL Vial', estimatedCost:28, availability:'Readily Available', inHospitalStock:true, currentHospitalQty:45, therapeuticEquivalence:'Near-equivalent', supplier:'Wockhardt India', savingsVsOriginal:-91, pros:'Cheapest anticoagulant, reversible with protamine, in-hospital stock', cons:'BD/TDS dosing vs once-daily for Clexane, aPTT monitoring needed for therapeutic dosing', aiNote:'Already available as Heparin in hospital. For DVT prophylaxis: 5000IU SC TDS. For therapeutic anticoagulation: weight-based IV protocol with aPTT monitoring.' },
+      { name:'Fondaparinux 2.5mg (Arixtra)', unit:'0.5mL Pre-filled syringe', estimatedCost:580, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'GSK India', savingsVsOriginal:87, pros:'Once-daily SC, no HIT risk, superior for orthopedic prophylaxis', cons:'No reversal agent, contraindicated CrCl<20, expensive', aiNote:'If HIT is suspected with Clexane, switch to Fondaparinux immediately. Cannot be reversed with protamine — important emergency consideration.' },
+      { name:'Dalteparin 5000IU (Fragmin)', unit:'0.2mL Pre-filled syringe', estimatedCost:420, availability:'Limited', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Pfizer India', savingsVsOriginal:35, pros:'Once-daily dosing validated in cancer thrombosis (CLOT trial), predictable pharmacokinetics', cons:'Limited Indian availability, expensive', aiNote:'Preferred LMWH for cancer patients with VTE. Limited distributor network in India — confirm availability before prescribing.' }
+    ]
+  },
+  'INV-0030': { // Oxygen Cylinder (Med Grade)
+    verdict: "Concentrator units provide unlimited supply without cylinder dependency. Liquid oxygen Dewar systems are preferred for high-flow ICU requirements. Pipeline PSA oxygen systems eliminate cylinder dependency entirely for the hospital.",
+    substitutes: [
+      { name:'Medical O2 Concentrator 10 LPM (ICU Grade)', unit:'Per unit (permanent)', estimatedCost:45000, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Near-equivalent', supplier:'Philips Respironics India', savingsVsOriginal:null, pros:'Unlimited supply, no refill dependency, 93-95.6% purity, ICU-grade flow', cons:'High capital cost, requires power backup (UPS), periodic filter maintenance', aiNote:'Long-term investment eliminating cylinder supply chain risk. WHO-prequalified models recommended. Requires 15A dedicated power socket and UPS backup.' },
+      { name:'Liquid Oxygen Dewar 50L (VIE)', unit:'50L Dewar vessel', estimatedCost:8500, availability:'Moderate', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Linde India', savingsVsOriginal:null, pros:'Higher oxygen purity (99.5%), same supplier as current (Linde), large volume equivalent to 30+ D-cylinders', cons:'Requires cryogenic storage, specialized handling training', aiNote:'Best for high-consumption wards (ICU, OT). Linde India (current supplier) provides Dewar services. Eliminates frequent cylinder change-overs.' },
+      { name:'Jumbo Oxygen Cylinder J-Type 7000L', unit:'J-type cylinder 7000L', estimatedCost:6200, availability:'Readily Available', inHospitalStock:false, currentHospitalQty:null, therapeuticEquivalence:'Exact', supplier:'Linde India', savingsVsOriginal:38, pros:'3.5× volume of D-type, fewer change-overs, same purity (medical grade), same supplier', cons:'Heavier — requires cylinder trolley, storage space', aiNote:'Practical immediate upgrade from D-type (2000L) to J-type (7000L). Same supplier, no additional approval needed. Reduces change frequency by 3.5×.' }
+    ]
+  }
+};
+
+function showSubstitutes(idx){
+  const r = inventory[idx];
+
+  // Populate original item card
+  document.getElementById('subModalTitle').textContent = '⚖️ Substitutes: ' + r.name;
+  document.getElementById('subOrigIcon').textContent = catEmojis[r.cat] || '💊';
+  document.getElementById('subOrigName').textContent = r.name;
+  document.getElementById('subOrigMeta').textContent =
+    `${r.unit} · ₹${r.cost}/unit · ${r.supplier} · ${r.ward} · Stock: ${r.qty}/${r.max}`;
+  const statusColors = {'Out of Stock':'background:rgba(192,80,74,0.1);color:var(--rose)',Critical:'background:rgba(200,150,62,0.1);color:var(--gold)',Low:'background:rgba(200,150,62,0.08);color:var(--gold)','In Stock':'background:rgba(74,222,128,0.1);color:#16a34a'};
+  document.getElementById('subOrigStatus').setAttribute('style', `font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;${statusColors[r.status]||''}`);
+  document.getElementById('subOrigStatus').textContent = r.status;
+
+  // Show reorder button for non-in-stock items
+  const reorderBtn = document.getElementById('subReorderBtn');
+  if(r.status !== 'In Stock'){ reorderBtn.style.display=''; reorderBtn.onclick = ()=>{ closeModal('modalSubstitutes'); showReorder(idx); }; }
+  else { reorderBtn.style.display='none'; }
+
+  // Open modal
+  document.getElementById('modalSubstitutes').classList.add('open');
+
+  // Get hardcoded data
+  const ai = substitutesDB[r.id];
+
+  if(!ai || !ai.substitutes || !ai.substitutes.length){
+    document.getElementById('subResultArea').innerHTML = `
+      <div class="ai-response-box" style="padding:18px;">
+        <div class="ai-response-text">
+          <strong>✦ Substitute Lookup</strong><br><br>
+          No substitute data found for <strong>${r.name}</strong>.<br><br>
+          • Check formulary for therapeutically equivalent generics from your approved supplier list.<br>
+          • For ${r.cat === 'Medicine' ? 'oral medications' : r.cat === 'Injection' ? 'injectables' : 'consumables'}, consult the treating physician before switching brands.<br>
+          • Verify bioequivalence certification from CDSCO before substitution.
+        </div>
+      </div>`;
+    return;
+  }
+
+  const rankClass = ['sub-best','sub-good','sub-alt'];
+  const rankLabelClass = ['best','good','alt'];
+  const rankLabels = ['🥇 Best Match','🥈 Good Option','🔵 Alternative'];
+  const rankNumClass = ['r1','r2','r3'];
+
+  let html = `<div class="sub-verdict">
+    <div class="sub-verdict-label">✦ AI Verdict</div>
+    <div class="sub-verdict-text">${ai.verdict
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .replace(/cheaper|savings|save|cost.effective/gi, m=>`<span class="hi-green">${m}</span>`)
+      .replace(/risk|caution|limited|warn/gi, m=>`<span class="hi-gold">${m}</span>`)
+    }</div>
+  </div>
+  <div class="sub-grid">`;
+
+  ai.substitutes.slice(0,3).forEach((s, i) => {
+    const savingsSign = (s.savingsVsOriginal||0) < 0 ? '↓' : '↑';
+    const savingsColor = (s.savingsVsOriginal||0) < 0 ? 'green' : 'rose';
+    const savingsPct = Math.abs(s.savingsVsOriginal||0).toFixed(0);
+    const eqColor = s.therapeuticEquivalence === 'Exact' ? 'green' : s.therapeuticEquivalence === 'Near-equivalent' ? 'gold' : 'rose';
+    const stockChip = s.inHospitalStock
+      ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(26,107,90,0.1);color:var(--teal);margin-left:6px;">✓ In Stock (${s.currentHospitalQty||'?'} units)</span>`
+      : '';
+    const safeName = (s.name||'').replace(/'/g, "\\'");
+
+    html += `<div class="sub-card ${rankClass[i]}">
+      <div class="sub-card-head">
+        <div class="sub-rank ${rankNumClass[i]}">${i+1}</div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span class="sub-name">${s.name}</span>
+            <span class="sub-badge ${rankLabelClass[i]}">${rankLabels[i]}</span>
+            ${stockChip}
+          </div>
+          <div style="font-size:11px;color:var(--text-soft);margin-top:3px;">${s.unit} · ${s.supplier}</div>
+        </div>
+      </div>
+      <div class="sub-meta-row">
+        <div class="sub-meta-cell">
+          <div class="sub-meta-label">Est. Cost</div>
+          <div class="sub-meta-val">₹${s.estimatedCost ? s.estimatedCost.toLocaleString('en-IN') : 'N/A'}</div>
+        </div>
+        <div class="sub-meta-cell">
+          <div class="sub-meta-label">vs Original</div>
+          <div class="sub-meta-val ${savingsColor}">${s.savingsVsOriginal != null ? savingsSign+savingsPct+'%' : 'N/A'}</div>
+        </div>
+        <div class="sub-meta-cell">
+          <div class="sub-meta-label">Equivalence</div>
+          <div class="sub-meta-val ${eqColor}" style="font-size:11px;">${s.therapeuticEquivalence}</div>
+        </div>
+        <div class="sub-meta-cell">
+          <div class="sub-meta-label">Availability</div>
+          <div class="sub-meta-val" style="font-size:11px;color:var(--text-mid);">${s.availability}</div>
+        </div>
+      </div>
+      <div class="sub-ai-note">
+        <strong>✦ AI:</strong> ${s.aiNote}<br>
+        <span style="color:#16a34a;">+ ${s.pros}</span><br>
+        <span style="color:var(--rose);">− ${s.cons}</span>
+      </div>
+      <div class="sub-actions">
+        ${s.inHospitalStock
+          ? `<button class="sub-action-btn primary" onclick="showToast('✦ Dispense order created for ${safeName}');closeModal('modalSubstitutes')">✓ Use This Substitute</button>`
+          : `<button class="sub-action-btn primary" onclick="showToast('🛒 Reorder initiated for ${safeName}')">🛒 Order This Instead</button>`}
+        <button class="sub-action-btn" onclick="showToast('📋 ${safeName} added to watchlist')">+ Watchlist</button>
+        <button class="sub-action-btn" onclick="showToast('📄 Formulary note saved for ${safeName}')">📄 Add to Formulary</button>
+      </div>
+    </div>`;
+  });
+
+  html += `</div>`;
+  document.getElementById('subResultArea').innerHTML = html;
+}
+
+// NL SEARCH
+function setNLSearch(el){document.getElementById('nlSearchInput').value=el.textContent;runNLSearch();}
+function runNLSearch(){
+  const q=document.getElementById('nlSearchInput').value.toLowerCase();
+  const r=document.getElementById('nlSearchResult');
+  r.innerHTML=`<div class="ai-loading"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><span>AI is searching inventory...</span></div>`;
+  setTimeout(()=>{
+    let result='';
+    if(q.includes('out of stock')||q.includes('oos')){
+      const items=inventory.filter(r=>r.status==='Out of Stock');
+      result=`<div class="ai-response-box"><div class="ai-response-text"><strong>Out of Stock Items (${items.length}):</strong><br><br>${items.map(r=>`<span class="badge-r">OOS</span> <strong>${r.name}</strong> — Supplier: ${r.supplier} · Last qty: ${r.max} · Ward: ${r.ward}<br>`).join('')}<br>AI recommends placing emergency orders immediately.</div></div>`;
+    } else if(q.includes('expir')){
+      const items=inventory.filter(r=>r.expiry!=='N/A'&&getExpiryClass(r.expiry)!=='exp-ok');
+      result=`<div class="ai-response-box"><div class="ai-response-text"><strong>Items Expiring Soon (${items.length}):</strong><br><br>${items.map(r=>`<span class="badge-y">EXP</span> <strong>${r.name}</strong> — Expiry: ${r.expiry} · Qty: ${r.qty} · Ward: ${r.ward}<br>`).join('')}</div></div>`;
+    } else if(q.includes('antibiotic')||q.includes('icu')){
+      const items=inventory.filter(r=>r.ward==='ICU'||(r.name.toLowerCase().includes('cillin')||r.name.toLowerCase().includes('mycin')||r.name.toLowerCase().includes('cycline')));
+      result=`<div class="ai-response-box"><div class="ai-response-text"><strong>Antibiotics / ICU Items Found (${items.length}):</strong><br><br>${items.map(r=>`<span class="badge-${getStockClass(r)==='ok'?'g':'r'}">${r.status}</span> <strong>${r.name}</strong> — ${r.qty}/${r.max} units · ${r.ward}<br>`).join('')}</div></div>`;
+    } else {
+      result=`<div class="ai-response-box"><div class="ai-response-text">Based on your query, here are the most relevant inventory items. Try asking about <strong>"out of stock items"</strong>, <strong>"expiring medicines"</strong>, or specific drug names for precise results.</div></div>`;
+    }
+    r.innerHTML=result;
+  },1200);
+}
+
+// AI REFRESH
+function refreshAI(btn){
+  btn.classList.add('loading');
+  setTimeout(()=>{btn.classList.remove('loading');showToast('✦ AI insights refreshed successfully');},2000);
+}
+
+// CLOCK
+function updateClock(){
+  const el=document.getElementById('datePill'); if(!el)return;
+  const now=new Date();
+  el.textContent='📅 '+now.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'})+' · '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock,30000);
+
+// TOAST
+function showToast(msg){const t=document.getElementById('toast');t.innerHTML='<span>'+msg+'</span>';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+// FILTERS (stub)
+function toggleFilter(id,type){document.getElementById(id).classList.toggle('on');}
+
+// EXPORT
+function exportCSV(){
+  const hdr='SKU,Name,Category,Qty,Max,Status,Expiry,Supplier,Ward,Cost\n';
+  const rows=inventory.map(r=>`${r.id},"${r.name}",${r.cat},${r.qty},${r.max},${r.status},${r.expiry},"${r.supplier}","${r.ward}",${r.cost}`).join('\n');
+  const blob=new Blob([hdr+rows],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='inventory_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('⬇ Inventory CSV exported successfully');
+}
+
+function toggleAll(cb){document.querySelectorAll('#invTable input[type=checkbox]').forEach(c=>c.checked=cb.checked);}
+
+// PAGE TRANSITION
+(function(){
+  const overlay=document.getElementById('pageOverlay');
+  window.addEventListener('DOMContentLoaded',()=>{overlay.classList.add('active');requestAnimationFrame(()=>{setTimeout(()=>overlay.classList.remove('active'),350);});});
+  document.addEventListener('click',function(e){
+    const link=e.target.closest('a[href]');
+    if(!link)return; const href=link.getAttribute('href');
+    if(!href||href==='#'||href.startsWith('http')||href.startsWith('mailto'))return;
+    if(href===window.location.pathname.split('/').pop())return;
+    e.preventDefault(); overlay.classList.add('active');
+    setTimeout(()=>{window.location.href=href;},280);
+  });
+})();
+
+// INIT
+document.addEventListener('DOMContentLoaded', function(){
+  buildNotifDropdown();
+  buildReorderList();
+  buildExpiryTracker();
+  renderTable(inventory);
+  updateClock();
+});
+</script>
+
+</body>
+</html>

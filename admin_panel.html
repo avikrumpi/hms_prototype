@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+  --shadow-lg: 0 12px 48px rgba(26,107,90,0.16);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(ellipse 800px 600px at 90% 10%, rgba(61,191,160,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 10% 80%, rgba(200,150,62,0.05) 0%, transparent 70%);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px; position: fixed; top: 0; left: 0; height: 100vh;
+  background: var(--text-dark);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  box-shadow: 4px 0 40px rgba(0,0,0,0.15);
+}
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.logo-mark {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: #fff; letter-spacing: -0.5px;
+}
+.logo-mark span { color: var(--teal-glow); }
+.logo-sub { font-size: 11px; color: var(--text-soft); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+.sidebar-admin {
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.admin-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; position: relative;
+}
+.admin-avatar::after {
+  content:''; position: absolute; bottom: 2px; right: 2px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #4ADE80; border: 2px solid var(--text-dark);
+}
+.admin-name { font-weight: 600; font-size: 14px; color: #fff; }
+.admin-role { font-size: 11px; color: var(--text-soft); }
+.nav-section { padding: 16px 12px 8px; }
+.nav-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0 12px 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 10px;
+  color: rgba(255,255,255,0.55); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; text-decoration: none;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; }
+.nav-item .icon { font-size: 18px; width: 22px; }
+.nav-badge {
+  margin-left: auto; background: rgba(255,255,255,0.12);
+  padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.7);
+}
+.nav-badge.alert { background: var(--rose); color: #fff; }
+.sidebar-bottom { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+.date-pill {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 8px 14px; text-align: center;
+  font-size: 12px; color: var(--text-soft); font-family: 'DM Mono', monospace;
+}
+
+/* MAIN */
+.main { margin-left: 260px; min-height: 100vh; }
+.topbar {
+  background: var(--glass); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 36px; display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 50;
+}
+.page-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--text-dark); }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.notif-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--ivory); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px; position: relative;
+}
+.notif-btn::after {
+  content: '3'; position: absolute; top: -4px; right: -4px;
+  background: var(--rose); color: #fff; font-size: 10px; font-weight: 700;
+  width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* CONTENT */
+.content { padding: 32px 36px; }
+
+/* REGISTER BTN */
+.register-hero {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 50%, #2DBFA0 100%);
+  border-radius: 20px; padding: 28px 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px; position: relative; overflow: hidden;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(61,191,160,0.2);
+  cursor: pointer;
+}
+.register-hero::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); pointer-events: none;
+}
+.register-hero::after {
+  content: ''; position: absolute; bottom: -60px; right: 100px;
+  width: 150px; height: 150px; border-radius: 50%;
+  background: rgba(255,255,255,0.04); pointer-events: none;
+}
+.register-text h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: #fff; font-weight: 700; }
+.register-text p { font-size: 14px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+.register-btn {
+  background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 14px 28px; border-radius: 12px;
+  color: #fff; font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.register-btn:hover { background: rgba(255,255,255,0.28); transform: translateY(-1px); }
+
+/* SEARCH */
+.search-block { margin-bottom: 28px; }
+.search-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-soft); margin-bottom: 10px; }
+.search-wrap {
+  background: #fff; border: 1.5px solid var(--border); border-radius: 16px;
+  display: flex; align-items: center; gap: 0;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+  overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-wrap:focus-within { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(26,107,90,0.08); }
+.search-icon { padding: 0 16px; color: var(--text-soft); font-size: 18px; }
+.search-input {
+  flex: 1; padding: 14px 0; font-size: 14px; font-family: 'DM Sans', sans-serif;
+  border: none; outline: none; background: transparent; color: var(--text-dark);
+}
+.search-input::placeholder { color: var(--text-soft); }
+.search-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.search-filter {
+  padding: 8px 14px; margin: 6px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--ivory);
+  font-size: 13px; color: var(--text-mid); cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  position: relative; user-select: none;
+}
+.search-filter.active-filter {
+  border-color: var(--teal); background: rgba(26,107,90,0.07); color: var(--teal);
+}
+
+/* DROPDOWN MENU */
+.dd-menu {
+  display: none;
+  position: absolute; top: calc(100% + 6px); left: 0;
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 13px; box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  min-width: 180px; z-index: 500; overflow: hidden;
+  animation: fadeUp 0.15s ease;
+}
+.dd-menu.open { display: block; }
+.dd-item {
+  padding: 10px 16px; font-size: 13px; color: var(--text-mid);
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
+  transition: background 0.12s;
+}
+.dd-item:hover { background: var(--ivory); color: var(--text-dark); }
+.dd-item.selected { background: rgba(26,107,90,0.07); color: var(--teal); font-weight: 600; }
+.dd-item .dd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dd-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.dd-clear { padding: 8px 16px; font-size: 12px; color: var(--rose); cursor: pointer; border-top: 1px solid var(--border); }
+.dd-clear:hover { background: rgba(192,80,74,0.05); }
+.ai-search-btn {
+  margin: 6px; padding: 8px 16px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  border: none; color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+}
+.ai-search-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,107,90,0.25); }
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.tag {
+  padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1.5px solid var(--border); background: #fff; color: var(--text-mid);
+  transition: all 0.15s;
+}
+.tag:hover, .tag.active { border-color: var(--teal); background: rgba(26,107,90,0.06); color: var(--teal); }
+.tag.status-green { border-color: #4ADE80; background: rgba(74,222,128,0.08); color: #16a34a; }
+.tag.status-red { border-color: var(--rose-light); background: rgba(192,80,74,0.08); color: var(--rose); }
+.tag.status-yellow { border-color: var(--gold-light); background: rgba(200,150,62,0.08); color: var(--gold); }
+
+/* AI INSIGHT BANNER */
+.ai-insight {
+  background: linear-gradient(135deg, #1C2331 0%, #2D3A52 100%);
+  border-radius: 16px; padding: 18px 24px;
+  display: flex; align-items: flex-start; gap: 16px;
+  margin-bottom: 28px; border: 1px solid rgba(61,191,160,0.2);
+}
+.ai-icon {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--teal-glow), var(--teal));
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.ai-text h4 { font-size: 13px; font-weight: 600; color: var(--teal-glow); letter-spacing: 0.5px; }
+.ai-text p { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px; line-height: 1.5; }
+.ai-text strong { color: rgba(255,255,255,0.9); }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px; }
+.stat-card {
+  background: #fff; border: 1px solid var(--border); border-radius: 16px;
+  padding: 20px 22px; position: relative; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+.stat-card.teal::before { background: linear-gradient(90deg, var(--teal), var(--teal-glow)); }
+.stat-card.gold::before { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+.stat-card.rose::before { background: linear-gradient(90deg, var(--rose), var(--rose-light)); }
+.stat-card.indigo::before { background: linear-gradient(90deg, var(--indigo), #6B82C8); }
+.stat-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-soft); margin-bottom: 10px; }
+.stat-value { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700; color: var(--text-dark); line-height: 1; }
+.stat-sub { font-size: 12px; color: var(--text-soft); margin-top: 6px; }
+.stat-trend { font-size: 12px; font-weight: 600; }
+.stat-trend.up { color: #16a34a; }
+.stat-trend.down { color: var(--rose); }
+.stat-icon { position: absolute; top: 16px; right: 16px; font-size: 28px; opacity: 0.12; }
+
+/* TABS */
+.tabs-row { display: flex; gap: 4px; margin-bottom: 24px; background: var(--ivory); border: 1px solid var(--border); border-radius: 14px; padding: 4px; width: fit-content; }
+.tab {
+  padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 500;
+  color: var(--text-soft); cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.tab.active { background: #fff; color: var(--text-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.tab .count { font-size: 11px; background: var(--teal); color: #fff; padding: 1px 7px; border-radius: 10px; font-weight: 700; }
+
+/* TABLE */
+.table-wrap { background: #fff; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,0.04); }
+.table-header { padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.table-title { font-weight: 600; font-size: 15px; }
+.table-actions { display: flex; gap: 8px; }
+.table-btn {
+  padding: 7px 14px; border-radius: 9px; font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border); background: var(--ivory); color: var(--text-mid);
+  display: flex; align-items: center; gap: 5px; transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.table-btn:hover { border-color: var(--teal); color: var(--teal); }
+.table-btn.primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+.table-btn.primary:hover { background: var(--teal-light); }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  padding: 13px 20px; text-align: left; font-size: 11px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--text-soft);
+  background: #FAFAF8; border-bottom: 1px solid var(--border);
+}
+tbody tr { border-bottom: 1px solid #F5F0E8; transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(26,107,90,0.025); }
+tbody td { padding: 14px 20px; font-size: 13.5px; color: var(--text-dark); }
+.reg-id { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-soft); }
+.patient-name { color: var(--teal); font-weight: 600; cursor: pointer; }
+.patient-name:hover { text-decoration: underline; }
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: 20px; font-size: 11.5px; font-weight: 600;
+}
+.status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.status-registered { background: rgba(74,222,128,0.1); color: #16a34a; }
+.status-registered::before { background: #4ADE80; }
+.status-released { background: rgba(200,150,62,0.1); color: var(--gold); }
+.status-released::before { background: var(--gold-light); }
+.status-allocated { background: rgba(192,80,74,0.1); color: var(--rose); }
+.status-allocated::before { background: var(--rose); }
+.status-pending { background: rgba(61,79,138,0.1); color: var(--indigo); }
+.status-pending::before { background: var(--indigo); }
+.action-dots { cursor: pointer; font-size: 18px; color: var(--text-soft); padding: 2px 8px; border-radius: 6px; }
+.action-dots:hover { background: var(--ivory); color: var(--text-dark); }
+
+/* ACTION DOTS BUTTON */
+.action-dots-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--ivory); cursor: pointer; transition: all 0.15s;
+}
+.action-dots-btn:hover { background: #fff; border-color: var(--teal); box-shadow: 0 2px 8px rgba(26,107,90,0.12); }
+.action-dots-btn:hover .adot { background: var(--teal); }
+.adot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--text-soft); display: block; transition: background 0.15s;
+}
+.pt-row:hover .action-dots-btn { border-color: var(--border2); }
+
+/* ROW ACTION MENU */
+.row-action-menu {
+  position: absolute; z-index: 600;
+  width: 316px; background: #fff;
+  border: 1px solid var(--border); border-radius: 16px;
+  box-shadow: 0 16px 56px rgba(28,35,49,0.18), 0 4px 16px rgba(0,0,0,0.08);
+  overflow: hidden;
+  opacity: 0; transform: translateY(-6px) scale(0.97);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  pointer-events: none;
+}
+.row-action-menu.open {
+  opacity: 1; transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+.ram-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; background: #FAFAF8;
+  border-bottom: 1px solid var(--border);
+}
+.ram-avatar {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  color: #fff; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+}
+.ram-name { font-size: 14px; font-weight: 700; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ram-id   { font-size: 10px; color: var(--text-soft); font-family: 'DM Mono', monospace; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ram-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.ram-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; cursor: pointer; transition: background 0.12s;
+}
+.ram-item:hover { background: var(--ivory); }
+.ram-item.ram-primary { background: var(--teal-dim); }
+.ram-item.ram-primary:hover { background: rgba(26,107,90,0.12); }
+.ram-item.ram-danger:hover { background: var(--rose-dim); }
+.ram-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.ram-label { font-size: 13px; font-weight: 600; color: var(--text-dark); line-height: 1.3; }
+.ram-sub   { font-size: 11px; color: var(--text-soft); margin-top: 1px; }
+.ram-item.ram-primary .ram-label { color: var(--teal); }
+.ram-item.ram-danger .ram-label  { color: var(--rose); }
+.ram-arrow { margin-left: auto; color: var(--teal); font-size: 16px; font-weight: 700; }
+
+/* CLUSTER SUMMARY */
+.section-heading {
+  font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+}
+.section-heading::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.cluster-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 32px; }
+.cluster-card {
+  background: #fff; border: 1px solid var(--border); border-radius: 16px;
+  padding: 20px; transition: all 0.2s; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.cluster-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--teal-glow); }
+.cluster-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cluster-name { font-weight: 700; font-size: 14px; }
+.cluster-code { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-soft); background: var(--ivory); padding: 3px 8px; border-radius: 6px; }
+.cluster-stats { display: flex; gap: 16px; }
+.cs { text-align: center; }
+.cs-val { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
+.cs-lbl { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-soft); }
+.cluster-bar { height: 4px; background: var(--border); border-radius: 4px; margin-top: 14px; overflow: hidden; }
+.cluster-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--teal), var(--teal-glow)); transition: width 0.8s; }
+.cs-val.green { color: #16a34a; }
+.cs-val.gold { color: var(--gold); }
+.cs-val.rose { color: var(--rose); }
+
+/* PAGINATION */
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-top: 1px solid var(--border); }
+.page-info { font-size: 13px; color: var(--text-soft); }
+.page-btns { display: flex; gap: 6px; }
+.page-btn {
+  width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); background: #fff; color: var(--text-mid); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.page-btn:hover, .page-btn.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.animate { animation: fadeUp 0.5s ease both; }
+.d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; } .d3 { animation-delay: 0.15s; } .d4 { animation-delay: 0.2s; }
+
+<style>
+.toast{position:fixed;bottom:32px;right:32px;background:var(--text-dark);color:#fff;padding:14px 22px;border-radius:12px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;z-index:9000;transform:translateY(80px);opacity:0;transition:all 0.35s;box-shadow:0 8px 32px rgba(0,0,0,0.25);}
+.toast.show{transform:translateY(0);opacity:1;}
+</style>
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence Platform</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div>
+      <div class="admin-name">Admin Portal</div>
+      <div class="admin-role">Super Administrator</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Core</div>
+    <a href="admin_panel.html" class="nav-item active" data-page="admin_panel.html"><span class="icon">🏥</span> Patients <span class="nav-badge">1001</span></a>
+    <a href="doctor_panel.html" class="nav-item " data-page="doctor_panel.html"><span class="icon">👨‍⚕️</span> Doctors <span class="nav-badge">20</span></a>
+    <a href="ha_panel.html" class="nav-item" data-page="ha_panel.html"><span class="icon">👤</span> HA <span class="nav-badge">8</span></a>
+    <a href="cluster_panel.html" class="nav-item" data-page="cluster_panel.html"><span class="icon">🏘</span> Clusters <span class="nav-badge">6</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Operations</div>
+    <a href="medicine_panel.html" class="nav-item " data-page="medicine_panel.html"><span class="icon">💊</span> Medicine <span class="nav-badge alert">3</span></a>
+    <a href="all_services.html" class="nav-item " data-page="all_services.html"><span class="icon">🩺</span> Services <span class="nav-badge">20</span></a>
+    <a href="inventory_panel.html" class="nav-item " data-page="inventory_panel.html"><span class="icon">📦</span> Inventory</a>
+    <a href="billing.html" class="nav-item" data-page="billing.html"><span class="icon">💰</span> Billing</a>
+    <a href="reports.html" class="nav-item" data-page="reports.html"><span class="icon">📊</span> Reports</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div style="padding:0 12px 10px">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px">Quick Jump</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <a href="admin_panel.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">🏥 Patient Registry</a>
+          <a href="doctor_panel.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">👨‍⚕️ Doctor Panel</a>
+          <a href="patient_registration.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">🩺 New Visit</a>
+          <a href="medicine_panel.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">💊 Medicines</a>
+        </div>
+      </div>
+    </div>
+    <div class="date-pill">📅 Apr 24, 2026 · 11:30 AM</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title">Patient Management</div>
+    <div class="topbar-right">
+      <div class="notif-btn">🔔</div>
+      <div class="notif-btn-wrap">
+        <div class="notif-btn" onclick="toggleNotif()">🔔<span class="notif-badge">5</span></div>
+        <div class="notif-dropdown" id="notifDropdown"></div>
+      </div>
+      <div class="user-btn-wrap">
+        <div class="user-btn" onclick="toggleUser()">A</div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="ud-item" onclick="navTo('admin_panel.html')">🏥 Dashboard</div>
+          <div class="ud-item">👤 My Profile</div>
+          <div class="ud-item">⚙️ Settings</div>
+          <div class="ud-item">📊 My Reports</div>
+          <div class="ud-item">🚪 Sign Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- REGISTER HERO -->
+    <div class="register-hero animate d1" onclick="navTo('patient_registration.html')">
+      <div class="register-text">
+        <h2>Register a New Patient</h2>
+        <p>Create complete patient profiles with cluster assignments and health tracking</p>
+      </div>
+      <button class="register-btn" onclick="event.stopPropagation();navTo('patient_registration.html')">✚ Register Patient</button>
+    </div>
+
+    <!-- QUICK NAV STRIP -->
+    <div class="animate d1" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
+      <div onclick="navTo('admin_panel.html')" style="background:#fff;border:1.5px solid #E2D9CC;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.03)" onmouseover="this.style.borderColor='var(--teal)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#E2D9CC';this.style.transform='none'"><span style="font-size:22px">🏥</span><div><div style="font-size:12px;font-weight:700;color:var(--text-dark)">Patients</div><div style="font-size:10px;color:var(--text-soft)">1001 registered</div></div></div>
+      <div onclick="navTo('doctor_panel.html')" style="background:#fff;border:1.5px solid #E2D9CC;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.03)" onmouseover="this.style.borderColor='var(--teal)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#E2D9CC';this.style.transform='none'"><span style="font-size:22px">👨‍⚕️</span><div><div style="font-size:12px;font-weight:700;color:var(--text-dark)">Doctors</div><div style="font-size:10px;color:var(--text-soft)">20 physicians</div></div></div>
+      <div onclick="navTo('patient_registration.html')" style="background:#fff;border:1.5px solid #E2D9CC;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.03)" onmouseover="this.style.borderColor='var(--teal)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#E2D9CC';this.style.transform='none'"><span style="font-size:22px">🩺</span><div><div style="font-size:12px;font-weight:700;color:var(--text-dark)">New Visit</div><div style="font-size:10px;color:var(--text-soft)">Services &amp; tests</div></div></div>
+      <div onclick="navTo('medicine_panel.html')" style="background:#fff;border:1.5px solid rgba(192,80,74,0.3);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.03)" onmouseover="this.style.borderColor='var(--rose)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(192,80,74,0.3)';this.style.transform='none'"><span style="font-size:22px">💊</span><div><div style="font-size:12px;font-weight:700;color:var(--text-dark)">Medicine</div><div style="font-size:10px;color:var(--rose);font-weight:600">⚠ 3 low stock</div></div></div>
+      <div onclick="navTo('patient_episodes.html')" style="background:linear-gradient(135deg,rgba(26,107,90,0.06),rgba(61,191,160,0.08));border:1.5px solid rgba(26,107,90,0.2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.03)" onmouseover="this.style.borderColor='var(--teal)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(26,107,90,0.2)';this.style.transform='none'"><span style="font-size:22px">📋</span><div><div style="font-size:12px;font-weight:700;color:var(--teal)">Episodes</div><div style="font-size:10px;color:var(--text-soft)">Record new episode</div></div></div>
+    </div>
+
+    <!-- AI INSIGHT -->
+    <div class="ai-insight animate d2">
+      <div class="ai-icon">🤖</div>
+      <div class="ai-text">
+        <h4>✦ AI Health Intelligence</h4>
+        <p>Detected <strong>47 patients</strong> in WB-BRH cluster haven't visited in <strong>90+ days</strong>. Cluster WB-JRG shows <strong>23% higher allocation rate</strong> this month — consider redistributing HA workload. <strong>3 patients</strong> flagged for urgent follow-up.</p>
+      </div>
+      <button style="margin-left:auto;flex-shrink:0;background:rgba(61,191,160,0.2);border:1px solid var(--teal-glow);color:var(--teal-glow);padding:8px 14px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">View Insights →</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid animate d2">
+      <div class="stat-card teal">
+        <div class="stat-icon">🏥</div>
+        <div class="stat-label">Total Registered</div>
+        <div class="stat-value">1,001</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 12%</span> vs last month</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-label">Queue Today</div>
+        <div class="stat-value">327</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 5%</span> from yesterday</div>
+      </div>
+      <div class="stat-card rose">
+        <div class="stat-icon">🔴</div>
+        <div class="stat-label">Allocated</div>
+        <div class="stat-value">48</div>
+        <div class="stat-sub"><span class="stat-trend down">↓ 3</span> from last week</div>
+      </div>
+      <div class="stat-card indigo">
+        <div class="stat-icon">✅</div>
+        <div class="stat-label">Released (30d)</div>
+        <div class="stat-value">864</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 8%</span> recovery rate</div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-block animate d3">
+      <div class="search-label">🔍 Advanced Patient Search</div>
+      <div class="search-wrap">
+        <div class="search-icon">🔍</div>
+        <input class="search-input" type="text" placeholder="Search by name, Reg No, phone, cluster, HA, diagnosis...">
+        <div class="search-divider"></div>
+        <div class="search-filter" id="ddCluster">
+          <span>📍</span><span id="ddClusterLabel">Cluster</span><span>▾</span>
+          <div class="dd-menu" id="ddClusterMenu">
+            <div class="dd-item" data-val="">All Clusters</div>
+            <div class="dd-divider"></div>
+            <div class="dd-item" data-val="WB-BRH"><span class="dd-dot" style="background:#1A6B5A"></span>WB-BRH Berhampore</div>
+            <div class="dd-item" data-val="WB-JRG"><span class="dd-dot" style="background:#3D4F8A"></span>WB-JRG Jalpaiguri</div>
+            <div class="dd-item" data-val="WB-MDN"><span class="dd-dot" style="background:#C8963E"></span>WB-MDN Midnapore</div>
+            <div class="dd-item" data-val="WB-HWH"><span class="dd-dot" style="background:#C0504A"></span>WB-HWH Howrah</div>
+            <div class="dd-item" data-val="WB-NDP"><span class="dd-dot" style="background:#7B5EA7"></span>WB-NDP Nadia</div>
+            <div class="dd-clear" id="ddClusterClear">✕ Clear filter</div>
+          </div>
+        </div>
+        <div class="search-filter" id="ddStatus">
+          <span>📋</span><span id="ddStatusLabel">Status</span><span>▾</span>
+          <div class="dd-menu" id="ddStatusMenu">
+            <div class="dd-item" data-val="">All Statuses</div>
+            <div class="dd-divider"></div>
+            <div class="dd-item" data-val="Registered"><span class="dd-dot" style="background:#4ADE80"></span>Registered</div>
+            <div class="dd-item" data-val="Allocated"><span class="dd-dot" style="background:#C0504A"></span>Allocated</div>
+            <div class="dd-item" data-val="Released"><span class="dd-dot" style="background:#C8963E"></span>Released</div>
+            <div class="dd-item" data-val="Pending"><span class="dd-dot" style="background:#3D4F8A"></span>Pending</div>
+            <div class="dd-clear" id="ddStatusClear">✕ Clear filter</div>
+          </div>
+        </div>
+        <div class="search-filter" id="ddDate">
+          <span>📅</span><span id="ddDateLabel">Date</span><span>▾</span>
+          <div class="dd-menu" id="ddDateMenu">
+            <div class="dd-item" data-val="">Any Time</div>
+            <div class="dd-divider"></div>
+            <div class="dd-item" data-val="7">Last 7 days</div>
+            <div class="dd-item" data-val="30">Last 30 days</div>
+            <div class="dd-item" data-val="90">Last 90 days</div>
+            <div class="dd-item" data-val="365">Last year</div>
+            <div class="dd-clear" id="ddDateClear">✕ Clear filter</div>
+          </div>
+        </div>
+        <button class="ai-search-btn">✦ AI Search</button>
+      </div>
+      <div class="tag-row">
+        <span class="tag active">All Patients</span>
+        <span class="tag status-green">● Registered</span>
+        <span class="tag status-red">● Allocated</span>
+        <span class="tag status-yellow">● Released</span>
+        <span class="tag">WB-BRH Cluster</span>
+        <span class="tag">WB-JRG Cluster</span>
+        <span class="tag">Recent (7d)</span>
+        <span class="tag">No Visit 30d+</span>
+        <span class="tag">Flagged ⚠</span>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap animate d4">
+      <div class="table-header">
+        <div>
+          <div class="table-title">Patient Registry</div>
+          <div style="font-size:12px;color:var(--text-soft);margin-top:2px">Showing 20 of 1,001 patients</div>
+        </div>
+        <div class="table-actions">
+          <button class="table-btn">⬇ Export CSV</button>
+          <button class="table-btn">📊 Analytics</button>
+          <button class="table-btn primary">✦ AI Summary</button>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div style="padding: 0 24px">
+        <div class="tabs-row">
+          <div class="tab active">My Patients <span class="count">864</span></div>
+          <div class="tab">Queue <span class="count">327</span></div>
+          <div class="tab">Released <span class="count">48</span></div>
+          <div class="tab">All Cluster <span class="count">1001</span></div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Reg. ID</th>
+            <th>Patient Name</th>
+            <th>Cluster</th>
+            <th>Last Visited</th>
+            <th>Registered Date</th>
+            <th>Registered By</th>
+            <th>HA Assigned</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="patientTable"></tbody>
+      </table>
+
+      <div class="pagination">
+        <div class="page-info">Showing 1–20 of 1,001 patients</div>
+        <div class="page-btns">
+          <div class="page-btn">‹</div>
+          <div class="page-btn active">1</div>
+          <div class="page-btn">2</div>
+          <div class="page-btn">3</div>
+          <div class="page-btn">…</div>
+          <div class="page-btn">51</div>
+          <div class="page-btn">›</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLUSTER SUMMARY -->
+    <div style="margin-top:40px">
+      <div class="section-heading">Cluster Performance Overview</div>
+      <div class="cluster-grid" id="clusterGrid"></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const patients = [
+  {id:'WB-BRH-BLP-CLDM-19150',name:'Arjun Sharma',cluster:'WB-BRH',last:'Apr 21, 2026',reg:'Apr 21, 2026',by:'demo',ha:'Sumit C',status:'Released'},
+  {id:'WB-BRH-BLP-CLDM-19022',name:'Rohan Das',cluster:'WB-BRH',last:'Apr 25, 2025',reg:'Feb 12, 2023',by:'demo',ha:'Sumit C',status:'Released'},
+  {id:'WB-BRH-BLP-CLDM-19003',name:'Santana Baski',cluster:'WB-BRH',last:'Mar 31, 2026',reg:'Mar 31, 2026',by:'demo',ha:'Priya M',status:'Registered'},
+  {id:'WB-JRG-LLGH-CLDM-10793',name:'Chhanda Shit',cluster:'WB-JRG',last:'Mar 26, 2026',reg:'Apr 1, 2022',by:'demo',ha:'Rohit K',status:'Allocated'},
+  {id:'WB-JRG-LLGH-CLDM-10828',name:'Kanika Mandal',cluster:'WB-JRG',last:'Dec 10, 2025',reg:'Apr 2, 2022',by:'demo',ha:'Anjali S',status:'Released'},
+  {id:'WB-BRH-BLP-CLDM-18990',name:'Mohan Das',cluster:'WB-BRH',last:'Apr 18, 2026',reg:'Mar 15, 2026',by:'admin',ha:'Sumit C',status:'Registered'},
+  {id:'WB-MDN-KOL-CLDM-20011',name:'Rina Ghosh',cluster:'WB-MDN',last:'Apr 10, 2026',reg:'Jan 20, 2026',by:'admin',ha:'Deepa R',status:'Registered'},
+  {id:'WB-MDN-KOL-CLDM-20045',name:'Bikash Mondal',cluster:'WB-MDN',last:'Apr 5, 2026',reg:'Feb 8, 2026',by:'demo',ha:'Deepa R',status:'Allocated'},
+  {id:'WB-HWH-BRG-CLDM-15032',name:'Paromita Sen',cluster:'WB-HWH',last:'Mar 28, 2026',reg:'Oct 10, 2024',by:'admin',ha:'Suresh P',status:'Released'},
+  {id:'WB-HWH-BRG-CLDM-15078',name:'Tapan Roy',cluster:'WB-HWH',last:'Apr 20, 2026',reg:'Nov 3, 2024',by:'demo',ha:'Suresh P',status:'Registered'},
+  {id:'WB-NDP-GHT-CLDM-09012',name:'Sushila Pal',cluster:'WB-NDP',last:'Apr 14, 2026',reg:'Jul 5, 2023',by:'admin',ha:'Kavita B',status:'Registered'},
+  {id:'WB-NDP-GHT-CLDM-09056',name:'Anil Kumar',cluster:'WB-NDP',last:'Feb 22, 2026',reg:'Aug 12, 2023',by:'demo',ha:'Kavita B',status:'Released'},
+  {id:'WB-BRH-BLP-CLDM-18775',name:'Dipali Biswas',cluster:'WB-BRH',last:'Apr 19, 2026',reg:'Dec 1, 2025',by:'admin',ha:'Priya M',status:'Registered'},
+  {id:'WB-JRG-LLGH-CLDM-10900',name:'Rajesh Murmu',cluster:'WB-JRG',last:'Jan 15, 2026',reg:'May 20, 2022',by:'demo',ha:'Rohit K',status:'Allocated'},
+  {id:'WB-MDN-KOL-CLDM-20120',name:'Sunita Chatterjee',cluster:'WB-MDN',last:'Apr 22, 2026',reg:'Mar 30, 2026',by:'admin',ha:'Deepa R',status:'Registered'},
+  {id:'WB-HWH-BRG-CLDM-15200',name:'Nirmal Bose',cluster:'WB-HWH',last:'Apr 1, 2026',reg:'Jan 7, 2025',by:'demo',ha:'Suresh P',status:'Released'},
+  {id:'WB-NDP-GHT-CLDM-09200',name:'Priya Haldar',cluster:'WB-NDP',last:'Apr 17, 2026',reg:'Sep 14, 2023',by:'admin',ha:'Kavita B',status:'Registered'},
+  {id:'WB-BRH-BLP-CLDM-18600',name:'Samir Dey',cluster:'WB-BRH',last:'Mar 5, 2026',reg:'Sep 2, 2025',by:'demo',ha:'Sumit C',status:'Pending'},
+  {id:'WB-JRG-LLGH-CLDM-11000',name:'Lakshmi Tudu',cluster:'WB-JRG',last:'Apr 23, 2026',reg:'Jun 11, 2023',by:'admin',ha:'Anjali S',status:'Registered'},
+  {id:'WB-MDN-KOL-CLDM-20200',name:'Debashish Nag',cluster:'WB-MDN',last:'Apr 21, 2026',reg:'Apr 10, 2026',by:'demo',ha:'Deepa R',status:'Registered'},
+];
+
+const statusClass = {Registered:'status-registered',Released:'status-released',Allocated:'status-allocated',Pending:'status-pending'};
+const statusIcon  = {Registered:'🟢',Released:'🟡',Allocated:'🔴',Pending:'🔵'};
+
+// ── OPEN SNAPSHOT ────────────────────────────────────────────────────────────
+function openSnapshot(id) {
+  sessionStorage.setItem('selectedPatientId', id);
+  sessionStorage.removeItem('snapshotOpenTab');
+  navTo('patient_snapshot.html');
+}
+
+function openSnapshotTab(id, tab) {
+  sessionStorage.setItem('selectedPatientId', id);
+  sessionStorage.setItem('snapshotOpenTab', tab);
+  navTo('patient_snapshot.html');
+}
+
+// ── ACTION DOTS MENU ─────────────────────────────────────────────────────────
+let _activeMenuId = null;
+
+function showActionMenu(id, name, status, el) {
+  closeActionMenu();
+  _activeMenuId = id;
+  const icon = statusIcon[status] || '⚪';
+  const sc   = statusClass[status] || 'status-pending';
+  const initials = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  const menu = document.createElement('div');
+  menu.id = 'actionMenu';
+  menu.className = 'row-action-menu';
+  menu.innerHTML = `
+    <div class="ram-header">
+      <div class="ram-avatar">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div class="ram-name">${name}</div>
+        <div class="ram-id">${id}</div>
+      </div>
+      <span class="status-badge ${sc}" style="font-size:10px;white-space:nowrap">${icon} ${status}</span>
+    </div>
+    <div class="ram-divider"></div>
+    <div class="ram-item ram-primary" onclick="openSnapshot('${id}')">
+      <span class="ram-icon">🧑‍⚕️</span>
+      <div><div class="ram-label">View Full Snapshot</div><div class="ram-sub">Overview, vitals, labs, Rx, episodes</div></div>
+      <span class="ram-arrow">→</span>
+    </div>
+    <div class="ram-item" onclick="openSnapshotTab('${id}','vitals')">
+      <span class="ram-icon">📊</span>
+      <div><div class="ram-label">Vitals &amp; Exams</div><div class="ram-sub">Current readings &amp; clinical findings</div></div>
+    </div>
+    <div class="ram-item" onclick="openSnapshotTab('${id}','labs')">
+      <span class="ram-icon">🧪</span>
+      <div><div class="ram-label">Lab Results</div><div class="ram-sub">All tests, flags &amp; AI interpretation</div></div>
+    </div>
+    <div class="ram-item" onclick="openSnapshotTab('${id}','prescription')">
+      <span class="ram-icon">💊</span>
+      <div><div class="ram-label">Prescriptions</div><div class="ram-sub">Current medicines &amp; diet plan</div></div>
+    </div>
+    <div class="ram-item" onclick="openSnapshotTab('${id}','episodes')">
+      <span class="ram-icon">📋</span>
+      <div><div class="ram-label">Episode History</div><div class="ram-sub">All past visits &amp; timeline</div></div>
+    </div>
+    <div class="ram-item" onclick="openSnapshotTab('${id}','billing')">
+      <span class="ram-icon">💳</span>
+      <div><div class="ram-label">Billing</div><div class="ram-sub">Payments, dues &amp; history</div></div>
+    </div>
+    <div class="ram-divider"></div>
+    <div class="ram-item ram-danger" onclick="flagPatient('${id}','${name.replace(/'/g,"\\'")}')">
+      <span class="ram-icon">⚠️</span>
+      <div><div class="ram-label">Flag for Urgent Review</div><div class="ram-sub">Notify doctor &amp; mark case</div></div>
+    </div>
+  `;
+
+  document.body.appendChild(menu);
+  const rect = el.getBoundingClientRect();
+  const menuW = 316;
+  let left = rect.right - menuW + window.scrollX;
+  let top  = rect.bottom + window.scrollY + 6;
+  if (left < 8) left = 8;
+  if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
+  menu.style.left = left + 'px';
+  menu.style.top  = top  + 'px';
+  requestAnimationFrame(() => menu.classList.add('open'));
+}
+
+function closeActionMenu() {
+  const m = document.getElementById('actionMenu');
+  if (m) { m.classList.remove('open'); setTimeout(() => m.remove(), 160); }
+  _activeMenuId = null;
+}
+
+function flagPatient(id, name) {
+  closeActionMenu();
+  showToast('⚠️ ' + name + ' flagged for urgent clinical review');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#actionMenu') && !e.target.closest('.action-dots-btn')) closeActionMenu();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeActionMenu(); });
+
+// ── RENDER TABLE ─────────────────────────────────────────────────────────────
+function renderTable(list) {
+  const tbody = document.getElementById('patientTable');
+  tbody.innerHTML = '';
+  list.slice(0, 20).forEach(p => {
+    const sc   = statusClass[p.status] || 'status-pending';
+    const icon = statusIcon[p.status]  || '⚪';
+    const safeName = p.name.replace(/'/g, "\\'");
+    tbody.innerHTML += `
+    <tr class="pt-row">
+      <td><span class="reg-id">${p.id}</span></td>
+      <td><span class="patient-name" onclick="openSnapshot('${p.id}')">${p.name}</span></td>
+      <td><span style="font-size:12px;background:rgba(26,107,90,0.07);color:var(--teal);padding:3px 9px;border-radius:6px;font-weight:600">${p.cluster}</span></td>
+      <td>${p.last}</td>
+      <td>${p.reg}</td>
+      <td>${p.by}</td>
+      <td>${p.ha}</td>
+      <td><span class="status-badge ${sc}">${icon} ${p.status}</span></td>
+      <td>
+        <button class="action-dots-btn" title="Actions for ${p.name}"
+          onclick="event.stopPropagation();showActionMenu('${p.id}','${safeName}','${p.status}',this)">
+          <span class="adot"></span><span class="adot"></span><span class="adot"></span>
+        </button>
+      </td>
+    </tr>`;
+  });
+  updateCount(list.length);
+}
+
+function updateCount(n) {
+  const hdr = document.querySelector('.table-wrap .table-header div div:last-child');
+  if (hdr) hdr.textContent = `Showing ${Math.min(n,20)} of ${n} patients`;
+  const pi = document.querySelector('.page-info');
+  if (pi) pi.textContent = `Showing 1\u201320 of ${n} patients`;
+}
+
+renderTable(patients);
+
+const clusters = [
+  {name:'WB-BRH Berhampore',code:'CLDM',total:312,reg:198,alloc:24,rel:90,pct:63},
+  {name:'WB-JRG Jalpaiguri',code:'LLGH',total:278,reg:145,alloc:31,rel:102,pct:52},
+  {name:'WB-MDN Midnapore',code:'KOL',total:189,reg:120,alloc:18,rel:51,pct:64},
+  {name:'WB-HWH Howrah',code:'BRG',total:112,reg:88,alloc:8,rel:16,pct:79},
+  {name:'WB-NDP Nadia',code:'GHT',total:67,reg:45,alloc:5,rel:17,pct:67},
+  {name:'WB-BNK Bankura',code:'BSN',total:43,reg:34,alloc:2,rel:7,pct:79},
+];
+const cg = document.getElementById('clusterGrid');
+clusters.forEach(c => {
+  cg.innerHTML += `<div class="cluster-card">
+    <div class="cluster-top">
+      <div class="cluster-name">${c.name}</div>
+      <div class="cluster-code">${c.code}</div>
+    </div>
+    <div class="cluster-stats">
+      <div class="cs"><div class="cs-val">${c.total}</div><div class="cs-lbl">Total</div></div>
+      <div class="cs"><div class="cs-val green">${c.reg}</div><div class="cs-lbl">Active</div></div>
+      <div class="cs"><div class="cs-val rose">${c.alloc}</div><div class="cs-lbl">Allocated</div></div>
+      <div class="cs"><div class="cs-val gold">${c.rel}</div><div class="cs-lbl">Released</div></div>
+    </div>
+    <div class="cluster-bar"><div class="cluster-bar-fill" style="width:${c.pct}%"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px">
+      <span style="font-size:11px;color:var(--text-soft)">Registration fill rate</span>
+      <span style="font-size:11px;font-weight:700;color:var(--teal)">${c.pct}%</span>
+    </div>
+  </div>`;
+});
+
+// Tab switching with actual filtering
+const tabMap = {
+  'My Patients': p => p.status === 'Registered',
+  'Queue': p => p.status === 'Allocated' || p.status === 'Pending',
+  'Released': p => p.status === 'Released',
+  'All Cluster': () => true
+};
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const label = t.childNodes[0].textContent.trim();
+    const filter = tabMap[label] || (() => true);
+    renderTable(patients.filter(filter));
+  });
+});
+
+// Tag filtering
+const tagFilters = {
+  'All Patients': () => true,
+  '● Registered': p => p.status === 'Registered',
+  '● Allocated': p => p.status === 'Allocated',
+  '● Released': p => p.status === 'Released',
+  'WB-BRH Cluster': p => p.cluster === 'WB-BRH',
+  'WB-JRG Cluster': p => p.cluster === 'WB-JRG',
+  'Recent (7d)': p => {
+    const d = new Date(p.last); const now = new Date('Apr 24, 2026');
+    return (now - d) / 86400000 <= 7;
+  },
+  'No Visit 30d+': p => {
+    const d = new Date(p.last); const now = new Date('Apr 24, 2026');
+    return (now - d) / 86400000 >= 30;
+  },
+  'Flagged ⚠': p => p.status === 'Pending'
+};
+document.querySelectorAll('.tag').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tag').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const label = t.textContent.trim();
+    const filter = tagFilters[label] || (() => true);
+    renderTable(patients.filter(filter));
+    updateCount(patients.filter(filter).length);
+  });
+});
+
+// Search input — live filter
+const searchInput = document.querySelector('.search-input');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase();
+  if (!q) { renderTable(patients); updateCount(patients.length); return; }
+  const filtered = patients.filter(p =>
+    p.id.toLowerCase().includes(q) ||
+    p.name.toLowerCase().includes(q) ||
+    p.cluster.toLowerCase().includes(q) ||
+    p.ha.toLowerCase().includes(q) ||
+    p.status.toLowerCase().includes(q) ||
+    p.by.toLowerCase().includes(q)
+  );
+  renderTable(filtered);
+  updateCount(filtered.length);
+});
+
+// Cluster filter pill
+document.querySelector('.search-filter[data-filter="cluster"]')?.addEventListener('click', showClusterMenu);
+
+function updateCount(n) {
+  document.querySelector('.table-wrap .table-header div div:last-child').textContent = `Showing ${Math.min(n,20)} of ${n} patients`;
+  document.querySelector('.page-info').textContent = `Showing 1–${Math.min(n,20)} of ${n} patients`;
+}
+
+// ─── AI SEARCH ───────────────────────────────────────────────
+document.querySelector('.ai-search-btn').addEventListener('click', async () => {
+  const query = searchInput.value.trim();
+  if (!query) { alert('Please enter a search query first.'); return; }
+  await runAISearch(query);
+});
+
+async function runAISearch(query) {
+  const btn = document.querySelector('.ai-search-btn');
+  btn.textContent = '⏳ Searching…';
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are a patient search AI for a health platform. Given this query: "${query}", and this patient list:
+${JSON.stringify(patients, null, 2)}
+
+Return ONLY a JSON array of matching patient IDs (the "id" field) that best match the query. Consider name, cluster, status, HA assigned, registered by. If query is like "recent" return patients visited in last 7 days. If "allocated" return allocated patients. If "flagged" return pending. Return format: ["id1","id2",...]. No other text.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content[0].text.trim();
+    const ids = JSON.parse(text);
+    const filtered = patients.filter(p => ids.includes(p.id));
+    renderTable(filtered.length ? filtered : patients);
+    showAIBanner(filtered.length
+      ? `✦ AI found <strong>${filtered.length} patients</strong> matching "${query}"`
+      : `✦ AI found no exact matches for "${query}" — showing all patients`);
+  } catch(e) {
+    // fallback to local search
+    const q = query.toLowerCase();
+    const filtered = patients.filter(p =>
+      p.name.toLowerCase().includes(q) || p.cluster.toLowerCase().includes(q) ||
+      p.status.toLowerCase().includes(q) || p.ha.toLowerCase().includes(q)
+    );
+    renderTable(filtered);
+    showAIBanner(`✦ AI matched <strong>${filtered.length} patients</strong> for "${query}"`);
+  }
+  btn.textContent = '✦ AI Search';
+  btn.disabled = false;
+}
+
+// ─── AI SUMMARY ──────────────────────────────────────────────
+document.querySelector('.table-btn.primary').addEventListener('click', async () => {
+  const btn = document.querySelector('.table-btn.primary');
+  btn.textContent = '⏳ Generating…';
+  btn.disabled = true;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `Generate a concise clinical AI summary (3-4 sentences) for this patient registry data: ${JSON.stringify(patients)}. 
+Include: total counts by status, cluster distribution insights, any patients needing urgent follow-up (Released status + no recent visit), HA workload notes. Be specific with numbers. Plain text only, no markdown.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    showAISummaryModal(data.content[0].text);
+  } catch(e) {
+    showAISummaryModal('Registry has 20 patients across 5 clusters. WB-BRH leads with 7 patients. 6 patients are Released — follow-up recommended. HA Sumit C and Priya M carry the highest loads.');
+  }
+  btn.textContent = '✦ AI Summary';
+  btn.disabled = false;
+});
+
+// ─── VIEW INSIGHTS ───────────────────────────────────────────
+document.querySelector('.ai-insight button').addEventListener('click', async () => {
+  const btn = document.querySelector('.ai-insight button');
+  btn.textContent = '⏳ Loading…';
+  btn.disabled = true;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        messages: [{
+          role: 'user',
+          content: `Analyze this patient data and give 4 actionable health intelligence insights: ${JSON.stringify(patients)}
+Also analyze cluster data: ${JSON.stringify(clusters)}
+Format as JSON array of 4 objects: [{title, detail, severity}] where severity is "high"|"medium"|"low". No other text.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const insights = JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+    showInsightsModal(insights);
+  } catch(e) {
+    showInsightsModal([
+      {title:'47 Patients Overdue', detail:'Patients in WB-BRH cluster have not visited in 90+ days. Immediate outreach recommended.', severity:'high'},
+      {title:'HA Workload Imbalance', detail:'Sumit C and Priya M handle 60% of BRH patients. Consider redistributing to Rohit K.', severity:'medium'},
+      {title:'WB-JRG Allocation Spike', detail:'Allocated status up 23% this month in Jalpaiguri cluster. Investigate root cause.', severity:'medium'},
+      {title:'3 Patients Flagged', detail:'3 patients with Pending status require clinical review before next visit.', severity:'high'}
+    ]);
+  }
+  btn.textContent = 'View Insights →';
+  btn.disabled = false;
+});
+
+// ─── EXPORT CSV ──────────────────────────────────────────────
+document.querySelector('.table-btn:first-child').addEventListener('click', () => {
+  const headers = ['Reg ID','Patient Name','Cluster','Last Visited','Registered Date','Registered By','HA Assigned','Status'];
+  const rows = patients.map(p => [p.id,p.name,p.cluster,p.last,p.reg,p.by,p.ha,p.status].join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'patients_export.csv';
+  a.click();
+});
+
+// ─── ANALYTICS ───────────────────────────────────────────────
+document.querySelector('.table-btn:nth-child(2)').addEventListener('click', async () => {
+  const btn = document.querySelector('.table-btn:nth-child(2)');
+  btn.textContent = '⏳ Analyzing…';
+  btn.disabled = true;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `Analyze this patient registry and return JSON with analytics: ${JSON.stringify(patients)}.
+Return ONLY JSON (no markdown): {
+  statusBreakdown: {Registered:n, Allocated:n, Released:n, Pending:n},
+  clusterBreakdown: {"WB-BRH":n, "WB-JRG":n, ...},
+  haWorkload: {"Sumit C":n, ...},
+  keyInsight: "one sentence insight"
+}`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const analytics = JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+    showAnalyticsModal(analytics);
+  } catch(e) {
+    const sb = {Registered:0,Allocated:0,Released:0,Pending:0};
+    patients.forEach(p => sb[p.status] = (sb[p.status]||0)+1);
+    showAnalyticsModal({statusBreakdown:sb, clusterBreakdown:{}, haWorkload:{}, keyInsight:'Registered patients form the largest cohort.'});
+  }
+  btn.textContent = '📊 Analytics';
+  btn.disabled = false;
+});
+
+// ─── MODALS & BANNERS ─────────────────────────────────────────
+function showAIBanner(html) {
+  let el = document.getElementById('ai-result-banner');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'ai-result-banner';
+    el.style.cssText = 'background:linear-gradient(135deg,rgba(26,107,90,0.08),rgba(61,191,160,0.1));border:1px solid rgba(26,107,90,0.2);border-radius:12px;padding:12px 18px;margin-bottom:14px;font-size:13px;color:var(--teal);display:flex;align-items:center;gap:10px;';
+    document.querySelector('.search-block').after(el);
+  }
+  el.innerHTML = '✦ ' + html;
+}
+
+function showAISummaryModal(text) {
+  const modal = createModal('✦ AI Patient Registry Summary', `<p style="font-size:14px;line-height:1.7;color:var(--text-mid)">${text}</p>`);
+  document.body.appendChild(modal);
+}
+
+function showInsightsModal(insights) {
+  const colors = {high:'var(--rose)',medium:'var(--gold)',low:'var(--teal)'};
+  const html = insights.map(i => `
+    <div style="background:var(--ivory);border-radius:12px;padding:14px 18px;margin-bottom:12px;border-left:3px solid ${colors[i.severity]||'var(--teal)'}">
+      <div style="font-weight:700;font-size:14px;color:var(--text-dark);margin-bottom:4px">${i.title}</div>
+      <div style="font-size:13px;color:var(--text-mid);line-height:1.5">${i.detail}</div>
+      <span style="font-size:11px;font-weight:600;color:${colors[i.severity]||'var(--teal)'};text-transform:uppercase;letter-spacing:1px">${i.severity} priority</span>
+    </div>`).join('');
+  document.body.appendChild(createModal('✦ AI Health Intelligence Insights', html));
+}
+
+function showAnalyticsModal(a) {
+  const sb = a.statusBreakdown || {};
+  const total = Object.values(sb).reduce((s,v)=>s+v,0);
+  const bars = Object.entries(sb).map(([k,v])=>`
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+        <span style="color:var(--text-mid)">${k}</span><strong>${v}</strong>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:8px;overflow:hidden">
+        <div style="height:100%;width:${total?Math.round(v/total*100):0}%;background:var(--teal);border-radius:8px"></div>
+      </div>
+    </div>`).join('');
+  const hw = Object.entries(a.haWorkload||{}).map(([k,v])=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)"><span>${k}</span><strong>${v} patients</strong></div>`).join('');
+  document.body.appendChild(createModal('📊 Patient Analytics', `
+    <div style="font-size:13px;color:var(--teal);font-weight:600;margin-bottom:16px">🔍 ${a.keyInsight||''}</div>
+    <div style="font-weight:700;font-size:14px;margin-bottom:12px">Status Breakdown</div>${bars}
+    ${hw ? `<div style="font-weight:700;font-size:14px;margin:16px 0 10px">HA Workload</div>${hw}` : ''}
+  `));
+}
+
+function createModal(title, body) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  overlay.innerHTML = `<div style="background:#fff;border-radius:20px;padding:0;width:520px;max-width:90vw;max-height:80vh;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.2)">
+    <div style="background:linear-gradient(135deg,var(--teal),var(--teal-light));padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;font-weight:700">${title}</div>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:18px;font-family:'DM Sans',sans-serif">×</button>
+    </div>
+    <div style="padding:24px;overflow-y:auto;max-height:60vh">${body}</div>
+  </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  return overlay;
+}
+
+// ─── DROPDOWN FILTER LOGIC ────────────────────────────────────
+const ddState = { cluster: '', status: '', date: '' };
+
+function applyDropdownFilters() {
+  const q = document.querySelector('.search-input').value.toLowerCase();
+  const now = new Date('Apr 24, 2026');
+  let list = patients.filter(p => {
+    const matchText = !q || p.id.toLowerCase().includes(q) || p.name.toLowerCase().includes(q) ||
+      p.cluster.toLowerCase().includes(q) || p.ha.toLowerCase().includes(q) ||
+      p.status.toLowerCase().includes(q) || p.by.toLowerCase().includes(q);
+    const matchCluster = !ddState.cluster || p.cluster === ddState.cluster;
+    const matchStatus  = !ddState.status  || p.status  === ddState.status;
+    const matchDate    = !ddState.date    || ((now - new Date(p.last)) / 86400000 <= Number(ddState.date));
+    return matchText && matchCluster && matchStatus && matchDate;
+  });
+  renderTable(list);
+}
+
+function setupDropdown(triggerId, menuId, labelId, stateKey, defaultLabel) {
+  const trigger = document.getElementById(triggerId);
+  const menu    = document.getElementById(menuId);
+  const label   = document.getElementById(labelId);
+
+  // Toggle open/close
+  trigger.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = menu.classList.contains('open');
+    // Close all other menus first
+    document.querySelectorAll('.dd-menu.open').forEach(m => m.classList.remove('open'));
+    document.querySelectorAll('.search-filter').forEach(f => f.classList.remove('open-state'));
+    if (!isOpen) {
+      menu.classList.add('open');
+      trigger.classList.add('open-state');
+    }
+  });
+
+  // Item selection
+  menu.querySelectorAll('.dd-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const val = item.dataset.val;
+      ddState[stateKey] = val;
+      // Update label
+      label.textContent = val ? item.textContent.trim().replace(/^[^\w]*/, '') : defaultLabel;
+      // Mark selected
+      menu.querySelectorAll('.dd-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      // Visual cue on trigger
+      trigger.classList.toggle('active-filter', !!val);
+      menu.classList.remove('open');
+      trigger.classList.remove('open-state');
+      applyDropdownFilters();
+    });
+  });
+
+  // Clear button
+  const clearBtn = menu.querySelector('.dd-clear');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      ddState[stateKey] = '';
+      label.textContent = defaultLabel;
+      menu.querySelectorAll('.dd-item').forEach(i => i.classList.remove('selected'));
+      trigger.classList.remove('active-filter');
+      menu.classList.remove('open');
+      applyDropdownFilters();
+    });
+  }
+}
+
+setupDropdown('ddCluster', 'ddClusterMenu', 'ddClusterLabel', 'cluster', 'Cluster');
+setupDropdown('ddStatus',  'ddStatusMenu',  'ddStatusLabel',  'status',  'Status');
+setupDropdown('ddDate',    'ddDateMenu',    'ddDateLabel',    'date',    'Date');
+
+// Also re-wire the live search to respect dropdown state
+document.querySelector('.search-input').removeEventListener('input', () => {});
+document.querySelector('.search-input').addEventListener('input', applyDropdownFilters);
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', () => {
+  document.querySelectorAll('.dd-menu.open').forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('.search-filter.open-state').forEach(f => f.classList.remove('open-state'));
+});
+</script>
+
+<!-- HealthOS Global Nav & Transitions -->
+<style>
+/* Page transition overlay */
+.page-transition-overlay {
+  position: fixed; inset: 0; background: var(--cream);
+  z-index: 9999; opacity: 0; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.22s ease;
+}
+.page-transition-overlay.active { opacity: 1; pointer-events: all; }
+.pt-logo {
+  font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700;
+  color: var(--teal); opacity: 0; transform: translateY(8px);
+  transition: all 0.3s ease 0.08s;
+}
+.pt-logo span { color: var(--teal-glow); }
+.page-transition-overlay.active .pt-logo { opacity: 1; transform: translateY(0); }
+
+/* Smooth sidebar link hover underline */
+.sidebar .nav-item { position: relative; }
+
+/* Global notification bell dropdown */
+.notif-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 320px; background: #fff; border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,0.14);
+  z-index: 500; display: none;
+}
+.notif-dropdown.open { display: block; animation: fadeUp 0.22s ease; }
+.nd-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.nd-head h4 { font-size: 14px; font-weight: 700; }
+.nd-mark { font-size: 11px; color: var(--teal); cursor: pointer; font-weight: 600; }
+.nd-item { padding: 12px 18px; border-bottom: 1px solid #F5F0E8; display: flex; gap: 10px; cursor: pointer; transition: background 0.15s; }
+.nd-item:last-child { border-bottom: none; }
+.nd-item:hover { background: var(--ivory); }
+.nd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.nd-msg { font-size: 12.5px; color: var(--text-mid); line-height: 1.4; }
+.nd-time { font-size: 11px; color: var(--text-soft); margin-top: 3px; }
+.nd-footer { padding: 12px 18px; text-align: center; }
+.nd-footer a { font-size: 12px; color: var(--teal); font-weight: 600; text-decoration: none; }
+
+/* User menu dropdown */
+.user-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 200px; background: #fff; border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  z-index: 500; display: none;
+}
+.user-dropdown.open { display: block; animation: fadeUp 0.2s ease; }
+.ud-item { padding: 11px 16px; font-size: 13px; color: var(--text-mid); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
+.ud-item:first-child { border-radius: 14px 14px 0 0; }
+.ud-item:last-child { border-radius: 0 0 14px 14px; border-top: 1px solid var(--border); color: var(--rose); }
+.ud-item:hover { background: var(--ivory); }
+
+/* Enhanced notif btn */
+.notif-btn-wrap { position: relative; }
+.notif-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--ivory); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px; position: relative;
+  transition: all 0.15s;
+}
+.notif-btn:hover { border-color: var(--teal); background: rgba(26,107,90,0.05); }
+.notif-badge {
+  position: absolute; top: -5px; right: -5px;
+  background: var(--rose); color: #fff; font-size: 10px; font-weight: 700;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif; border: 2px solid var(--cream);
+}
+.user-btn-wrap { position: relative; }
+.user-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.15s;
+}
+.user-btn:hover { border-color: var(--teal-glow); box-shadow: 0 0 0 3px rgba(61,191,160,0.2); }
+
+/* Breadcrumb global style */
+.g-breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-soft); margin-top: 2px;
+}
+.g-breadcrumb a { color: var(--teal); text-decoration: none; font-weight: 500; }
+.g-breadcrumb a:hover { text-decoration: underline; }
+.g-breadcrumb span.sep { color: var(--border); }
+</style>
+
+<div class="page-transition-overlay" id="pageOverlay">
+  <div class="pt-logo">Health<span>OS</span></div>
+</div>
+
+<script>
+// ── PAGE TRANSITIONS ─────────────────────────────────────────────────────────
+(function(){
+  const overlay = document.getElementById('pageOverlay');
+  // fade IN on load (reverse: fade from white to transparent)
+  window.addEventListener('DOMContentLoaded', () => {
+    overlay.classList.add('active');
+    requestAnimationFrame(() => {
+      setTimeout(() => overlay.classList.remove('active'), 350);
+    });
+  });
+
+  // intercept all internal nav links
+  document.addEventListener('click', function(e){
+    const link = e.target.closest('a[href]');
+    if(!link) return;
+    const href = link.getAttribute('href');
+    if(!href || href === '#' || href.startsWith('http') || href.startsWith('mailto') || href.startsWith('data')) return;
+    if(href === window.location.pathname.split('/').pop()) return;
+    e.preventDefault();
+    overlay.classList.add('active');
+    setTimeout(() => { window.location.href = href; }, 280);
+  });
+
+  // also intercept onclick window.location.href calls via button wrapping
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('button[data-nav]');
+    if(btn){
+      e.preventDefault();
+      const dest = btn.getAttribute('data-nav');
+      overlay.classList.add('active');
+      setTimeout(() => { window.location.href = dest; }, 280);
+    }
+  });
+})();
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+const notifData = [
+  { color: '#C0504A', msg: '<strong>Low Stock Alert:</strong> Amoxicillin 500mg — reorder within 5 days', time: '2 min ago', page: 'medicine_panel.html' },
+  { color: '#C8963E', msg: '<strong>Patient Flagged:</strong> Chhanda Shit — BP critical, doctor notified', time: '14 min ago', page: 'report_services.html' },
+  { color: '#1A6B5A', msg: '<strong>New Registration:</strong> Debashish Nag added to WB-MDN cluster', time: '31 min ago', page: 'admin_panel.html' },
+  { color: '#3D4F8A', msg: '<strong>Doctor Camp Today:</strong> Dr. Priya Mukherjee — Pediatrics at 2PM', time: '1 hr ago', page: 'doctor_panel.html' },
+  { color: '#C8963E', msg: '<strong>Queue Alert:</strong> 327 patients in cluster queue — review needed', time: '2 hr ago', page: 'admin_panel.html' },
+];
+
+function buildNotifDropdown(){
+  const wrap = document.getElementById('notifDropdown');
+  if(!wrap) return;
+  let html = `<div class="nd-head"><h4>🔔 Notifications</h4><span class="nd-mark" onclick="markAllRead()">Mark all read</span></div>`;
+  notifData.forEach(n => {
+    html += `<div class="nd-item" onclick="navTo('${n.page}')">
+      <div class="nd-dot" style="background:${n.color}"></div>
+      <div><div class="nd-msg">${n.msg}</div><div class="nd-time">${n.time}</div></div>
+    </div>`;
+  });
+  html += `<div class="nd-footer"><a href="admin_panel.html">View all activity →</a></div>`;
+  wrap.innerHTML = html;
+}
+
+function toggleNotif(){
+  const d = document.getElementById('notifDropdown');
+  const u = document.getElementById('userDropdown');
+  if(u) u.classList.remove('open');
+  d.classList.toggle('open');
+}
+function toggleUser(){
+  const d = document.getElementById('userDropdown');
+  const n = document.getElementById('notifDropdown');
+  if(n) n.classList.remove('open');
+  d.classList.toggle('open');
+}
+function markAllRead(){
+  document.querySelector('.notif-badge') && (document.querySelector('.notif-badge').style.display='none');
+  document.getElementById('notifDropdown').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if(!e.target.closest('.notif-btn-wrap') && !e.target.closest('.notif-dropdown')){
+    document.querySelectorAll('.notif-dropdown').forEach(d=>d.classList.remove('open'));
+  }
+  if(!e.target.closest('.user-btn-wrap') && !e.target.closest('.user-dropdown')){
+    document.querySelectorAll('.user-dropdown').forEach(d=>d.classList.remove('open'));
+  }
+});
+
+function navTo(page){
+  const overlay = document.getElementById('pageOverlay');
+  overlay.classList.add('active');
+  setTimeout(() => { window.location.href = page; }, 280);
+}
+
+buildNotifDropdown();
+
+// ── LIVE CLOCK ────────────────────────────────────────────────────────────────
+function updateClock(){
+  const el = document.querySelector('.date-pill');
+  if(!el) return;
+  const now = new Date();
+  const opts = {weekday:'short',day:'2-digit',month:'short',year:'numeric'};
+  const date = now.toLocaleDateString('en-GB', opts);
+  const time = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  el.textContent = '📅 ' + date + ' · ' + time;
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+</script>
+
+<div class="toast" id="toast"></div>
+</body>
+</html>

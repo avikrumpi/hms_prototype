@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+  --shadow-lg: 0 12px 48px rgba(26,107,90,0.16);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background-image:
+    radial-gradient(ellipse 800px 600px at 90% 10%, rgba(61,191,160,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 10% 80%, rgba(200,150,62,0.05) 0%, transparent 70%);
+}
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  width: 55%;
+  background: var(--text-dark);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Layered background orbs */
+.left-panel::before {
+  content: '';
+  position: absolute;
+  top: -120px; left: -120px;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(61,191,160,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.left-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -100px; right: -80px;
+  width: 420px; height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,150,62,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Top logo bar */
+.left-logo {
+  padding: 32px 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 2;
+}
+.logo-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-glow));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 16px rgba(61,191,160,0.3);
+}
+.logo-text-block .logo-mark {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: #fff; letter-spacing: -0.5px;
+}
+.logo-text-block .logo-mark span { color: var(--teal-glow); }
+.logo-text-block .logo-sub {
+  font-size: 10px; color: rgba(255,255,255,0.35);
+  letter-spacing: 2.5px; text-transform: uppercase; margin-top: 1px;
+}
+
+/* HMS illustration area */
+.left-illustration {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 48px 40px;
+  position: relative;
+  z-index: 2;
+}
+
+/* SVG hospital illustration */
+.hms-graphic {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 36px;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
+}
+
+.left-headline {
+  text-align: center;
+}
+.left-headline h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px; font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.left-headline h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--teal-glow), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.left-headline p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.50);
+  line-height: 1.7;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+/* Stat pills row */
+.stat-pills {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.stat-pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 40px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sp-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sp-label { font-size: 12px; color: rgba(255,255,255,0.45); }
+.sp-val { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); font-family: 'DM Mono', monospace; }
+
+/* Bottom strip */
+.left-footer {
+  padding: 20px 40px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+}
+.lf-tag {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+}
+.lf-modules {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.lf-chip {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  width: 45%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 56px;
+  position: relative;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Welcome header */
+.welcome-block {
+  margin-bottom: 36px;
+}
+.welcome-eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.welcome-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 20px; height: 2px;
+  background: var(--teal-glow);
+  border-radius: 2px;
+}
+.welcome-block h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px; font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.welcome-block p {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+/* Role selector */
+.role-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.role-btn {
+  padding: 14px 12px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.role-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.role-btn.active {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(26,107,90,0.10);
+}
+.role-btn.active::before { opacity: 1; }
+.role-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+.role-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: block;
+  position: relative;
+  z-index: 1;
+  transition: color 0.2s;
+}
+.role-sub {
+  font-size: 10.5px;
+  color: var(--text-soft);
+  display: block;
+  margin-top: 2px;
+  position: relative;
+  z-index: 1;
+  transition: color 0.2s;
+}
+.role-btn.active .role-label { color: #fff; }
+.role-btn.active .role-sub { color: rgba(255,255,255,0.65); }
+
+/* Form */
+.form-group {
+  margin-bottom: 18px;
+}
+.form-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  font-weight: 600;
+  margin-bottom: 7px;
+  display: block;
+}
+.input-wrap {
+  position: relative;
+}
+.input-icon {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 17px;
+  color: var(--text-soft);
+  pointer-events: none;
+  transition: color 0.2s;
+}
+.form-input {
+  width: 100%;
+  padding: 13px 14px 13px 44px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-dark);
+  background: #fff;
+  outline: none;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.form-input::placeholder { color: var(--text-soft); }
+.form-input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 4px rgba(26,107,90,0.08);
+}
+.input-wrap:focus-within .input-icon { color: var(--teal); }
+
+/* Password toggle */
+.pw-toggle {
+  position: absolute;
+  right: 14px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  cursor: pointer; font-size: 17px;
+  color: var(--text-soft);
+  padding: 0;
+  transition: color 0.2s;
+}
+.pw-toggle:hover { color: var(--teal); }
+
+/* Remember & forgot row */
+.form-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.remember-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.remember-wrap input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--teal);
+  cursor: pointer;
+}
+.remember-wrap span { font-size: 13px; color: var(--text-mid); }
+.forgot-link {
+  font-size: 13px;
+  color: var(--teal);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.forgot-link:hover { color: var(--teal-light); }
+
+/* Sign in button */
+.signin-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 13px;
+  border: none;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(26,107,90,0.25);
+  position: relative;
+  overflow: hidden;
+}
+.signin-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.signin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(26,107,90,0.32); }
+.signin-btn:hover::after { opacity: 1; }
+.signin-btn:active { transform: translateY(0); }
+.btn-spinner {
+  display: none;
+  width: 18px; height: 18px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* Divider */
+.or-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+.or-divider::before, .or-divider::after {
+  content: ''; flex: 1;
+  height: 1px; background: var(--border);
+}
+
+/* Demo credentials */
+.demo-creds {
+  background: linear-gradient(135deg, rgba(26,107,90,0.04), rgba(61,191,160,0.07));
+  border: 1px solid rgba(26,107,90,0.14);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.demo-creds-title {
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--teal);
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.demo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.demo-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.demo-card:hover { border-color: var(--teal); box-shadow: 0 2px 10px rgba(26,107,90,0.1); }
+.dc-role { font-size: 11px; font-weight: 700; color: var(--text-mid); margin-bottom: 4px; }
+.dc-cred { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-soft); }
+.dc-cred span { display: block; }
+
+/* Error message */
+.error-msg {
+  display: none;
+  background: rgba(192,80,74,0.08);
+  border: 1px solid rgba(192,80,74,0.25);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: var(--rose);
+  margin-bottom: 16px;
+  align-items: center;
+  gap: 8px;
+}
+.error-msg.show { display: flex; }
+
+/* Success overlay */
+.success-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--cream);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.success-overlay.show { display: flex; }
+.success-overlay.visible { opacity: 1; }
+.success-icon {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-glow));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  box-shadow: 0 8px 32px rgba(26,107,90,0.3);
+  animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.success-text {
+  text-align: center;
+}
+.success-text h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px; font-weight: 700;
+  color: var(--text-dark); margin-bottom: 6px;
+}
+.success-text p { font-size: 14px; color: var(--text-soft); }
+.success-bar {
+  width: 220px; height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.success-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+  border-radius: 4px;
+  width: 0%;
+  transition: width 1.6s ease;
+}
+
+/* Page transition */
+.page-overlay {
+  position: fixed; inset: 0;
+  background: var(--cream);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.page-overlay.active { opacity: 1; pointer-events: all; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.login-card { animation: fadeUp 0.5s ease 0.1s both; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .left-panel { display: none; }
+  .right-panel { width: 100%; padding: 40px 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Page transition overlay -->
+<div class="page-overlay" id="pageOverlay"></div>
+
+<!-- Success overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">✓</div>
+  <div class="success-text">
+    <h3 id="successName">Welcome back!</h3>
+    <p id="successRole">Redirecting to your dashboard…</p>
+  </div>
+  <div class="success-bar"><div class="success-fill" id="successFill"></div></div>
+</div>
+
+<!-- ══ LEFT PANEL ══ -->
+<div class="left-panel">
+  <div class="left-logo">
+    <div class="logo-icon">🏥</div>
+    <div class="logo-text-block">
+      <div class="logo-mark">Health<span>OS</span></div>
+      <div class="logo-sub">West Bengal · NHM</div>
+    </div>
+  </div>
+
+  <div class="left-illustration">
+    <!-- SVG Hospital Management System Illustration -->
+    <svg class="hms-graphic" viewBox="0 0 420 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background glow circles -->
+      <circle cx="210" cy="150" r="140" fill="rgba(61,191,160,0.05)"/>
+      <circle cx="210" cy="150" r="100" fill="rgba(61,191,160,0.04)"/>
+
+      <!-- Hospital building -->
+      <rect x="100" y="100" width="220" height="160" rx="8" fill="#2A9076" opacity="0.15"/>
+      <rect x="108" y="108" width="204" height="152" rx="6" fill="#1A6B5A" opacity="0.2"/>
+
+      <!-- Building facade -->
+      <rect x="120" y="115" width="180" height="145" rx="5" fill="#253347"/>
+      <rect x="120" y="115" width="180" height="8" rx="3" fill="#1A6B5A"/>
+
+      <!-- Cross symbol on building -->
+      <rect x="197" y="125" width="26" height="8" rx="2" fill="#3DBFA0"/>
+      <rect x="207" y="118" width="6" height="22" rx="2" fill="#3DBFA0"/>
+
+      <!-- Windows row 1 -->
+      <rect x="133" y="140" width="28" height="22" rx="3" fill="rgba(61,191,160,0.25)"/>
+      <rect x="171" y="140" width="28" height="22" rx="3" fill="rgba(200,150,62,0.3)"/>
+      <rect x="221" y="140" width="28" height="22" rx="3" fill="rgba(61,191,160,0.25)"/>
+      <rect x="259" y="140" width="28" height="22" rx="3" fill="rgba(61,191,160,0.15)"/>
+      <!-- Window glow lines -->
+      <line x1="147" y1="140" x2="147" y2="162" stroke="rgba(61,191,160,0.4)" stroke-width="1"/>
+      <line x1="185" y1="140" x2="185" y2="162" stroke="rgba(200,150,62,0.4)" stroke-width="1"/>
+      <line x1="235" y1="140" x2="235" y2="162" stroke="rgba(61,191,160,0.4)" stroke-width="1"/>
+      <line x1="273" y1="140" x2="273" y2="162" stroke="rgba(61,191,160,0.3)" stroke-width="1"/>
+
+      <!-- Windows row 2 -->
+      <rect x="133" y="174" width="28" height="22" rx="3" fill="rgba(61,191,160,0.15)"/>
+      <rect x="171" y="174" width="28" height="22" rx="3" fill="rgba(61,191,160,0.25)"/>
+      <rect x="221" y="174" width="28" height="22" rx="3" fill="rgba(200,150,62,0.2)"/>
+      <rect x="259" y="174" width="28" height="22" rx="3" fill="rgba(61,191,160,0.25)"/>
+
+      <!-- Main entrance -->
+      <rect x="184" y="218" width="52" height="42" rx="4" fill="#1A3A2A"/>
+      <rect x="184" y="218" width="52" height="4" rx="2" fill="#3DBFA0"/>
+      <!-- Door panels -->
+      <rect x="187" y="225" width="20" height="30" rx="2" fill="#1C4A35"/>
+      <rect x="213" y="225" width="20" height="30" rx="2" fill="#1C4A35"/>
+      <circle cx="209" cy="242" r="2" fill="rgba(200,150,62,0.7)"/>
+      <circle cx="213" cy="242" r="2" fill="rgba(200,150,62,0.7)"/>
+
+      <!-- Ground line -->
+      <rect x="100" y="260" width="220" height="3" rx="2" fill="rgba(61,191,160,0.2)"/>
+
+      <!-- Floating UI cards -->
+      <!-- Card 1: Patients -->
+      <g transform="translate(10,85)" style="animation:float 3s ease-in-out infinite">
+        <rect width="96" height="52" rx="10" fill="rgba(26,107,90,0.9)" stroke="rgba(61,191,160,0.3)" stroke-width="1"/>
+        <rect x="8" y="10" width="30" height="5" rx="2" fill="rgba(255,255,255,0.3)"/>
+        <rect x="8" y="22" width="50" height="12" rx="3" fill="rgba(61,191,160,0.8)"/>
+        <rect x="62" y="22" width="24" height="12" rx="3" fill="rgba(61,191,160,0.3)"/>
+        <rect x="8" y="38" width="18" height="4" rx="2" fill="rgba(255,255,255,0.15)"/>
+        <rect x="30" y="38" width="28" height="4" rx="2" fill="rgba(255,255,255,0.15)"/>
+      </g>
+
+      <!-- Card 2: Stats -->
+      <g transform="translate(316,60)">
+        <rect width="96" height="68" rx="10" fill="rgba(26,107,90,0.9)" stroke="rgba(61,191,160,0.3)" stroke-width="1"/>
+        <rect x="8" y="8" width="36" height="5" rx="2" fill="rgba(255,255,255,0.25)"/>
+        <!-- Mini bar chart -->
+        <rect x="8" y="24" width="10" height="28" rx="2" fill="rgba(61,191,160,0.5)"/>
+        <rect x="22" y="30" width="10" height="22" rx="2" fill="rgba(61,191,160,0.7)"/>
+        <rect x="36" y="18" width="10" height="34" rx="2" fill="rgba(61,191,160,0.9)"/>
+        <rect x="50" y="26" width="10" height="26" rx="2" fill="rgba(61,191,160,0.6)"/>
+        <rect x="64" y="20" width="10" height="32" rx="2" fill="rgba(61,191,160,0.8)"/>
+        <rect x="78" y="32" width="10" height="20" rx="2" fill="rgba(200,150,62,0.7)"/>
+        <rect x="8" y="56" width="80" height="3" rx="1" fill="rgba(255,255,255,0.08)"/>
+      </g>
+
+      <!-- Card 3: HA status -->
+      <g transform="translate(316,148)">
+        <rect width="96" height="62" rx="10" fill="rgba(26,107,90,0.85)" stroke="rgba(61,191,160,0.25)" stroke-width="1"/>
+        <rect x="8" y="8" width="40" height="5" rx="2" fill="rgba(255,255,255,0.25)"/>
+        <!-- Progress rings sketch -->
+        <circle cx="26" cy="36" r="14" stroke="rgba(61,191,160,0.2)" stroke-width="3" fill="none"/>
+        <circle cx="26" cy="36" r="14" stroke="rgba(61,191,160,0.8)" stroke-width="3" fill="none"
+          stroke-dasharray="62" stroke-dashoffset="18" stroke-linecap="round"/>
+        <rect x="48" y="26" width="36" height="5" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="48" y="36" width="24" height="5" rx="2" fill="rgba(61,191,160,0.5)"/>
+        <rect x="48" y="46" width="30" height="5" rx="2" fill="rgba(255,255,255,0.1)"/>
+      </g>
+
+      <!-- Connecting dots / grid decoration -->
+      <circle cx="108" cy="104" r="3" fill="rgba(61,191,160,0.4)"/>
+      <circle cx="312" cy="104" r="3" fill="rgba(61,191,160,0.4)"/>
+      <circle cx="108" cy="260" r="3" fill="rgba(61,191,160,0.2)"/>
+      <circle cx="312" cy="260" r="3" fill="rgba(61,191,160,0.2)"/>
+
+      <!-- Pulse ring on entrance -->
+      <circle cx="210" cy="234" r="12" stroke="rgba(61,191,160,0.2)" stroke-width="1.5" fill="none" opacity="0.6"/>
+      <circle cx="210" cy="234" r="18" stroke="rgba(61,191,160,0.1)" stroke-width="1" fill="none" opacity="0.4"/>
+    </svg>
+
+    <div class="left-headline">
+      <h1>Healthcare <em>Unified.</em><br>Management <em>Simplified.</em></h1>
+      <p>A unified platform for patient management, cluster monitoring, health assistants and district-level analytics — all in one place.</p>
+    </div>
+
+    <div class="stat-pills">
+      <div class="stat-pill">
+        <div class="sp-dot" style="background:#3DBFA0"></div>
+        <span class="sp-label">Clusters</span>
+        <span class="sp-val">16 Active</span>
+      </div>
+      <div class="stat-pill">
+        <div class="sp-dot" style="background:#C8963E"></div>
+        <span class="sp-label">Patients</span>
+        <span class="sp-val">2,847</span>
+      </div>
+      <div class="stat-pill">
+        <div class="sp-dot" style="background:#6B82C8"></div>
+        <span class="sp-label">HAs</span>
+        <span class="sp-val">34 Deployed</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="left-footer">
+    <span class="lf-tag">Modules</span>
+    <div class="lf-modules">
+      <span class="lf-chip">Patients</span>
+      <span class="lf-chip">Clusters</span>
+      <span class="lf-chip">Billing</span>
+      <span class="lf-chip">Reports</span>
+      <span class="lf-chip">Prescriptions</span>
+      <span class="lf-chip">Analytics</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RIGHT PANEL ══ -->
+<div class="right-panel">
+  <div class="login-card">
+
+    <div class="welcome-block">
+      <div class="welcome-eyebrow">Secure Access Portal</div>
+      <h2>Welcome back,<br>sign in to continue.</h2>
+      <p>Select your role and enter your credentials to access the HealthOS dashboard.</p>
+    </div>
+
+    <!-- Role selector -->
+    <div class="role-selector" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="role-btn active" id="roleAdmin" onclick="selectRole('admin')">
+        <span class="role-icon">🛡</span>
+        <span class="role-label">Administrator</span>
+        <span class="role-sub">Full system access</span>
+      </div>
+      <div class="role-btn" id="roleHA" onclick="selectRole('ha')">
+        <span class="role-icon">🩺</span>
+        <span class="role-label">Health Assistant</span>
+        <span class="role-sub">Field operations</span>
+      </div>
+      <div class="role-btn" id="roleDoctor" onclick="selectRole('doctor')">
+        <span class="role-icon">👨‍⚕️</span>
+        <span class="role-label">Doctor</span>
+        <span class="role-sub">Clinical workbench</span>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <div class="error-msg" id="errorMsg">
+      <span>⚠</span>
+      <span id="errorText">Invalid credentials. Please try again.</span>
+    </div>
+
+    <!-- Form -->
+    <div class="form-group">
+      <label class="form-label">User ID / Employee Code</label>
+      <div class="input-wrap">
+        <span class="input-icon">👤</span>
+        <input class="form-input" id="inputUser" type="text"
+          placeholder="Enter your username"
+          autocomplete="username">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input class="form-input" id="inputPass" type="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') doLogin()">
+        <button class="pw-toggle" id="pwToggle" onclick="togglePw()" type="button">👁</button>
+      </div>
+    </div>
+
+    <div class="form-meta">
+      <label class="remember-wrap">
+        <input type="checkbox" id="rememberMe">
+        <span>Keep me signed in</span>
+      </label>
+      <a class="forgot-link" onclick="showForgot()">Forgot password?</a>
+    </div>
+
+    <button class="signin-btn" id="signinBtn" onclick="doLogin()">
+      <span class="btn-spinner" id="btnSpinner"></span>
+      <span id="btnLabel">Sign In to HealthOS</span>
+      <span id="btnArrow">→</span>
+    </button>
+
+    <div class="or-divider">Quick access demo</div>
+
+    <!-- Demo credentials -->
+    <div class="demo-creds">
+      <div class="demo-creds-title">✦ Demo Credentials — click to fill</div>
+      <div class="demo-row">
+        <div class="demo-card" onclick="fillDemo('admin')">
+          <div class="dc-role">🛡 Administrator</div>
+          <div class="dc-cred">
+            <span>ID: admin</span>
+            <span>Pass: admin</span>
+          </div>
+        </div>
+        <div class="demo-card" onclick="fillDemo('ha')">
+          <div class="dc-role">🩺 Health Assistant</div>
+          <div class="dc-cred">
+            <span>ID: hassistant</span>
+            <span>Pass: hassistant</span>
+          </div>
+        </div>
+        <div class="demo-card" onclick="fillDemo('doctor')">
+          <div class="dc-role">👨‍⚕️ Doctor</div>
+          <div class="dc-cred">
+            <span>ID: doctor</span>
+            <span>Pass: doctor</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══ CREDENTIALS ══
+const USERS = {
+  'admin':      { pass: 'admin',      role: 'admin',  name: 'Dr. Arnab Sen',       title: 'System Administrator',          dest: 'admin_panel.html' },
+  'hassistant': { pass: 'hassistant', role: 'ha',     name: 'Sumit Chakraborty',   title: 'Health Assistant · Berhampore', dest: 'admin_panel.html' },
+  'doctor':     { pass: 'doctor',     role: 'doctor', name: 'Dr. Priya Mukherjee', title: 'Clinical Officer · HealthOS',   dest: 'prescription_workbench.html' },
+};
+
+const ROLE_LABELS = { admin: 'Administrator', ha: 'Health Assistant', doctor: 'Doctor' };
+const PLACEHOLDERS = { admin: 'Enter username: admin', ha: 'Enter username: hassistant', doctor: 'Enter username: doctor' };
+
+let selectedRole = 'admin';
+let pwVisible = false;
+
+function selectRole(role) {
+  selectedRole = role;
+  document.getElementById('roleAdmin').classList.toggle('active',  role === 'admin');
+  document.getElementById('roleHA').classList.toggle('active',     role === 'ha');
+  document.getElementById('roleDoctor').classList.toggle('active', role === 'doctor');
+  document.getElementById('inputUser').placeholder = PLACEHOLDERS[role];
+  hideError();
+}
+
+function togglePw() {
+  pwVisible = !pwVisible;
+  const inp = document.getElementById('inputPass');
+  const btn = document.getElementById('pwToggle');
+  inp.type = pwVisible ? 'text' : 'password';
+  btn.textContent = pwVisible ? '🙈' : '👁';
+}
+
+function fillDemo(role) {
+  selectRole(role);
+  const creds = { admin: ['admin','admin'], ha: ['hassistant','hassistant'], doctor: ['doctor','doctor'] };
+  document.getElementById('inputUser').value = creds[role][0];
+  document.getElementById('inputPass').value = creds[role][1];
+  hideError();
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  document.getElementById('errorText').textContent = msg;
+  el.classList.add('show');
+}
+function hideError() { document.getElementById('errorMsg').classList.remove('show'); }
+
+function setLoading(loading) {
+  const btn = document.getElementById('signinBtn');
+  const spinner = document.getElementById('btnSpinner');
+  const label = document.getElementById('btnLabel');
+  const arrow = document.getElementById('btnArrow');
+  btn.disabled = loading;
+  spinner.style.display = loading ? 'block' : 'none';
+  label.textContent = loading ? 'Signing in…' : 'Sign In to HealthOS';
+  arrow.style.display = loading ? 'none' : 'inline';
+}
+
+function doLogin() {
+  hideError();
+  const userId = document.getElementById('inputUser').value.trim().toLowerCase();
+  const pass   = document.getElementById('inputPass').value;
+
+  if (!userId) { showError('Please enter your username.'); document.getElementById('inputUser').focus(); return; }
+  if (!pass)   { showError('Please enter your password.'); document.getElementById('inputPass').focus(); return; }
+
+  setLoading(true);
+
+  setTimeout(() => {
+    const user = USERS[userId];
+    if (!user) {
+      setLoading(false);
+      showError('Username not found. Please check and try again.');
+      return;
+    }
+    if (user.pass !== pass) {
+      setLoading(false);
+      showError('Incorrect password. Please try again.');
+      return;
+    }
+    if (user.role !== selectedRole) {
+      setLoading(false);
+      showError(`This account belongs to the "${ROLE_LABELS[user.role]}" role. Please select the correct role above.`);
+      return;
+    }
+    setLoading(false);
+    showSuccess(user);
+  }, 800);
+}
+
+function showSuccess(user) {
+  document.getElementById('successName').textContent = `Welcome, ${user.name}!`;
+  document.getElementById('successRole').textContent = `${user.title} · Redirecting to your dashboard…`;
+
+  const overlay = document.getElementById('successOverlay');
+  overlay.classList.add('show');
+  requestAnimationFrame(() => {
+    overlay.classList.add('visible');
+    setTimeout(() => { document.getElementById('successFill').style.width = '100%'; }, 50);
+  });
+
+  setTimeout(() => {
+    document.getElementById('pageOverlay').classList.add('active');
+    setTimeout(() => { window.location.href = user.dest; }, 300);
+  }, 1800);
+}
+
+function showForgot() {
+  const userId = document.getElementById('inputUser').value.trim();
+  if (userId) {
+    alert(`Password reset link sent to the registered email for "${userId}".\n\nDemo hint: username and password are the same for all accounts.`);
+  } else {
+    alert('Please enter your username first, then click Forgot Password.');
+    document.getElementById('inputUser').focus();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const overlay = document.getElementById('pageOverlay');
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'all';
+  setTimeout(() => { overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }, 100);
+});
+</script>
+</body>
+</html>

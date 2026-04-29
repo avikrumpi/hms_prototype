@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Cluster Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FAF8F4;--ivory:#F5F0E8;--teal:#1A6B5A;--teal-light:#2A9076;--teal-glow:#3DBFA0;--gold:#C8963E;--gold-light:#E8B96A;--rose:#C0504A;--rose-light:#E8857F;--indigo:#3D4F8A;--purple:#7B5EA7;--text-dark:#1C2331;--text-mid:#4A5568;--text-soft:#8896A5;--border:#E2D9CC;--glass:rgba(255,255,255,0.72);--shadow:0 4px 32px rgba(26,107,90,0.10);--shadow-lg:0 12px 48px rgba(26,107,90,0.16);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;
+  background-image:radial-gradient(ellipse 800px 600px at 90% 10%,rgba(61,191,160,0.06) 0%,transparent 70%),
+  radial-gradient(ellipse 600px 500px at 10% 80%,rgba(200,150,62,0.05) 0%,transparent 70%);}
+
+/* SIDEBAR */
+.sidebar{width:260px;position:fixed;top:0;left:0;height:100vh;background:var(--text-dark);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 40px rgba(0,0,0,0.15);}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo-mark{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;}
+.logo-mark span{color:var(--teal-glow);}
+.logo-sub{font-size:11px;color:var(--text-soft);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.sidebar-admin{padding:20px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.admin-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;}
+.admin-avatar::after{content:'';position:absolute;bottom:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#4ADE80;border:2px solid var(--text-dark);}
+.admin-name{font-weight:600;font-size:14px;color:#fff;}
+.admin-role{font-size:11px;color:var(--text-soft);}
+.nav-section{padding:16px 12px 8px;}
+.nav-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 12px 8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:2px;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);}
+.nav-item.active{background:linear-gradient(135deg,var(--teal),var(--teal-light));color:#fff;}
+.nav-item .icon{font-size:18px;width:22px;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.12);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);}
+.nav-badge.alert{background:var(--rose);color:#fff;}
+.sidebar-bottom{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06);}
+.quick-jump{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px;margin-bottom:10px;}
+.qj-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px;}
+.qj-link{display:block;font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s;margin-bottom:2px;}
+.qj-link:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);}
+.date-pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:8px 14px;text-align:center;font-size:12px;color:var(--text-soft);font-family:'DM Mono',monospace;}
+
+/* MAIN */
+.main{margin-left:260px;min-height:100vh;}
+.topbar{background:var(--glass);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 36px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--text-dark);}
+.breadcrumb{font-size:12px;color:var(--text-soft);margin-top:2px;}
+.breadcrumb a{color:var(--teal);text-decoration:none;font-weight:500;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.tb-btn{padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+.tb-btn:hover{border-color:var(--teal);color:var(--teal);}
+.tb-btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+.tb-btn.primary:hover{background:var(--teal-light);transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,107,90,0.25);}
+.notif-btn-wrap{position:relative;}
+.notif-btn{width:38px;height:38px;border-radius:10px;background:var(--ivory);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative;transition:all 0.15s;}
+.notif-badge{position:absolute;top:-5px;right:-5px;background:var(--rose);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;border:2px solid var(--cream);}
+.user-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;cursor:pointer;}
+.content{padding:32px 36px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.03);transition:transform 0.2s,box-shadow 0.2s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;}
+.sc-teal::before{background:linear-gradient(90deg,var(--teal),var(--teal-glow));}
+.sc-gold::before{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.sc-rose::before{background:linear-gradient(90deg,var(--rose),var(--rose-light));}
+.sc-indigo::before{background:linear-gradient(90deg,var(--indigo),#6B82C8);}
+.sc-purple::before{background:linear-gradient(90deg,var(--purple),#A78BFA);}
+.stat-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px;}
+.stat-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;line-height:1;}
+.stat-sub{font-size:11.5px;color:var(--text-soft);margin-top:6px;}
+.stat-trend{font-weight:700;}
+.stat-trend.up{color:#16a34a;}
+.stat-trend.dn{color:var(--rose);}
+
+/* AI INSIGHT */
+.ai-insight{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:18px;padding:20px 26px;display:flex;align-items:flex-start;gap:16px;margin-bottom:28px;border:1px solid rgba(61,191,160,0.2);}
+.ai-icon{width:42px;height:42px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,var(--teal-glow),var(--teal));display:flex;align-items:center;justify-content:center;font-size:20px;}
+.ai-text h4{font-size:12px;font-weight:700;color:var(--teal-glow);letter-spacing:1px;text-transform:uppercase;}
+.ai-text p{font-size:13px;color:rgba(255,255,255,0.72);margin-top:5px;line-height:1.6;}
+.ai-text strong{color:rgba(255,255,255,0.95);}
+.ai-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.ai-chip{padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:600;border:1px solid rgba(61,191,160,0.3);color:var(--teal-glow);background:rgba(61,191,160,0.08);cursor:pointer;transition:all 0.15s;}
+.ai-chip:hover{background:rgba(61,191,160,0.15);}
+
+/* SEARCH */
+.search-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.search-wrap{flex:1;background:#fff;border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:center;padding:0 14px;gap:10px;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.03);}
+.search-wrap:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.08);}
+.search-wrap input{flex:1;padding:12px 0;font-size:13.5px;font-family:'DM Sans',sans-serif;border:none;outline:none;background:transparent;color:var(--text-dark);}
+.search-wrap input::placeholder{color:var(--text-soft);}
+.filter-btn{padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--text-mid);font-size:12.5px;cursor:pointer;white-space:nowrap;transition:all 0.15s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;}
+.filter-btn:hover{border-color:var(--teal);color:var(--teal);}
+.ai-btn{padding:9px 16px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.2s;}
+.ai-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,107,90,0.25);}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+.tag{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);transition:all 0.15s;}
+.tag:hover,.tag.active{border-color:var(--teal);background:rgba(26,107,90,0.06);color:var(--teal);}
+
+/* CLUSTER CARDS */
+.cluster-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:32px;}
+.cluster-card{background:#fff;border:1.5px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 12px rgba(0,0,0,0.04);}
+.cluster-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:rgba(26,107,90,0.3);}
+.cc-head{padding:20px 22px 16px;position:relative;}
+.cc-code{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:6px;}
+.cc-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;}
+.cc-district{font-size:12px;color:rgba(255,255,255,0.65);margin-top:3px;}
+.cc-badge{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);color:#fff;background:rgba(255,255,255,0.15);}
+.cc-body{padding:18px 22px;}
+.cc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.cs{text-align:center;padding:10px 6px;background:var(--ivory);border-radius:10px;border:1px solid var(--border);}
+.cs-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+.cs-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);margin-top:3px;}
+.cc-bar-wrap{height:6px;background:var(--border);border-radius:6px;overflow:hidden;margin-bottom:8px;}
+.cc-bar{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--teal),var(--teal-glow));transition:width 0.9s ease;}
+.cc-bar-row{display:flex;justify-content:space-between;font-size:11px;color:var(--text-soft);}
+.cc-ha-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+.ha-pill{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(26,107,90,0.07);color:var(--teal);border:1px solid rgba(26,107,90,0.15);font-weight:600;}
+.cc-footer{display:flex;gap:8px;margin-top:14px;}
+.ccf-btn{flex:1;padding:8px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);transition:all 0.15s;}
+.ccf-btn:hover{border-color:var(--teal);color:var(--teal);}
+.ccf-btn.pri{background:var(--teal);border-color:var(--teal);color:#fff;}
+.ccf-btn.pri:hover{background:var(--teal-light);}
+
+/* COMPARISON TABLE */
+.comp-card{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);margin-bottom:32px;}
+.comp-head{padding:20px 26px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.comp-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+.comp-actions{display:flex;gap:8px;}
+.ca-btn{padding:7px 14px;border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);transition:all 0.15s;display:flex;align-items:center;gap:5px;}
+.ca-btn:hover{border-color:var(--teal);color:var(--teal);}
+.ca-btn.ai{background:var(--teal);border-color:var(--teal);color:#fff;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:12px 18px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);background:#FAFAF8;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid #F5F0E8;transition:background 0.15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(26,107,90,0.02);}
+tbody td{padding:14px 18px;font-size:13px;color:var(--text-dark);}
+.cluster-code-badge{font-family:'DM Mono',monospace;font-size:11px;padding:3px 9px;border-radius:7px;font-weight:600;}
+.mini-bar-wrap{display:flex;align-items:center;gap:8px;}
+.mini-bar{flex:1;height:6px;background:var(--border);border-radius:6px;overflow:hidden;}
+.mini-fill{height:100%;border-radius:6px;}
+.rank-badge{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+
+/* AI COMPARISON */
+.ai-comp-card{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:18px;padding:24px;margin-bottom:32px;border:1px solid rgba(61,191,160,0.2);}
+.ai-comp-title{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--teal-glow);font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.comp-insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.ci-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;}
+.ci-type{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+.ci-type.best{color:#4ADE80;}
+.ci-type.warn{color:#FCD34D;}
+.ci-type.crit{color:#FDA4AF;}
+.ci-text{font-size:12.5px;color:rgba(255,255,255,0.72);line-height:1.5;}
+.ci-text strong{color:rgba(255,255,255,0.92);}
+
+/* ADD CLUSTER FORM */
+.form-section{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);margin-bottom:32px;}
+.fs-head{background:linear-gradient(135deg,var(--text-dark),#2D3A52);padding:20px 26px;display:flex;align-items:center;justify-content:space-between;}
+.fs-head h3{font-family:'Playfair Display',serif;font-size:19px;color:#fff;font-weight:700;}
+.fs-head p{font-size:12.5px;color:rgba(255,255,255,0.5);margin-top:3px;}
+.fs-toggle{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:6px 12px;font-size:12px;color:#fff;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.fs-body{padding:28px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg.full{grid-column:1/-1;}
+.fg.two{grid-column:span 2;}
+.fl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);font-weight:600;}
+.fi{padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-dark);outline:none;transition:all 0.2s;background:#FAFAF8;width:100%;}
+.fi:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.08);background:#fff;}
+.fi::placeholder{color:var(--text-soft);}
+select.fi{cursor:pointer;}
+.ai-assist-row{background:linear-gradient(135deg,rgba(26,107,90,0.04),rgba(61,191,160,0.07));border:1px solid rgba(26,107,90,0.15);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:9px;margin-bottom:18px;}
+.ai-assist-row p{font-size:12px;color:var(--text-mid);}
+.ai-assist-row strong{color:var(--teal);}
+.submit-row{display:flex;gap:10px;margin-top:16px;}
+.sub-btn{flex:2;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.sub-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,107,90,0.3);}
+.sec-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* DRAWER */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);backdrop-filter:blur(4px);z-index:300;}
+.drawer-overlay.open{display:block;}
+.drawer{position:fixed;top:0;right:-540px;width:520px;height:100vh;background:#fff;box-shadow:-12px 0 60px rgba(0,0,0,0.15);z-index:301;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;}
+.drawer.open{right:0;}
+.drawer-head{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;}
+.drawer-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--ivory);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all 0.15s;}
+.drawer-close:hover{border-color:var(--rose);color:var(--rose);}
+.drawer-body{padding:28px;}
+.d-section{margin-bottom:24px;}
+.d-sec-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.d-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F5F0E8;}
+.d-row:last-child{border-bottom:none;}
+.d-label{font-size:12.5px;color:var(--text-soft);}
+.d-value{font-size:13px;font-weight:600;color:var(--text-dark);}
+.d-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0;}
+.d-stat{background:var(--ivory);border-radius:10px;padding:12px 8px;text-align:center;border:1px solid var(--border);}
+.d-stat-val{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}
+.d-stat-lbl{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);margin-top:3px;}
+.d-ai-box{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:12px;padding:16px;margin-top:16px;border:1px solid rgba(61,191,160,0.2);}
+.d-ai-box h5{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal-glow);margin-bottom:8px;}
+.d-ai-box p{font-size:12.5px;color:rgba(255,255,255,0.7);line-height:1.6;}
+.d-ai-box strong{color:rgba(255,255,255,0.9);}
+.patient-mini{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--ivory);border:1px solid var(--border);margin-bottom:6px;transition:all 0.15s;}
+.patient-mini:hover{border-color:var(--teal);}
+.pm-name{font-size:13px;font-weight:600;}
+.pm-meta{font-size:11px;color:var(--text-soft);}
+.pm-badge{margin-left:auto;font-size:11px;padding:2px 8px;border-radius:8px;font-weight:600;}
+
+/* TOAST + TRANSITION */
+.toast{position:fixed;bottom:32px;right:32px;background:var(--text-dark);color:#fff;padding:14px 22px;border-radius:12px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;z-index:9000;transform:translateY(80px);opacity:0;transition:all 0.35s;box-shadow:0 8px 32px rgba(0,0,0,0.25);}
+.toast.show{transform:translateY(0);opacity:1;}
+.page-transition-overlay{position:fixed;inset:0;background:var(--cream);z-index:9999;opacity:0;pointer-events:none;display:flex;align-items:center;justify-content:center;transition:opacity 0.22s ease;}
+.page-transition-overlay.active{opacity:1;pointer-events:all;}
+.pt-logo{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--teal);opacity:0;transform:translateY(8px);transition:all 0.3s ease 0.08s;}
+.pt-logo span{color:var(--teal-glow);}
+.page-transition-overlay.active .pt-logo{opacity:1;transform:translateY(0);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.animate{animation:fadeUp 0.45s ease both;}
+.d1{animation-delay:0.05s;}.d2{animation-delay:0.1s;}.d3{animation-delay:0.15s;}.d4{animation-delay:0.2s;}.d5{animation-delay:0.25s;}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:22px;width:860px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.22);animation:fadeUp 0.28s ease both;}
+.modal-head{padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;border-radius:22px 22px 0 0;}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}
+.modal-sub{font-size:12px;color:var(--text-soft);margin-top:2px;}
+.modal-close{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--ivory);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .15s;flex-shrink:0;}
+.modal-close:hover{border-color:var(--rose);color:var(--rose);}
+.modal-body{padding:28px;}
+.cmp-table{width:100%;border-collapse:collapse;font-size:13px;}
+.cmp-table th{background:#FAFAF8;padding:10px 14px;text-align:left;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);border-bottom:1px solid var(--border);}
+.cmp-table td{padding:11px 14px;border-bottom:1px solid #F5F0E8;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:hover td{background:rgba(26,107,90,0.02);}
+.grade{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.grade-a{background:rgba(22,163,74,0.1);color:#16a34a;}
+.grade-b{background:rgba(200,150,62,0.1);color:var(--gold);}
+.grade-c{background:rgba(192,80,74,0.1);color:var(--rose);}
+.map-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.map-tile{border-radius:14px;padding:16px 14px;border:1.5px solid var(--border);position:relative;overflow:hidden;cursor:pointer;transition:all .2s;}
+.map-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.map-tile-code{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--text-soft);}
+.map-tile-name{font-weight:700;font-size:13px;margin-bottom:2px;}
+.map-tile-dist{font-size:11px;color:var(--text-soft);}
+.map-tile-bar{height:5px;border-radius:5px;margin-top:10px;background:var(--border);}
+.map-tile-fill{height:100%;border-radius:5px;}
+.map-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-soft);margin-top:12px;}
+.map-legend span{display:flex;align-items:center;gap:5px;}
+.map-legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.rb-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);margin-bottom:8px;background:#fff;transition:all .15s;}
+.rb-row:hover{border-color:rgba(26,107,90,0.3);}
+.rb-from,.rb-to{flex:1;}
+.rb-to{text-align:right;}
+.rb-arrow{font-size:18px;color:var(--text-soft);}
+.rb-count{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--rose);}
+.rb-label{font-size:11px;color:var(--text-soft);}
+.rb-name{font-size:13px;font-weight:700;}
+.rb-apply{padding:6px 14px;border-radius:8px;background:var(--teal);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.hr-sec-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.hr-metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.hr-metric{background:var(--ivory);border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
+.hr-metric-val{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;}
+.hr-metric-lbl{font-size:11px;color:var(--text-soft);margin-top:3px;}
+.hr-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.hr-bar-label{width:140px;font-size:12px;color:var(--text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hr-bar-track{flex:1;height:8px;background:var(--border);border-radius:8px;overflow:hidden;}
+.hr-bar-fill{height:100%;border-radius:8px;}
+.hr-bar-val{width:40px;text-align:right;font-size:12px;font-weight:700;color:var(--text-dark);}
+.risk-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin:3px;}
+.risk-high{background:rgba(192,80,74,.1);color:var(--rose);}
+.risk-med{background:rgba(200,150,62,.1);color:var(--gold);}
+.risk-low{background:rgba(22,163,74,.1);color:#16a34a;}
+.modal-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+.mf-btn{padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);transition:all .15s;}
+.mf-btn:hover{border-color:var(--teal);color:var(--teal);}
+.mf-btn.pri{background:var(--teal);border-color:var(--teal);color:#fff;}
+.mf-btn.pri:hover{background:var(--teal-light);}
+
+/* AI LOADING & STREAMING */
+.ai-loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;}
+.ai-spinner{width:52px;height:52px;border-radius:50%;border:3px solid rgba(61,191,160,0.2);border-top-color:var(--teal-glow);animation:spin 0.9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-loading-label{font-size:13px;color:var(--teal-glow);font-weight:600;letter-spacing:1px;animation:pulse 1.4s ease infinite;}
+@keyframes pulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+.ai-stream-text{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;white-space:pre-wrap;}
+.ai-stream-text strong,.ai-stream-text b{color:rgba(255,255,255,0.95);}
+.ai-result-box{background:linear-gradient(135deg,#1C2331,#2D3A52);border:1px solid rgba(61,191,160,0.25);border-radius:14px;padding:20px 22px;margin-bottom:16px;}
+.ai-result-header{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--teal-glow);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.ai-cursor{display:inline-block;width:2px;height:14px;background:var(--teal-glow);animation:blink 0.8s step-end infinite;vertical-align:middle;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.cmp-grade{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.cmp-grade-a{background:rgba(22,163,74,0.12);color:#16a34a;}
+.cmp-grade-b{background:rgba(200,150,62,0.12);color:var(--gold);}
+.cmp-grade-c{background:rgba(192,80,74,0.12);color:var(--rose);}
+.rb-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(192,80,74,0.1);color:var(--rose);}
+.rb-accept{padding:6px 12px;border-radius:8px;background:var(--teal);color:#fff;border:none;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.rb-accept:hover{background:var(--teal-light);}
+.reb-ai-section{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:14px;padding:18px 20px;border:1px solid rgba(61,191,160,0.2);margin-bottom:16px;}
+</style>
+</head>
+<body>
+
+<div class="page-transition-overlay" id="pageOverlay"><div class="pt-logo">Health<span>OS</span></div></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence Platform</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div><div class="admin-name">Admin Portal</div><div class="admin-role">Super Administrator</div></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Core</div>
+    <a href="admin_panel.html" class="nav-item" onclick="navTo('admin_panel.html');return false"><span class="icon">🏥</span>Patients<span class="nav-badge">1001</span></a>
+    <a href="doctor_panel.html" class="nav-item" onclick="navTo('doctor_panel.html');return false"><span class="icon">👨‍⚕️</span>Doctors<span class="nav-badge">20</span></a>
+    <a href="ha_panel.html" class="nav-item" onclick="navTo('ha_panel.html');return false"><span class="icon">👤</span>Health Assistants<span class="nav-badge">8</span></a>
+    <a href="cluster_panel.html" class="nav-item active"><span class="icon">🏘</span>Clusters<span class="nav-badge">16</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Operations</div>
+    <a href="medicine_panel.html" class="nav-item" onclick="navTo('medicine_panel.html');return false"><span class="icon">💊</span>Medicine<span class="nav-badge alert">3</span></a>
+    <a href="all_services.html" class="nav-item" onclick="navTo('all_services.html');return false"><span class="icon">🩺</span>Services<span class="nav-badge">20</span></a>
+    <a href="inventory_panel.html" class="nav-item"><span class="icon">📦</span>Inventory</a>
+    <a href="billing.html" class="nav-item"><span class="icon">💰</span>Billing</a>
+    <a href="reports.html" class="nav-item"><span class="icon">📊</span>Reports</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="quick-jump">
+      <div class="qj-label">Quick Jump</div>
+      <a class="qj-link" href="admin_panel.html" onclick="navTo('admin_panel.html');return false">🏥 Patient Registry</a>
+      <a class="qj-link" href="ha_panel.html" onclick="navTo('ha_panel.html');return false">👤 HA Panel</a>
+      <a class="qj-link" href="doctor_panel.html" onclick="navTo('doctor_panel.html');return false">👨‍⚕️ Doctor Panel</a>
+      <a class="qj-link" href="all_services.html" onclick="navTo('all_services.html');return false">🩺 New Visit</a>
+      <a class="qj-link" href="medicine_panel.html" onclick="navTo('medicine_panel.html');return false">💊 Medicines</a>
+    </div>
+    <div class="date-pill" id="clockPill">📅 Apr 24, 2026 · 11:30 AM</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div style="cursor:pointer;color:var(--text-soft);font-size:20px" onclick="navTo('admin_panel.html')">←</div>
+    <div>
+      <div class="page-title">Cluster Management</div>
+      <div class="breadcrumb"><a href="admin_panel.html" onclick="navTo('admin_panel.html');return false">Dashboard</a> › Clusters</div>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-btn" onclick="navTo('admin_panel.html')">🏥 Patients</button>
+      <button class="tb-btn" onclick="navTo('ha_panel.html')">👤 HAs</button>
+      <button class="tb-btn" onclick="showToast('📊 Comparison report generated!')">📊 Compare</button>
+      <button class="tb-btn primary" onclick="document.getElementById('addClusterForm').scrollIntoView({behavior:'smooth'})">✚ Add Cluster</button>
+      <div class="notif-btn-wrap">
+        <div class="notif-btn">🔔<span class="notif-badge">5</span></div>
+      </div>
+      <div class="user-btn">A</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-grid animate d1">
+      <div class="stat-card sc-teal">
+        <div class="stat-label">Total Clusters</div>
+        <div class="stat-value" style="color:var(--teal)" id="statTotalClusters">16</div>
+        <div class="stat-sub">Across West Bengal</div>
+      </div>
+      <div class="stat-card sc-gold">
+        <div class="stat-label">Total Patients</div>
+        <div class="stat-value" style="color:var(--gold)" id="statTotalPatients">3,168</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 12%</span> this month</div>
+      </div>
+      <div class="stat-card sc-indigo">
+        <div class="stat-label">Avg Fill Rate</div>
+        <div class="stat-value" style="color:var(--indigo)" id="statAvgFill">68%</div>
+        <div class="stat-sub"><span class="stat-trend up">↑ 5pts</span> vs last quarter</div>
+      </div>
+      <div class="stat-card sc-rose">
+        <div class="stat-label">Highest Allocated</div>
+        <div class="stat-value" style="color:var(--rose)" id="statHighAlloc">42</div>
+        <div class="stat-sub" id="statHighAllocLabel">WB-N24PGS cluster</div>
+      </div>
+      <div class="stat-card sc-purple">
+        <div class="stat-label">Total HAs Deployed</div>
+        <div class="stat-value" style="color:var(--purple)" id="statTotalHAs">28</div>
+        <div class="stat-sub">Across all clusters</div>
+      </div>
+    </div>
+
+    <!-- AI INSIGHT -->
+    <div class="ai-insight animate d2">
+      <div class="ai-icon">🤖</div>
+      <div class="ai-text" style="flex:1">
+        <h4>✦ AI Cluster Intelligence</h4>
+        <p id="aiInsightText"><span style="opacity:0.5">Generating live intelligence…</span></p>
+        <div class="ai-chips">
+          <span class="ai-chip" onclick="openCompareModal()">✦ AI Cluster Compare</span>
+          <span class="ai-chip" onclick="openHealthReportModal()">📋 Health Report</span>
+          <span class="ai-chip" onclick="openCoverageMapModal()">🗺 Coverage Map</span>
+          <span class="ai-chip" onclick="openRebalanceModal()">♻ Rebalance Patients</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="animate d3">
+      <div class="search-row">
+        <div class="search-wrap">
+          <span style="font-size:17px;color:var(--text-soft)">🔍</span>
+          <input id="searchInput" type="text" placeholder="Search clusters by name, code, district, HA name..." oninput="filterClusters()">
+        </div>
+        <button class="filter-btn">📊 Sort by ▾</button>
+        <button class="filter-btn">🗺 District ▾</button>
+        <button class="ai-btn" onclick="showToast('✦ AI has ranked clusters by performance!')">✦ AI Rank</button>
+      </div>
+      <div class="tag-row">
+        <span class="tag active" onclick="setFilter('all',this)">🏘 All Clusters</span>
+        <span class="tag" onclick="setFilter('high',this)">🔴 High Allocated</span>
+        <span class="tag" onclick="setFilter('low',this)">🟡 Under-utilized</span>
+        <span class="tag" onclick="setFilter('top',this)">⭐ Best Fill Rate</span>
+        <span class="tag" onclick="setFilter('active',this)">✅ Fully Staffed</span>
+      </div>
+    </div>
+
+    <!-- CLUSTER CARDS GRID -->
+    <div class="cluster-grid animate d4" id="clusterGrid"></div>
+
+    <!-- AI COMPARISON INSIGHTS — rendered dynamically from cluster data -->
+    <div class="ai-comp-card animate d4">
+      <div class="ai-comp-title">&#10022; AI Cluster Comparison Insights</div>
+      <div class="comp-insight-grid" id="insightBoxGrid"></div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div class="comp-card animate d5">
+      <div class="comp-head">
+        <div class="comp-title">📊 Cluster Comparison Matrix</div>
+        <div class="comp-actions">
+          <button class="ca-btn" onclick="showToast('⬇ CSV exported!')">⬇ Export</button>
+          <button class="ca-btn" onclick="showToast('🖨 Print ready!')">🖨 Print</button>
+          <button class="ca-btn ai" onclick="openCompareModal()">✦ AI Narrative</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr>
+          <th>Rank</th><th>Cluster</th><th>District</th><th>Patients</th>
+          <th>Active</th><th>Allocated</th><th>Released</th><th>Fill Rate</th><th>HAs</th><th>AI Score</th>
+        </tr></thead>
+        <tbody id="clusterTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- ADD CLUSTER FORM -->
+    <div class="form-section animate d5" id="addClusterForm">
+      <div class="fs-head">
+        <div>
+          <h3>Add New Cluster</h3>
+          <p>Define geographic cluster boundaries and assign HAs</p>
+        </div>
+        <button class="fs-toggle" onclick="showToast('✦ AI has pre-filled cluster details from geographic data!')">✦ AI Auto-Fill</button>
+      </div>
+      <div class="fs-body">
+        <div class="ai-assist-row">
+          <span style="font-size:18px">✦</span>
+          <p><strong>AI Assist:</strong> Enter district name — AI will auto-generate cluster code, suggest boundary sub-districts, estimate population coverage and recommend HA staffing level.</p>
+        </div>
+        <div class="form-grid">
+          <div class="fg"><label class="fl">Cluster Code <span style="color:var(--teal);font-size:9px">(auto or edit)</span></label><input class="fi" id="clusterCode" placeholder="e.g. WB-XXX" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--teal)"></div>
+          <div class="fg two"><label class="fl">Cluster Name</label><input class="fi" id="clusterName" placeholder="e.g. Purulia" oninput="autoGenCode()"></div>
+          <div class="fg"><label class="fl">State</label><select class="fi" id="formState"><option>West Bengal</option><option>Odisha</option><option>Jharkhand</option><option>Bihar</option></select></div>
+          <div class="fg"><label class="fl">District</label><input class="fi" id="formDistrict" placeholder="District name"></div>
+          <div class="fg"><label class="fl">Sub-Districts (CSV)</label><input class="fi" id="formSubDistricts" placeholder="Block 1, Block 2, ..."></div>
+          <div class="fg"><label class="fl">Estimated Population</label><input class="fi" id="formPopulation" type="number" placeholder="e.g. 45000"></div>
+          <div class="fg"><label class="fl">Target Patients</label><input class="fi" id="formTargetPatients" type="number" placeholder="AI suggests: 300"></div>
+          <div class="fg"><label class="fl">HA Slots Required</label><input class="fi" id="formHASlots" type="number" placeholder="AI suggests: 2"></div>
+          <div class="fg"><label class="fl">Primary HA</label>
+            <select class="fi" id="formPrimaryHA">
+              <option value="">Assign HA</option>
+              <option>Sumit Chakraborty (HA-WB-BRH-001)</option>
+              <option>Priya Mukherjee (HA-WB-BRH-002)</option>
+              <option>Rohit Karmakar (HA-WB-JRG-001)</option>
+              <option>Anjali Singh (HA-WB-JRG-002)</option>
+              <option>Deepa Rao (HA-WB-MDN-001)</option>
+              <option>Kavita Banerjee (HA-WB-NDP-001)</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Cluster Type</label>
+            <select class="fi" id="formClusterType">
+              <option>Rural</option><option>Semi-Urban</option><option>Urban</option><option>Tribal</option><option>Coastal</option>
+            </select>
+          </div>
+          <div class="fg full"><label class="fl">Special Notes / AI-Generated Summary</label>
+            <textarea class="fi" id="formNotes" rows="3" placeholder="Click '✦ AI Generate Details' to auto-fill an intelligent summary based on cluster name and district…" style="resize:vertical"></textarea>
+          </div>
+        </div>
+        <div id="aiGenerateStatus" style="display:none;background:linear-gradient(135deg,rgba(26,107,90,0.06),rgba(61,191,160,0.1));border:1px solid rgba(26,107,90,0.2);border-radius:10px;padding:12px 16px;margin-top:12px;font-size:13px;color:var(--teal);display:flex;align-items:center;gap:8px">
+          <span id="aiStatusIcon">⏳</span><span id="aiStatusText">AI is generating cluster details…</span>
+        </div>
+        <div class="submit-row">
+          <button class="sec-btn" id="aiGenBtn" onclick="aiGenerateDetails()">✦ AI Generate Details</button>
+          <button class="sub-btn" onclick="submitCluster()">🏘 Create Cluster</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="clusterDrawer">
+  <div class="drawer-head">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700" id="drawerName">Cluster Detail</div>
+      <div style="font-size:12px;color:var(--text-soft);margin-top:2px" id="drawerSub"></div>
+    </div>
+    <div class="drawer-close" onclick="closeDrawer()">✕</div>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════ ANTHROPIC API HELPER ══════════════
+async function callAnthropicStreaming(prompt, onChunk, onDone, systemPrompt='') {
+  try {
+    const messages = [{ role:'user', content: prompt }];
+    const body = {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      stream: true,
+      messages
+    };
+    if(systemPrompt) body.system = systemPrompt;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+
+    if(!resp.ok){ const e=await resp.json(); throw new Error(e.error?.message||'API error'); }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream:true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data:')) continue;
+        const data = line.slice(5).trim();
+        if(data==='[DONE]') continue;
+        try{
+          const ev = JSON.parse(data);
+          if(ev.type==='content_block_delta' && ev.delta?.text){
+            onChunk(ev.delta.text);
+          }
+        }catch(e){}
+      }
+    }
+    if(onDone) onDone();
+  } catch(err) {
+    if(onDone) onDone(err.message);
+  }
+}
+
+async function callAnthropic(prompt, systemPrompt='') {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1000,
+      system: systemPrompt||'You are a healthcare analytics AI. Respond with concise, actionable insights. Use <strong> tags for key terms. Keep responses focused and professional.',
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  const data = await resp.json();
+  return data.content?.[0]?.text || '';
+}
+
+// ══════════════ MODAL OPEN/CLOSE ══════════════
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ══════════════ 1. AI CLUSTER COMPARE MODAL ══════════════
+function buildCompareNarrativeFromData() {
+  // Generate a rich narrative purely from cluster data — no API needed
+  const sorted = [...clusters].sort((a,b)=>b.aiScore-a.aiScore);
+  const top = sorted[0], second = sorted[1], third = sorted[2];
+  const worst = sorted[sorted.length-1], second_worst = sorted[sorted.length-2];
+  const avgFill = Math.round(clusters.reduce((s,c)=>s+c.fillPct,0)/clusters.length);
+  const avgScore = Math.round(clusters.reduce((s,c)=>s+c.aiScore,0)/clusters.length);
+  const totalPat = clusters.reduce((s,c)=>s+c.total,0);
+  const maxAllocCluster = [...clusters].sort((a,b)=>b.allocated-a.allocated)[0];
+  const gradeA = sorted.filter(c=>c.aiScore>=85).length;
+  const gradeC = sorted.filter(c=>c.aiScore<75).length;
+  const underFill = clusters.filter(c=>c.fillPct<60);
+  const overAlloc = clusters.filter(c=>c.allocated>20);
+
+  const para1 = `<strong>${top.name}</strong> leads all ${clusters.length} clusters with an AI score of <strong>${top.aiScore}</strong> and a ${top.fillPct}% fill rate, `
+    + `followed by <strong>${second.name}</strong> (score: ${second.aiScore}) and <strong>${third.name}</strong> (score: ${third.aiScore}). `
+    + `These top-tier clusters share a common trait: strong HA-to-patient ratios and active patient registration momentum. `
+    + `With <strong>${gradeA} Grade-A cluster${gradeA!==1?'s':''}</strong> in the network, there is a proven operational model that underperformers can replicate.`;
+
+  const para2 = `<strong>${worst.name}</strong> (score: ${worst.aiScore}, fill: ${worst.fillPct}%) and <strong>${second_worst.name}</strong> (score: ${second_worst.aiScore}) `
+    + `require immediate intervention. `
+    + (overAlloc.length ? `<strong>${maxAllocCluster.name}</strong> carries the highest allocation burden at <strong>${maxAllocCluster.allocated} pending patients</strong> — a ${Math.round((maxAllocCluster.allocated/maxAllocCluster.total)*100)}% allocation ratio that risks HA burnout. ` : '')
+    + (underFill.length ? `${underFill.length} cluster${underFill.length!==1?'s':''} (${underFill.map(c=>c.name).join(', ')}) have fill rates below 60%, indicating outreach gaps that should be addressed within 30 days. ` : '')
+    + `Deploying 1 additional HA to each of these clusters could unlock an estimated 60–80 new patient registrations per cluster.`;
+
+  const para3 = `Across ${clusters.length} clusters and <strong>${totalPat.toLocaleString()} total patients</strong>, the system average fill rate stands at <strong>${avgFill}%</strong> `
+    + `against an AI performance score of <strong>${avgScore}/100</strong>. `
+    + `<strong>${gradeC} cluster${gradeC!==1?'s':''}</strong> are graded C and need structural review. `
+    + `The strategic priority for Q2 is to close the gap between Grade-A and Grade-C clusters by cross-posting HAs from low-allocation clusters to high-stress ones — `
+    + `a rebalancing exercise estimated to improve system-wide fill rate by <strong>8–12 percentage points</strong> within 60 days.`;
+
+  return `<p style="margin-bottom:12px">${para1}</p><p style="margin-bottom:12px">${para2}</p><p>${para3}</p>`;
+}
+
+async function openCompareModal(){
+  openModal('modalCompare');
+  const body = document.getElementById('compareModalBody');
+
+  const sorted = [...clusters].sort((a,b)=>b.aiScore-a.aiScore);
+  const getGrade = s => s>=85?'<span class="cmp-grade cmp-grade-a">A</span>':s>=75?'<span class="cmp-grade cmp-grade-b">B</span>':'<span class="cmp-grade cmp-grade-c">C</span>';
+  const maxPat = Math.max(...clusters.map(c=>c.total));
+
+  // Build table + pre-filled narrative template immediately
+  const narrativeHTML = buildCompareNarrativeFromData();
+
+  body.innerHTML = `
+    <table class="cmp-table">
+      <thead><tr>
+        <th>#</th><th>Cluster</th><th>District</th><th>Type</th>
+        <th>Patients</th><th>Fill Rate</th><th>Allocated</th><th>HAs</th><th>AI Score</th><th>Grade</th>
+      </tr></thead>
+      <tbody>
+        ${sorted.map((c,i)=>{
+          const sc = c.aiScore>=85?'#16a34a':c.aiScore>=75?'var(--gold)':'var(--rose)';
+          const medals = ['🥇','🥈','🥉'];
+          return `<tr>
+            <td style="font-weight:700;color:var(--text-soft)">${medals[i]||i+1}</td>
+            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:28px;border-radius:3px;background:${c.color};flex-shrink:0"></div><div><div style="font-weight:700;font-size:13px">${c.name}</div><div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text-soft)">${c.code}</div></div></div></td>
+            <td style="color:var(--text-soft);font-size:12px">${c.district}</td>
+            <td><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(26,107,90,0.08);color:var(--teal);font-weight:600">${c.type}</span></td>
+            <td><div style="display:flex;align-items:center;gap:6px"><div style="width:60px;height:5px;background:var(--border);border-radius:5px;overflow:hidden"><div style="height:100%;background:${c.color};width:${Math.round(c.total/maxPat*100)}%;border-radius:5px"></div></div><strong>${c.total}</strong></div></td>
+            <td><strong style="color:${c.fillPct>=70?'var(--teal)':c.fillPct>=50?'var(--gold)':'var(--rose)'}">${c.fillPct}%</strong></td>
+            <td style="color:var(--rose);font-weight:600">${c.allocated}</td>
+            <td style="font-weight:600">${c.haCount}</td>
+            <td><strong style="color:${sc}">${c.aiScore}</strong></td>
+            <td>${getGrade(c.aiScore)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:24px">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);font-weight:700;margin-bottom:12px">✦ AI NARRATIVE ANALYSIS</div>
+      <div class="ai-result-box">
+        <div class="ai-result-header" id="compareAIHeader" style="display:flex;align-items:center;justify-content:space-between">
+          <span>✦ AI Cluster Intelligence — West Bengal Network</span>
+          <span id="compareAIBadge" style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(61,191,160,0.15);color:var(--teal-glow);border:1px solid rgba(61,191,160,0.3)">Data-generated</span>
+        </div>
+        <div class="ai-stream-text" id="compareAIText">${narrativeHTML}</div>
+      </div>
+    </div>`;
+
+  // Try to enhance with live AI — silently on top of the pre-filled template
+  try {
+    const top3 = sorted.slice(0,3).map(c=>`${c.name} (score:${c.aiScore}, fill:${c.fillPct}%, allocated:${c.allocated})`).join('; ');
+    const bottom3 = sorted.slice(-3).map(c=>`${c.name} (score:${c.aiScore}, fill:${c.fillPct}%, allocated:${c.allocated})`).join('; ');
+    const avgFill = Math.round(clusters.reduce((s,c)=>s+c.fillPct,0)/clusters.length);
+    const prompt = `You are analysing ${clusters.length} healthcare clusters in West Bengal.
+Top performers: ${top3}
+Underperformers: ${bottom3}
+Total patients: ${clusters.reduce((s,c)=>s+c.total,0)}, Average fill rate: ${avgFill}%
+
+Write a concise 3-paragraph executive narrative:
+1. Top performers: what makes them excellent and what others can learn
+2. Clusters needing intervention: specific actionable recommendations
+3. System-wide trends and one strategic priority for next quarter
+
+Use HTML <strong> tags for cluster names and key metrics. 3 short paragraphs, no bullet points.`;
+
+    const textEl = document.getElementById('compareAIText');
+    const badge = document.getElementById('compareAIBadge');
+    if(badge){ badge.textContent = '⏳ Enhancing…'; }
+    // Do NOT wipe textEl — template stays visible during API call
+    let full = '';
+    await callAnthropicStreaming(prompt,
+      (chunk) => {
+        if(!full) textEl.innerHTML = ''; // clear only when streaming actually begins
+        full += chunk;
+        textEl.innerHTML = full + '<span class="ai-cursor"></span>';
+      },
+      (err) => {
+        if(err || !full.trim()){
+          textEl.innerHTML = narrativeHTML;
+          if(badge){ badge.textContent = 'Data-generated'; }
+        } else {
+          textEl.innerHTML = full;
+          if(badge){ badge.textContent = '✦ AI-enhanced'; badge.style.background='rgba(61,191,160,0.2)'; }
+        }
+      }
+    );
+  } catch(e) {
+    // Silently fall back — template is already showing
+    const textEl = document.getElementById('compareAIText');
+    if(textEl && !textEl.textContent.trim()) textEl.innerHTML = narrativeHTML;
+  }
+}
+
+// ══════════════ 2. HEALTH REPORT MODAL ══════════════
+function buildHealthNarrativeFromData(totalPat,totalActive,totalAlloc,totalRel,avgFill,totalHAs,highRisk,topPerf){
+  const activeRate = Math.round(totalActive/totalPat*100);
+  const relRate = Math.round(totalRel/totalPat*100);
+  const patientsPerHA = Math.round(totalPat/totalHAs);
+  const underCount = clusters.filter(c=>c.fillPct<60).length;
+  const s1 = `<p style="margin-bottom:10px"><strong>Executive Summary:</strong> The West Bengal HealthOS network is operating at <strong>${avgFill}% average fill rate</strong> across ${clusters.length} clusters, managing <strong>${totalPat.toLocaleString()} total patients</strong> with ${totalHAs} deployed Health Assistants (avg ${patientsPerHA} patients/HA). Overall system health is <strong>${avgFill>=70?'satisfactory':'below target'}</strong> with room for improvement in underperforming districts.</p>`;
+  const s2 = `<p style="margin-bottom:10px"><strong>Key Findings:</strong> ${activeRate}% of patients (${totalActive.toLocaleString()}) are currently active, while ${totalAlloc} remain in allocated/pending status. ${totalRel.toLocaleString()} patients (${relRate}%) have been released. Top performers — <strong>${topPerf.slice(0,2).join('</strong> and <strong>')}</strong> — demonstrate that fill rates above 75% are achievable with the right HA deployment. <strong>${underCount} cluster${underCount!==1?'s':''}</strong> fall below the 60% fill threshold, requiring urgent outreach.</p>`;
+  const s3 = highRisk.length
+    ? `<p style="margin-bottom:10px"><strong>Risk Flags:</strong> <strong>${highRisk.join(', ')}</strong> ${highRisk.length===1?'has':'have'} over 20 allocated patients, indicating potential HA overload. Immediate workload redistribution is recommended before follow-up appointments are missed and patient satisfaction declines.</p>`
+    : `<p style="margin-bottom:10px"><strong>Risk Flags:</strong> No clusters exceed the 20-patient allocation threshold. System allocation load is within acceptable bounds.</p>`;
+  const s4 = `<p><strong>Recommendations:</strong> (1) Prioritise HA deployment to the ${underCount} under-filled clusters within the next 30 days to close the fill rate gap. (2) Replicate the outreach model of <strong>${topPerf[0]}</strong> across low-performing clusters via a structured knowledge-transfer program. (3) Implement weekly allocation reviews to prevent any single cluster exceeding 25 allocated patients simultaneously.</p>`;
+  return s1+s2+s3+s4;
+}
+
+async function openHealthReportModal(){
+  openModal('modalHealthReport');
+  document.getElementById('reportDate').textContent = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const body = document.getElementById('healthReportBody');
+
+  const totalPat = clusters.reduce((s,c)=>s+c.total,0);
+  const totalActive = clusters.reduce((s,c)=>s+c.active,0);
+  const totalAlloc = clusters.reduce((s,c)=>s+c.allocated,0);
+  const totalRel = clusters.reduce((s,c)=>s+c.released,0);
+  const avgFill = Math.round(clusters.reduce((s,c)=>s+c.fillPct,0)/clusters.length);
+  const totalHAs = clusters.reduce((s,c)=>s+c.haCount,0);
+  const highRisk = clusters.filter(c=>c.allocated>20).map(c=>c.name);
+  const topPerf = [...clusters].sort((a,b)=>b.aiScore-a.aiScore).slice(0,3).map(c=>c.name);
+
+  body.innerHTML = `
+    <div style="margin-bottom:20px">
+      <div class="hr-sec-title">System Overview</div>
+      <div class="hr-metric-grid">
+        <div class="hr-metric"><div class="hr-metric-val" style="color:var(--teal)">${clusters.length}</div><div class="hr-metric-lbl">Total Clusters</div></div>
+        <div class="hr-metric"><div class="hr-metric-val" style="color:var(--gold)">${totalPat.toLocaleString()}</div><div class="hr-metric-lbl">Total Patients</div></div>
+        <div class="hr-metric"><div class="hr-metric-val" style="color:var(--indigo)">${avgFill}%</div><div class="hr-metric-lbl">Avg Fill Rate</div></div>
+        <div class="hr-metric"><div class="hr-metric-val" style="color:#16a34a">${totalActive.toLocaleString()}</div><div class="hr-metric-lbl">Active Patients</div></div>
+        <div class="hr-metric"><div class="hr-metric-val" style="color:var(--rose)">${totalAlloc}</div><div class="hr-metric-lbl">Allocated</div></div>
+        <div class="hr-metric"><div class="hr-metric-val" style="color:var(--purple)">${totalHAs}</div><div class="hr-metric-lbl">HAs Deployed</div></div>
+      </div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="hr-sec-title">Fill Rate by Cluster (Top 10)</div>
+      ${[...clusters].sort((a,b)=>b.fillPct-a.fillPct).slice(0,10).map(c=>`
+        <div class="hr-bar-row">
+          <div class="hr-bar-label" title="${c.name}">${c.name}</div>
+          <div class="hr-bar-track"><div class="hr-bar-fill" style="width:${c.fillPct}%;background:${c.fillPct>=70?'var(--teal)':c.fillPct>=50?'var(--gold)':'var(--rose)'}"></div></div>
+          <div class="hr-bar-val" style="color:${c.fillPct>=70?'var(--teal)':c.fillPct>=50?'var(--gold)':'var(--rose)'}">${c.fillPct}%</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="hr-sec-title">Risk Classification</div>
+      <div style="margin-bottom:8px">
+        <span style="font-size:12px;color:var(--text-soft);font-weight:600">🔴 High Risk (allocated > 20):</span>
+        <div style="margin-top:6px">${highRisk.map(n=>`<span class="risk-pill risk-high">⚠ ${n}</span>`).join('')||'<span style="color:var(--text-soft);font-size:12px">None</span>'}</div>
+      </div>
+      <div style="margin-bottom:8px">
+        <span style="font-size:12px;color:var(--text-soft);font-weight:600">🟡 Under-utilized (fill < 60%):</span>
+        <div style="margin-top:6px">${clusters.filter(c=>c.fillPct<60).map(c=>`<span class="risk-pill risk-med">📉 ${c.name}</span>`).join('')||'<span style="color:var(--text-soft);font-size:12px">None</span>'}</div>
+      </div>
+      <div>
+        <span style="font-size:12px;color:var(--text-soft);font-weight:600">🟢 Top Performers:</span>
+        <div style="margin-top:6px">${topPerf.map(n=>`<span class="risk-pill risk-low">⭐ ${n}</span>`).join('')}</div>
+      </div>
+    </div>
+    <div class="ai-result-box">
+      <div class="ai-result-header" style="display:flex;align-items:center;justify-content:space-between">
+        <span>📋 AI Health Report Summary</span>
+        <span id="healthAIBadge" style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(61,191,160,0.15);color:var(--teal-glow);border:1px solid rgba(61,191,160,0.3)">Data-generated</span>
+      </div>
+      <div class="ai-stream-text" id="healthReportAI">${buildHealthNarrativeFromData(totalPat,totalActive,totalAlloc,totalRel,avgFill,totalHAs,highRisk,topPerf)}</div>
+    </div>`;
+
+  const preBuilt = buildHealthNarrativeFromData(totalPat,totalActive,totalAlloc,totalRel,avgFill,totalHAs,highRisk,topPerf);
+  const prompt = `Generate a formal quarterly health report summary for West Bengal's HealthOS cluster network.
+
+Data:
+- ${clusters.length} clusters, ${totalPat} total patients, ${avgFill}% average fill rate
+- ${totalActive} active, ${totalAlloc} allocated (pending), ${totalRel} released  
+- ${totalHAs} health assistants deployed
+- High-risk clusters (over-allocated): ${highRisk.join(', ')||'none'}
+- Underperforming (fill < 60%): ${clusters.filter(c=>c.fillPct<60).map(c=>c.name).join(', ')||'none'}
+- Best performers: ${topPerf.join(', ')}
+
+Write a professional 4-section report:
+1. **Executive Summary** – overall system health in 2 sentences
+2. **Key Findings** – 3 bullet points with specific data
+3. **Risk Flags** – highlight urgent issues 
+4. **Recommendations** – 3 concrete next steps for the next 30 days
+
+Be specific, use the actual cluster names and numbers provided. Use <strong> for emphasis. Keep it under 300 words total.`;
+
+  const textEl = document.getElementById('healthReportAI');
+  const badge = document.getElementById('healthAIBadge');
+  if(badge) badge.textContent = '⏳ Enhancing…';
+  // Do NOT clear textEl — pre-built content stays visible during API call
+  let full = '';
+  try {
+    await callAnthropicStreaming(prompt, (chunk)=>{
+      if(!full) textEl.innerHTML = ''; // clear template only when streaming actually starts
+      full += chunk;
+      textEl.innerHTML = full + '<span class="ai-cursor"></span>';
+    }, (err)=>{
+      if(err || !full.trim()){ textEl.innerHTML = preBuilt; if(badge) badge.textContent = 'Data-generated'; }
+      else { textEl.innerHTML = full; if(badge){ badge.textContent = '✦ AI-enhanced'; badge.style.background='rgba(61,191,160,0.2)'; } }
+    });
+  } catch(e){ textEl.innerHTML = preBuilt; if(badge) badge.textContent = 'Data-generated'; }
+}
+
+// ══════════════ 3. COVERAGE MAP MODAL ══════════════
+function buildCoverageNarrativeFromData(){
+  const critical = clusters.filter(c=>c.fillPct<55).sort((a,b)=>a.fillPct-b.fillPct);
+  const tribal = clusters.filter(c=>c.type==='Tribal');
+  const coastal = clusters.filter(c=>c.type==='Coastal');
+  const rural = clusters.filter(c=>c.type==='Rural');
+  const densest = [...clusters].sort((a,b)=>b.total-a.total).slice(0,2);
+  const smallest = [...clusters].sort((a,b)=>a.total-b.total).slice(0,2);
+  const tribalAvg = tribal.length ? Math.round(tribal.reduce((s,c)=>s+c.fillPct,0)/tribal.length) : 0;
+
+  const p1 = `<p style="margin-bottom:10px"><strong>Geographic Coverage Gaps:</strong> `
+    + (critical.length ? `<strong>${critical.length} district${critical.length!==1?'s':''}</strong> — ${critical.map(c=>`<strong>${c.name}</strong> (${c.fillPct}%)`).join(', ')} — fall below the 55% critical fill threshold, indicating significant outreach gaps. These districts should be prioritised for an emergency HA deployment in the next 14 days. ` : 'No critical coverage gaps detected below 55% fill rate. ')
+    + `The highest-density clusters, <strong>${densest[0].name}</strong> (${densest[0].total} patients) and <strong>${densest[1].name}</strong> (${densest[1].total} patients), should be monitored for capacity strain.</p>`;
+
+  const p2 = tribal.length || coastal.length
+    ? `<p style="margin-bottom:10px"><strong>Special Terrain Challenges:</strong> `
+      + (tribal.length ? `Tribal clusters (${tribal.map(c=>c.name).join(', ')}) average a ${tribalAvg}% fill rate — ${tribalAvg<65?'below':'near'} the system average. Forest terrain and restricted road access require mobile outreach units rather than fixed HA stations. ` : '')
+      + (coastal.length ? `Coastal clusters (${coastal.map(c=>c.name).join(', ')}) face seasonal migration patterns that inflate/deflate patient counts. Flexible HA scheduling with tide-adjusted visit windows is recommended. ` : '')
+      + `Community health workers embedded within these areas would supplement HA coverage effectively.</p>`
+    : '';
+
+  const p3 = `<p><strong>Coverage Opportunity Zones:</strong> `
+    + `<strong>${smallest[0].name}</strong> (${smallest[0].total} patients, ${smallest[0].fillPct}% fill) is significantly under-penetrated for its geography — adding 1 HA could conservatively register <strong>60–80 new patients</strong> within 30 days based on comparable cluster benchmarks. `
+    + `Similarly, <strong>${smallest[1].name}</strong> (${smallest[1].total} patients) has untapped capacity with its current ${smallest[1].haCount} HA${smallest[1].haCount!==1?'s':''}. `
+    + `${rural.length} rural clusters collectively represent the largest opportunity for patient base expansion through community outreach camps.</p>`;
+
+  return p1+p2+p3;
+}
+
+async function openCoverageMapModal(){
+  openModal('modalCoverageMap');
+  const body = document.getElementById('coverageMapBody');
+
+  // Group by type
+  const byType = {};
+  clusters.forEach(c=>{ byType[c.type]=(byType[c.type]||[]).concat(c); });
+  const typeColors = {'Rural':'#1A6B5A','Semi-Urban':'#C8963E','Urban':'#3D4F8A','Tribal':'#8B4513','Coastal':'#1E90FF'};
+  const sortedByFill = [...clusters].sort((a,b)=>b.fillPct-a.fillPct);
+
+  body.innerHTML = `
+    <div style="margin-bottom:20px">
+      <div class="hr-sec-title">District Tiles — Coverage Overview</div>
+      <div class="map-grid">
+        ${sortedByFill.map(c=>`
+          <div class="map-tile" style="border-color:${c.fillPct>=70?'rgba(26,107,90,0.3)':c.fillPct>=50?'rgba(200,150,62,0.3)':'rgba(192,80,74,0.3)'}; background:${c.fillPct>=70?'rgba(26,107,90,0.04)':c.fillPct>=50?'rgba(200,150,62,0.04)':'rgba(192,80,74,0.04)'}" onclick="closeModal('modalCoverageMap');openDrawer(${clusters.indexOf(c)})">
+            <div class="map-tile-code">${c.code}</div>
+            <div class="map-tile-name" style="color:var(--text-dark)">${c.name}</div>
+            <div class="map-tile-dist">${c.district}</div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px">
+              <span style="color:var(--text-soft)">${c.total} pts</span>
+              <span style="font-weight:700;color:${c.fillPct>=70?'var(--teal)':c.fillPct>=50?'var(--gold)':'var(--rose)'}">${c.fillPct}%</span>
+            </div>
+            <div class="map-tile-bar"><div class="map-tile-fill" style="width:${c.fillPct}%;background:${c.fillPct>=70?'var(--teal)':c.fillPct>=50?'var(--gold)':'var(--rose)'}"></div></div>
+          </div>`).join('')}
+      </div>
+      <div class="map-legend">
+        <span><span class="map-legend-dot" style="background:var(--teal)"></span>Fill ≥70% (Good)</span>
+        <span><span class="map-legend-dot" style="background:var(--gold)"></span>Fill 50–69% (Monitor)</span>
+        <span><span class="map-legend-dot" style="background:var(--rose)"></span>Fill &lt;50% (Critical)</span>
+      </div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="hr-sec-title">Coverage by Cluster Type</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+        ${Object.entries(byType).map(([type,cs])=>`
+          <div style="background:var(--ivory);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:${typeColors[type]||'var(--teal)'}">${cs.length}</div>
+            <div style="font-size:11px;font-weight:700;margin-top:3px;color:var(--text-dark)">${type}</div>
+            <div style="font-size:11px;color:var(--text-soft);margin-top:2px">${Math.round(cs.reduce((s,c)=>s+c.fillPct,0)/cs.length)}% avg fill</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="ai-result-box">
+      <div class="ai-result-header" style="display:flex;align-items:center;justify-content:space-between">
+        <span>🗺 AI Coverage Intelligence</span>
+        <span id="coverageAIBadge" style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(61,191,160,0.15);color:var(--teal-glow);border:1px solid rgba(61,191,160,0.3)">Data-generated</span>
+      </div>
+      <div class="ai-stream-text" id="coverageAIText">${buildCoverageNarrativeFromData()}</div>
+    </div>`;
+
+  const preBuiltCov = buildCoverageNarrativeFromData();
+  const uncovered2 = clusters.filter(c=>c.fillPct<55);
+  const coastal2 = clusters.filter(c=>c.type==='Coastal');
+  const tribal2 = clusters.filter(c=>c.type==='Tribal');
+  const covPrompt = `Analyse geographic healthcare coverage across West Bengal for ${clusters.length} clusters.
+Coverage: critical fill <55%: ${uncovered2.map(c=>`${c.name} (${c.fillPct}%, ${c.district})`).join('; ')||'none'}. Tribal: ${tribal2.map(c=>`${c.name} fill:${c.fillPct}%`).join(', ')||'none'}. Coastal: ${coastal2.map(c=>`${c.name} fill:${c.fillPct}%`).join(', ')||'none'}.
+Write 3 short paragraphs on geographic gaps, terrain challenges, and 2 opportunity zones. Use <strong> for place names.`;
+
+  // Template is already rendered — badge shows it's data-generated
+  const covTextEl = document.getElementById('coverageAIText');
+  const covBadge = document.getElementById('coverageAIBadge');
+  if(covBadge) covBadge.textContent = '⏳ Enhancing…';
+  // Do NOT clear covTextEl — template stays visible during API call
+  let covFull = '';
+  try {
+    await callAnthropicStreaming(covPrompt, (chunk)=>{
+      if(!covFull) covTextEl.innerHTML = ''; // clear template only when streaming actually starts
+      covFull += chunk;
+      covTextEl.innerHTML = covFull + '<span class="ai-cursor"></span>';
+    }, (err)=>{
+      if(err || !covFull.trim()){ covTextEl.innerHTML = preBuiltCov; if(covBadge) covBadge.textContent = 'Data-generated'; }
+      else { covTextEl.innerHTML = covFull; if(covBadge){ covBadge.textContent = '✦ AI-enhanced'; covBadge.style.background='rgba(61,191,160,0.2)'; } }
+    });
+  } catch(e){ covTextEl.innerHTML = preBuiltCov; if(covBadge) covBadge.textContent = 'Data-generated'; }
+}
+
+function buildRebalanceNarrativeFromData(moves, avgAlloc, overloaded, underloaded){
+  const totalTransfer = moves.reduce((s,m)=>s+m.count,0);
+  const p1 = moves.length
+    ? `<p style="margin-bottom:10px"><strong>Why These Transfers:</strong> The ${moves.length} recommended transfers move <strong>${totalTransfer} allocated patients</strong> from overloaded clusters to those with spare capacity. <strong>${overloaded.map(c=>c.name).join(', ')}</strong> carry above-average allocation burdens that risk missed follow-ups and HA fatigue. Redistributing to <strong>${underloaded.slice(0,2).map(c=>c.name).join(', ')||'under-capacity clusters'}</strong> will bring all clusters within range of the <strong>${avgAlloc}-patient system average</strong>, reducing burnout risk and improving follow-up rates.</p>`
+    : `<p style="margin-bottom:10px"><strong>Workload Balance:</strong> All clusters are within acceptable allocation range of the <strong>${avgAlloc}-patient average</strong>. No urgent transfers are required at this time. Continue monitoring weekly to catch imbalances early.</p>`;
+  const p2 = `<p><strong>Transition Guidance:</strong> Patient handoffs should be coordinated with at least 48 hours notice. Ensure transferred patients receive a welcome call from their new HA within 24 hours to maintain care continuity. For patients with active treatment plans, the receiving HA should review records before the first visit. Track re-registration rates over 2 weeks — a drop below 90% signals the handoff process needs refinement.</p>`;
+  return p1+p2;
+}
+
+// ══════════════ 4. REBALANCE PATIENTS MODAL ══════════════
+async function openRebalanceModal(){
+  openModal('modalRebalance');
+  const body = document.getElementById('rebalanceBody');
+  body.innerHTML = `<div class="ai-loading-wrap"><div class="ai-spinner"></div><div class="ai-loading-label">Analysing HA workloads…</div></div>`;
+
+  // Compute rebalancing suggestions
+  const avgAlloc = Math.round(clusters.reduce((s,c)=>s+c.allocated,0)/clusters.length);
+  const overloaded = [...clusters].filter(c=>c.allocated>avgAlloc+5).sort((a,b)=>b.allocated-a.allocated);
+  const underloaded = [...clusters].filter(c=>c.allocated<avgAlloc-5&&c.fillPct<65).sort((a,b)=>a.fillPct-b.fillPct);
+
+  // Build rebalance rows
+  const moves = [];
+  overloaded.forEach(src=>{
+    underloaded.forEach(dst=>{
+      if(moves.length>=6) return;
+      const transfer = Math.floor((src.allocated - avgAlloc)/2);
+      if(transfer>=2){
+        moves.push({from:src, to:dst, count:transfer, reason:`${src.name} has ${src.allocated} allocated (${src.allocated-avgAlloc} above avg)`});
+      }
+    });
+  });
+
+  body.innerHTML = `
+    <div class="reb-ai-section" style="margin-bottom:20px">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--teal-glow);font-weight:700;margin-bottom:6px">✦ AI WORKLOAD ANALYSIS</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+        <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#FDA4AF">${overloaded.length}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">Overloaded</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--teal-glow)">${avgAlloc}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">Target Avg</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#FCD34D">${underloaded.length}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">Under-capacity</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5)">System average: <strong style="color:var(--teal-glow)">${avgAlloc} allocated patients</strong> per cluster. ${moves.length} transfers recommended.</div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div class="hr-sec-title">Suggested Patient Transfers</div>
+      ${moves.length ? moves.map((m,i)=>`
+        <div class="rb-row">
+          <div class="rb-from">
+            <div class="rb-name" style="color:var(--rose)">⬆ ${m.from.name}</div>
+            <div class="rb-label">${m.from.code} · ${m.from.allocated} allocated</div>
+          </div>
+          <div style="text-align:center">
+            <div class="rb-count">${m.count}</div>
+            <div style="font-size:18px;color:var(--text-soft)">→</div>
+            <div style="font-size:10px;color:var(--text-soft)">patients</div>
+          </div>
+          <div class="rb-to">
+            <div class="rb-name" style="color:var(--teal)">⬇ ${m.to.name}</div>
+            <div class="rb-label">${m.to.code} · ${m.to.fillPct}% fill rate</div>
+          </div>
+          <button class="rb-accept" onclick="acceptTransfer(this,'${m.from.name}','${m.to.name}',${m.count})">Accept</button>
+        </div>`).join('')
+      : '<div style="text-align:center;padding:20px;color:var(--text-soft)">✅ Workloads are well balanced. No transfers needed.</div>'}
+    </div>
+
+    <div class="ai-result-box">
+      <div class="ai-result-header" style="display:flex;align-items:center;justify-content:space-between">
+        <span>♻ AI Rebalancing Rationale</span>
+        <span id="rebAIBadge" style="font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(61,191,160,0.15);color:var(--teal-glow);border:1px solid rgba(61,191,160,0.3)">Data-generated</span>
+      </div>
+      <div class="ai-stream-text" id="rebalanceAIText">${buildRebalanceNarrativeFromData(moves, avgAlloc, overloaded, underloaded)}</div>
+    </div>`;
+
+  const rebPrompt = `Advise on patient rebalancing for West Bengal healthcare clusters.
+System avg: ${avgAlloc} allocated/cluster. Overloaded: ${overloaded.map(c=>`${c.name} (${c.allocated} allocated)`).join('; ')||'none'}. Under-capacity: ${underloaded.map(c=>`${c.name} (fill:${c.fillPct}%)`).join('; ')||'none'}.
+Proposed: ${moves.map(m=>`${m.count} patients from ${m.from.name} → ${m.to.name}`).join('; ')||'no transfers needed'}.
+Write 2 short paragraphs: (1) why these moves improve patient outcomes, (2) handoff risks and care continuity tips. Use <strong> for cluster names.`;
+
+  const rebTextEl = document.getElementById('rebalanceAIText');
+  const rebBadge = document.getElementById('rebAIBadge');
+  if(rebBadge) rebBadge.textContent = '⏳ Enhancing…';
+  const rebPreBuilt = buildRebalanceNarrativeFromData(moves, avgAlloc, overloaded, underloaded);
+  rebTextEl.innerHTML = '<span class="ai-cursor"></span>';
+  let rebFull = '';
+  try {
+    await callAnthropicStreaming(rebPrompt, (chunk)=>{
+      rebFull += chunk;
+      rebTextEl.innerHTML = rebFull + '<span class="ai-cursor"></span>';
+    }, (err)=>{
+      if(err || !rebFull.trim()){ rebTextEl.innerHTML = rebPreBuilt; if(rebBadge) rebBadge.textContent = 'Data-generated'; }
+      else { rebTextEl.innerHTML = rebFull; if(rebBadge){ rebBadge.textContent = '✦ AI-enhanced'; rebBadge.style.background='rgba(61,191,160,0.2)'; } }
+    });
+  } catch(e){ rebTextEl.innerHTML = rebPreBuilt; if(rebBadge) rebBadge.textContent = 'Data-generated'; }
+}
+
+function acceptTransfer(btn, from, to, count){
+  btn.textContent = '✓ Accepted';
+  btn.style.background = '#16a34a';
+  btn.disabled = true;
+  btn.closest('.rb-row').style.opacity = '0.6';
+  showToast(`✅ Transfer of ${count} patients from ${from} → ${to} queued`);
+}
+
+function applyRebalancing(){
+  showToast('✅ All rebalancing plans approved & queued!');
+  closeModal('modalRebalance');
+}
+
+// ══════════════ ORIGINAL CLUSTER DATA ──────────────────────────────────────────
+const clusters = [
+  {code:'WB-BRH',name:'Berhampore',district:'Murshidabad',type:'Rural',total:312,active:198,allocated:24,released:90,fillPct:63,has:['Sumit C','Priya M'],haCount:2,aiScore:88,color:'#1A6B5A',grad:'linear-gradient(135deg,#1A6B5A,#2A9076)',patients:[
+    {name:'Arjun Sharma',id:'WB-BRH-BLP-CLDM-19150',status:'Released',date:'Apr 21'},
+    {name:'Santana Baski',id:'WB-BRH-BLP-CLDM-19022',status:'Registered',date:'Apr 2'},
+    {name:'Santana Baski',id:'WB-BRH-BLP-CLDM-19003',status:'Registered',date:'Mar 31'},
+    {name:'Mohan Das',id:'WB-BRH-BLP-CLDM-18990',status:'Registered',date:'Mar 15'},
+    {name:'Dipali Biswas',id:'WB-BRH-BLP-CLDM-18775',status:'Registered',date:'Dec 1'},
+  ]},
+  {code:'WB-JRG',name:'Jalpaiguri',district:'Jalpaiguri',type:'Semi-Urban',total:278,active:145,allocated:31,released:102,fillPct:52,has:['Rohit K','Anjali S'],haCount:2,aiScore:72,color:'#3D4F8A',grad:'linear-gradient(135deg,#3D4F8A,#5566AA)',patients:[
+    {name:'Chhanda Shit',id:'WB-JRG-LLGH-CLDM-10793',status:'Allocated',date:'Mar 26'},
+    {name:'Kanika Mandal',id:'WB-JRG-LLGH-CLDM-10828',status:'Released',date:'Dec 10'},
+    {name:'Rajesh Murmu',id:'WB-JRG-LLGH-CLDM-10900',status:'Allocated',date:'Jan 15'},
+    {name:'Lakshmi Tudu',id:'WB-JRG-LLGH-CLDM-11000',status:'Registered',date:'Apr 23'},
+  ]},
+  {code:'WB-MDN',name:'Midnapore',district:'Paschim Medinipur',type:'Rural',total:189,active:120,allocated:18,released:51,fillPct:64,has:['Deepa R'],haCount:1,aiScore:81,color:'#C8963E',grad:'linear-gradient(135deg,#C8963E,#E8B96A)',patients:[
+    {name:'Rina Ghosh',id:'WB-MDN-KOL-CLDM-20011',status:'Registered',date:'Jan 20'},
+    {name:'Bikash Mondal',id:'WB-MDN-KOL-CLDM-20045',status:'Allocated',date:'Feb 8'},
+    {name:'Sunita Chatterjee',id:'WB-MDN-KOL-CLDM-20120',status:'Registered',date:'Mar 30'},
+    {name:'Debashish Nag',id:'WB-MDN-KOL-CLDM-20200',status:'Registered',date:'Apr 10'},
+  ]},
+  {code:'WB-HWH',name:'Howrah',district:'Howrah',type:'Urban',total:112,active:88,allocated:8,released:16,fillPct:79,has:['Suresh P'],haCount:1,aiScore:85,color:'#7B5EA7',grad:'linear-gradient(135deg,#7B5EA7,#9B7EC7)',patients:[
+    {name:'Paromita Sen',id:'WB-HWH-BRG-CLDM-15032',status:'Released',date:'Mar 28'},
+    {name:'Tapan Roy',id:'WB-HWH-BRG-CLDM-15078',status:'Registered',date:'Nov 3'},
+    {name:'Nirmal Bose',id:'WB-HWH-BRG-CLDM-15200',status:'Released',date:'Jan 7'},
+  ]},
+  {code:'WB-NDP',name:'Nadia',district:'Nadia',type:'Semi-Urban',total:67,active:45,allocated:5,released:17,fillPct:67,has:['Kavita B'],haCount:1,aiScore:77,color:'#1A5CA8',grad:'linear-gradient(135deg,#1A5CA8,#2E7DD4)',patients:[
+    {name:'Sushila Pal',id:'WB-NDP-GHT-CLDM-09012',status:'Registered',date:'Apr 14'},
+    {name:'Anil Kumar',id:'WB-NDP-GHT-CLDM-09056',status:'Released',date:'Feb 22'},
+    {name:'Priya Haldar',id:'WB-NDP-GHT-CLDM-09200',status:'Registered',date:'Apr 17'},
+  ]},
+  {code:'WB-BNK',name:'Bankura',district:'Bankura',type:'Tribal',total:43,active:34,allocated:2,released:7,fillPct:79,has:['Manoj G'],haCount:1,aiScore:73,color:'#A0522D',grad:'linear-gradient(135deg,#A0522D,#C0723D)',patients:[
+    {name:'Nandita Roy',id:'WB-BNK-BSN-CLDM-05001',status:'Registered',date:'Mar 5'},
+    {name:'Suresh Mondal',id:'WB-BNK-BSN-CLDM-05012',status:'Registered',date:'Apr 1'},
+  ]},
+  {code:'WB-PRL',name:'Purulia',district:'Purulia',type:'Tribal',total:156,active:98,allocated:22,released:36,fillPct:58,has:['Tarun M','Sarita H'],haCount:2,aiScore:69,color:'#8B4513',grad:'linear-gradient(135deg,#8B4513,#A0522D)',patients:[
+    {name:'Binod Mahato',id:'WB-PRL-PRG-CLDM-03001',status:'Allocated',date:'Apr 5'},
+    {name:'Champa Hansda',id:'WB-PRL-PRG-CLDM-03044',status:'Registered',date:'Mar 12'},
+    {name:'Ratan Bhumij',id:'WB-PRL-PRG-CLDM-03090',status:'Released',date:'Feb 18'},
+  ]},
+  {code:'WB-KOC',name:'Koch Bihar',district:'Cooch Behar',type:'Rural',total:201,active:140,allocated:27,released:34,fillPct:61,has:['Anita D','Pranab S'],haCount:2,aiScore:74,color:'#2E8B57',grad:'linear-gradient(135deg,#2E8B57,#3CB371)',patients:[
+    {name:'Reba Barman',id:'WB-KOC-CBH-CLDM-07001',status:'Registered',date:'Apr 10'},
+    {name:'Dulal Roy',id:'WB-KOC-CBH-CLDM-07055',status:'Allocated',date:'Mar 22'},
+    {name:'Mita Singha',id:'WB-KOC-CBH-CLDM-07099',status:'Released',date:'Jan 30'},
+  ]},
+  {code:'WB-DRJ',name:'Darjeeling',district:'Darjeeling',type:'Semi-Urban',total:134,active:95,allocated:14,released:25,fillPct:71,has:['Sushma T'],haCount:1,aiScore:82,color:'#4169E1',grad:'linear-gradient(135deg,#4169E1,#6495ED)',patients:[
+    {name:'Pemba Sherpa',id:'WB-DRJ-DRJ-CLDM-06001',status:'Registered',date:'Apr 18'},
+    {name:'Lakpa Tamang',id:'WB-DRJ-DRJ-CLDM-06030',status:'Released',date:'Feb 5'},
+    {name:'Dawa Bhutia',id:'WB-DRJ-DRJ-CLDM-06067',status:'Registered',date:'Mar 25'},
+  ]},
+  {code:'WB-MLD',name:'Malda',district:'Malda',type:'Rural',total:267,active:175,allocated:35,released:57,fillPct:55,has:['Karim A','Fatema B','Raju P'],haCount:3,aiScore:66,color:'#DC143C',grad:'linear-gradient(135deg,#DC143C,#FF4500)',patients:[
+    {name:'Sabina Khatun',id:'WB-MLD-ENG-CLDM-11001',status:'Allocated',date:'Apr 14'},
+    {name:'Abdul Matin',id:'WB-MLD-ENG-CLDM-11050',status:'Registered',date:'Mar 1'},
+    {name:'Rupa Ghosh',id:'WB-MLD-ENG-CLDM-11112',status:'Allocated',date:'Apr 20'},
+  ]},
+  {code:'WB-BGR',name:'Birbhum',district:'Birbhum',type:'Rural',total:188,active:120,allocated:19,released:49,fillPct:64,has:['Rina S','Tapas M'],haCount:2,aiScore:76,color:'#6B8E23',grad:'linear-gradient(135deg,#6B8E23,#8FBC2F)',patients:[
+    {name:'Mofijul Islam',id:'WB-BGR-SRP-CLDM-08001',status:'Registered',date:'Apr 3'},
+    {name:'Swapna Dey',id:'WB-BGR-SRP-CLDM-08040',status:'Released',date:'Mar 8'},
+    {name:'Jayanta Bouri',id:'WB-BGR-SRP-CLDM-08088',status:'Allocated',date:'Apr 22'},
+  ]},
+  {code:'WB-UTD',name:'Uttar Dinajpur',district:'Uttar Dinajpur',type:'Rural',total:144,active:90,allocated:20,released:34,fillPct:53,has:['Noor I'],haCount:1,aiScore:64,color:'#FF8C00',grad:'linear-gradient(135deg,#FF8C00,#FFA500)',patients:[
+    {name:'Hussain Ali',id:'WB-UTD-RYG-CLDM-12001',status:'Allocated',date:'Apr 1'},
+    {name:'Bela Mondal',id:'WB-UTD-RYG-CLDM-12038',status:'Registered',date:'Mar 15'},
+  ]},
+  {code:'WB-DKS',name:'Dakshin Dinajpur',district:'Dakshin Dinajpur',type:'Semi-Urban',total:97,active:65,allocated:9,released:23,fillPct:67,has:['Papia R'],haCount:1,aiScore:78,color:'#9932CC',grad:'linear-gradient(135deg,#9932CC,#BA55D3)',patients:[
+    {name:'Rekha Barman',id:'WB-DKS-BLP-CLDM-13001',status:'Registered',date:'Apr 16'},
+    {name:'Subal Das',id:'WB-DKS-BLP-CLDM-13022',status:'Released',date:'Feb 28'},
+  ]},
+  {code:'WB-HGH',name:'Hooghly',district:'Hooghly',type:'Urban',total:223,active:162,allocated:28,released:33,fillPct:73,has:['Debjit G','Mou C'],haCount:2,aiScore:83,color:'#008080',grad:'linear-gradient(135deg,#008080,#20B2AA)',patients:[
+    {name:'Asit Bose',id:'WB-HGH-CHN-CLDM-14001',status:'Registered',date:'Apr 19'},
+    {name:'Purnima Sen',id:'WB-HGH-CHN-CLDM-14065',status:'Allocated',date:'Apr 7'},
+    {name:'Kartik Pal',id:'WB-HGH-CHN-CLDM-14130',status:'Released',date:'Mar 3'},
+  ]},
+  {code:'WB-24PGS',name:'South 24 Parganas',district:'South 24 Parganas',type:'Coastal',total:310,active:210,allocated:38,released:62,fillPct:68,has:['Barun H','Susmita D','Arif K'],haCount:3,aiScore:71,color:'#1E90FF',grad:'linear-gradient(135deg,#1E90FF,#4169E1)',patients:[
+    {name:'Mandira Baidya',id:'WB-24PGS-DIA-CLDM-16001',status:'Registered',date:'Apr 21'},
+    {name:'Safikul Mondal',id:'WB-24PGS-DIA-CLDM-16050',status:'Allocated',date:'Apr 11'},
+    {name:'Anjana Halder',id:'WB-24PGS-DIA-CLDM-16110',status:'Released',date:'Mar 20'},
+  ]},
+  {code:'WB-N24PGS',name:'North 24 Parganas',district:'North 24 Parganas',type:'Urban',total:289,active:198,allocated:42,released:49,fillPct:69,has:['Rahul B','Swati N'],haCount:2,aiScore:70,color:'#2F4F4F',grad:'linear-gradient(135deg,#2F4F4F,#4A7777)',patients:[
+    {name:'Subhas Pramanik',id:'WB-N24PGS-BRK-CLDM-17001',status:'Allocated',date:'Apr 20'},
+    {name:'Renu Ghosh',id:'WB-N24PGS-BRK-CLDM-17066',status:'Registered',date:'Apr 15'},
+    {name:'Liton Das',id:'WB-N24PGS-BRK-CLDM-17120',status:'Released',date:'Mar 28'},
+  ]},
+];
+
+let currentFilter = 'all';
+let currentSearch = '';
+
+function renderInsightBoxes(){
+  const grid = document.getElementById('insightBoxGrid');
+  if(!grid) return;
+
+  // Best performer: highest aiScore
+  const best = [...clusters].sort((a,b)=>b.aiScore-a.aiScore)[0];
+  const bestFillLabel = best.fillPct>=70?'strong':'moderate';
+  const bestHA = best.haCount;
+
+  // Needs attention: highest allocated count
+  const attn = [...clusters].sort((a,b)=>b.allocated-a.allocated)[0];
+  const attnRatio = attn.haCount > 0 ? Math.round(attn.allocated/attn.haCount) : attn.allocated;
+  const attnHA = attn.has[0] ? attn.has[0].split(' ').slice(0,2).join(' ') : 'Primary HA';
+
+  // Growth opportunity: lowest total patients with low fill rate
+  const opp = [...clusters].sort((a,b)=>{
+    // prefer low fill + low total
+    return (a.fillPct + a.total/10) - (b.fillPct + b.total/10);
+  })[0];
+  const oppPotential = Math.round((opp.total * (0.75 - opp.fillPct/100)));
+  const oppCapacity = oppPotential > 0 ? oppPotential : Math.round(opp.total * 0.3);
+
+  grid.innerHTML = `
+    <div class="ci-box">
+      <div class="ci-type best">🏆 Best Performer</div>
+      <div class="ci-text"><strong>${best.name}</strong> leads with a ${best.fillPct}% fill rate and AI score of <strong>${best.aiScore}</strong>. With ${bestHA} HA${bestHA!==1?'s':''} and ${best.active} active patients, it sets a replicable model for ${bestFillLabel}-coverage districts.</div>
+    </div>
+    <div class="ci-box">
+      <div class="ci-type warn">⚠ Needs Attention</div>
+      <div class="ci-text"><strong>${attn.name}</strong> carries the highest allocation burden — <strong>${attn.allocated} pending patients</strong> across ${attn.haCount} HA${attn.haCount!==1?'s':''}. ${attnHA} is managing ~${attnRatio} allocated patients, above the recommended cap. Immediate workload review needed.</div>
+    </div>
+    <div class="ci-box">
+      <div class="ci-type crit">📈 Growth Opportunity</div>
+      <div class="ci-text"><strong>${opp.name}</strong> at ${opp.total} patients and ${opp.fillPct}% fill is significantly under-penetrated for its geography. Adding outreach capacity could register an estimated <strong>${oppCapacity}+ new patients</strong> within 30 days.</div>
+    </div>`;
+}
+
+function updateStats(){
+  const total = clusters.length;
+  const totalPat = clusters.reduce((s,c)=>s+c.total,0);
+  const avgFill = Math.round(clusters.reduce((s,c)=>s+c.fillPct,0)/clusters.length);
+  const maxAlloc = clusters.reduce((prev,c)=>c.allocated>prev.allocated?c:prev,clusters[0]);
+  const totalHAs = clusters.reduce((s,c)=>s+c.haCount,0);
+  const setEl = (id,v)=>{ const el=document.getElementById(id); if(el)el.textContent=v; };
+  setEl('statTotalClusters',total);
+  setEl('statTotalPatients',totalPat.toLocaleString());
+  setEl('statAvgFill',avgFill+'%');
+  setEl('statHighAlloc',maxAlloc.allocated);
+  setEl('statHighAllocLabel',maxAlloc.code+' cluster');
+  setEl('statTotalHAs',totalHAs);
+}
+
+function getFiltered(){
+  return clusters.filter(c => {
+    const q = currentSearch.toLowerCase();
+    const mq = !q || c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q) ||
+      c.district.toLowerCase().includes(q) || c.has.some(h=>h.toLowerCase().includes(q));
+    const mf = currentFilter==='all' || (currentFilter==='high'&&c.allocated>20) ||
+      (currentFilter==='low'&&c.total<80) || (currentFilter==='top'&&c.fillPct>=70) ||
+      (currentFilter==='active'&&c.haCount>=2);
+    return mq && mf;
+  });
+}
+
+function renderCards(){
+  const grid = document.getElementById('clusterGrid');
+  const filtered = getFiltered();
+  if(!filtered.length){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-soft)">No clusters match.</div>'; return; }
+  grid.innerHTML = filtered.map((c,i) => {
+    const scoreColor = c.aiScore>=85?'#4ADE80':c.aiScore>=75?'var(--gold-light)':'#FDA4AF';
+    return `<div class="cluster-card" style="animation:fadeUp 0.4s ease ${0.05+i*0.07}s both" onclick="openDrawer(${clusters.indexOf(c)})">
+      <div class="cc-head" style="background:${c.grad}">
+        <div class="cc-code">${c.code} · ${c.type}</div>
+        <div class="cc-name">${c.name}</div>
+        <div class="cc-district">${c.district} District</div>
+        <div class="cc-badge">${c.haCount} HA${c.haCount>1?'s':''}</div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-stats">
+          <div class="cs"><div class="cs-val" style="color:var(--text-dark)">${c.total}</div><div class="cs-lbl">Total</div></div>
+          <div class="cs"><div class="cs-val" style="color:#16a34a">${c.active}</div><div class="cs-lbl">Active</div></div>
+          <div class="cs"><div class="cs-val" style="color:var(--rose)">${c.allocated}</div><div class="cs-lbl">Allocated</div></div>
+          <div class="cs"><div class="cs-val" style="color:var(--gold)">${c.released}</div><div class="cs-lbl">Released</div></div>
+        </div>
+        <div class="cc-bar-wrap"><div class="cc-bar" style="width:${c.fillPct}%;background:${c.fillPct>=70?'linear-gradient(90deg,var(--teal),var(--teal-glow))':c.fillPct>=50?'linear-gradient(90deg,var(--gold),var(--gold-light))':'linear-gradient(90deg,var(--rose),var(--rose-light))'}"></div></div>
+        <div class="cc-bar-row"><span>Fill rate</span><span style="font-weight:700;color:${c.fillPct>=70?'var(--teal)':c.fillPct>=50?'var(--gold)':'var(--rose)'}">${c.fillPct}%</span></div>
+        <div class="cc-ha-row">${c.has.map(h=>`<span class="ha-pill">👤 ${h}</span>`).join('')}
+          <span style="margin-left:auto;font-size:11px;font-weight:700;color:${scoreColor};background:rgba(255,255,255,0.8);padding:3px 8px;border-radius:8px">AI ${c.aiScore}</span>
+        </div>
+        <div class="cc-footer" onclick="event.stopPropagation()">
+          <div class="ccf-btn" onclick="navTo('admin_panel.html')">👥 Patients</div>
+          <div class="ccf-btn" onclick="showToast('📋 Cluster report for ${c.name} ready!')">📋 Report</div>
+          <div class="ccf-btn pri" onclick="openDrawer(${clusters.indexOf(c)})">→ Details</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTable(){
+  const sorted = [...clusters].sort((a,b)=>b.aiScore-a.aiScore);
+  const colors = ['#FFD700','#C0C0C0','#CD7F32','#6B82C8','#A78BFA','#86EFAC'];
+  document.getElementById('clusterTableBody').innerHTML = sorted.map((c,i)=>{
+    const max = Math.max(...clusters.map(x=>x.total));
+    const scoreColor = c.aiScore>=85?'#16a34a':c.aiScore>=75?'var(--gold)':'var(--rose)';
+    return `<tr onclick="openDrawer(${clusters.indexOf(c)})" style="cursor:pointer">
+      <td><div class="rank-badge" style="background:${colors[i]||'var(--text-soft)'}">${i+1}</div></td>
+      <td><div style="display:flex;align-items:center;gap:10px">
+        <div style="width:10px;height:32px;border-radius:3px;background:${c.color}"></div>
+        <div><div style="font-weight:700">${c.name}</div><div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text-soft)">${c.code}</div></div>
+      </div></td>
+      <td style="color:var(--text-soft);font-size:12.5px">${c.district}</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-fill" style="width:${Math.round(c.total/max*100)}%;background:${c.color}"></div></div><strong>${c.total}</strong></div></td>
+      <td style="color:#16a34a;font-weight:600">${c.active}</td>
+      <td style="color:var(--rose);font-weight:600">${c.allocated}</td>
+      <td style="color:var(--gold);font-weight:600">${c.released}</td>
+      <td><strong style="color:${c.fillPct>=70?'var(--teal)':c.fillPct>=50?'var(--gold)':'var(--rose)'}">${c.fillPct}%</strong></td>
+      <td>${c.has.map(h=>`<span style="font-size:11px;padding:2px 7px;background:rgba(26,107,90,0.07);color:var(--teal);border-radius:6px;font-weight:600;display:inline-block;margin:1px">${h}</span>`).join('')}</td>
+      <td><strong style="color:${scoreColor}">${c.aiScore}</strong></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterClusters(){ currentSearch=document.getElementById('searchInput').value; renderCards(); renderTable(); }
+function setFilter(f,el){ currentFilter=f; document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active')); if(el)el.classList.add('active'); renderCards(); renderTable(); }
+
+function openDrawer(idx){
+  const c = clusters[idx];
+  if(!c) return;
+  document.getElementById('drawerName').textContent = c.name + ' Cluster';
+  document.getElementById('drawerSub').textContent = c.code + ' · ' + c.district + ' · ' + c.type;
+  const scoreColor = c.aiScore>=85?'#16a34a':c.aiScore>=75?'var(--gold)':'var(--rose)';
+  document.getElementById('drawerBody').innerHTML = `
+    <div style="height:8px;background:${c.grad};border-radius:8px;margin-bottom:20px"></div>
+    <div class="d-stat-row">
+      <div class="d-stat"><div class="d-stat-val" style="color:var(--text-dark)">${c.total}</div><div class="d-stat-lbl">Total</div></div>
+      <div class="d-stat"><div class="d-stat-val" style="color:#16a34a">${c.active}</div><div class="d-stat-lbl">Active</div></div>
+      <div class="d-stat"><div class="d-stat-val" style="color:var(--rose)">${c.allocated}</div><div class="d-stat-lbl">Allocated</div></div>
+      <div class="d-stat"><div class="d-stat-val" style="color:${scoreColor}">${c.aiScore}</div><div class="d-stat-lbl">AI Score</div></div>
+    </div>
+    <div class="d-section">
+      <div class="d-sec-title">Cluster Details</div>
+      <div class="d-row"><span class="d-label">Code</span><span class="d-value" style="font-family:'DM Mono',monospace;color:var(--teal)">${c.code}</span></div>
+      <div class="d-row"><span class="d-label">District</span><span class="d-value">${c.district}</span></div>
+      <div class="d-row"><span class="d-label">Type</span><span class="d-value">${c.type}</span></div>
+      <div class="d-row"><span class="d-label">Fill Rate</span><span class="d-value">${c.fillPct}%</span></div>
+      <div class="d-row"><span class="d-label">Released</span><span class="d-value" style="color:var(--gold)">${c.released}</span></div>
+      <div class="d-row"><span class="d-label">Allocated</span><span class="d-value" style="color:var(--rose)">${c.allocated}</span></div>
+    </div>
+    <div class="d-section">
+      <div class="d-sec-title">Health Assistants (${c.haCount})</div>
+      ${c.has.map(h=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--ivory);border:1px solid var(--border);margin-bottom:6px"><span style="font-size:20px">👤</span><div><div style="font-weight:700;font-size:13px">${h}</div><div style="font-size:11px;color:var(--text-soft)">Active · ${c.code}</div></div><button onclick="navTo('ha_panel.html')" style="margin-left:auto;padding:5px 10px;border-radius:7px;border:none;background:var(--teal);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">View</button></div>`).join('')}
+    </div>
+    <div class="d-section">
+      <div class="d-sec-title">Recent Patients (${c.patients.length} shown)</div>
+      ${c.patients.map(p=>{
+        const bc = p.status==='Registered'?'rgba(74,222,128,0.1)':p.status==='Allocated'?'rgba(192,80,74,0.1)':'rgba(200,150,62,0.1)';
+        const tc = p.status==='Registered'?'#16a34a':p.status==='Allocated'?'var(--rose)':'var(--gold)';
+        return `<div class="patient-mini"><div><div class="pm-name">${p.name}</div><div class="pm-meta">${p.id} · ${p.date}</div></div><span class="pm-badge" style="background:${bc};color:${tc}">${p.status}</span></div>`;
+      }).join('')}
+      <button onclick="navTo('admin_panel.html')" style="width:100%;margin-top:8px;padding:9px;border-radius:9px;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">View All ${c.total} Patients →</button>
+    </div>
+    <div class="d-ai-box" id="drawerAIBox-${clusters.indexOf(c)}">
+      <h5>✦ AI Cluster Analysis</h5>
+      <p id="drawerAIText-${clusters.indexOf(c)}" style="font-size:12.5px;color:rgba(255,255,255,0.7);line-height:1.6">Generating analysis…</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px">
+      <button onclick="showToast('📋 Cluster report for ${c.name} ready!')" style="padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">📋 Full Report</button>
+      <button onclick="navTo('ha_panel.html')" style="padding:11px;border-radius:10px;border:none;background:var(--teal);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">👤 Manage HAs</button>
+    </div>`;
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('clusterDrawer').classList.add('open');
+  // Live AI for drawer
+  const drawerTextId = `drawerAIText-${clusters.indexOf(c)}`;
+  const prompt = `In 2-3 sentences, give a specific actionable analysis of the ${c.name} health cluster in ${c.district}, ${c.type} type.
+Stats: ${c.total} patients, ${c.active} active, ${c.allocated} allocated, fill rate ${c.fillPct}%, AI score ${c.aiScore}, ${c.haCount} health assistant(s).
+Focus on 1 specific strength and 1 specific improvement action. Use <strong> for key points.`;
+  const textEl = document.getElementById(drawerTextId);
+  if(textEl){
+    // Build a data-driven template immediately
+    const scoreLabel = c.aiScore>=85?'top-tier performer':c.aiScore>=75?'solid performer':'cluster needing improvement';
+    const strength = c.fillPct>=70?`strong fill rate of ${c.fillPct}%`:c.haCount>=2?`${c.haCount} HAs providing broad coverage`:`${c.active} active patients showing engagement`;
+    const action = c.allocated>20?`reduce the ${c.allocated}-patient allocation backlog urgently`:c.fillPct<55?`launch an outreach drive to lift fill rate from ${c.fillPct}%`:`maintain momentum and consider adding a second HA`;
+    const drawerTemplate = `<strong>${c.name}</strong> is a ${scoreLabel} with an AI score of ${c.aiScore}. `
+      + `Key strength: ${strength}. `
+      + `Recommended action: ${action} within the next 30 days.`;
+    textEl.innerHTML = drawerTemplate;
+    let full = '';
+    callAnthropicStreaming(prompt, (chunk)=>{
+      if(!full) textEl.innerHTML = '';
+      full += chunk;
+      textEl.innerHTML = full + '<span style="display:inline-block;width:2px;height:12px;background:var(--teal-glow);animation:blink 0.8s step-end infinite;vertical-align:middle;margin-left:2px"></span>';
+    }, (err)=>{ if(textEl){ if(err||!full.trim()) textEl.innerHTML = drawerTemplate; else textEl.innerHTML = full; } });
+  }
+}
+function closeDrawer(){ document.getElementById('drawerOverlay').classList.remove('open'); document.getElementById('clusterDrawer').classList.remove('open'); }
+
+// Auto-generate cluster code (but remains editable)
+function autoGenCode(){
+  const nameEl = document.getElementById('clusterName');
+  const codeEl = document.getElementById('clusterCode');
+  if(!nameEl || !codeEl) return;
+  const name = nameEl.value.trim().toUpperCase();
+  if(name.length>=2){
+    // Only auto-fill if user hasn't manually changed it
+    if(!codeEl.dataset.userEdited){
+      const abbr = name.replace(/\s+/g,'').substring(0,3);
+      codeEl.value = 'WB-'+abbr;
+    }
+  }
+  // Also autofill district from name if district is empty
+  const distEl = document.getElementById('formDistrict');
+  if(distEl && !distEl.value.trim()) distEl.value = nameEl.value.trim();
+}
+
+// AI Generate Details - calls Anthropic API
+function aiGenerateDetails(){
+  const name     = (document.getElementById('clusterName').value || '').trim();
+  const district = (document.getElementById('formDistrict').value || '').trim();
+  const type     = document.getElementById('formClusterType').value || 'Rural';
+  const state    = document.getElementById('formState').value || 'West Bengal';
+  const pop      = parseInt(document.getElementById('formPopulation').value) || 0;
+  const target   = parseInt(document.getElementById('formTargetPatients').value) || 0;
+  const haSlots  = parseInt(document.getElementById('formHASlots').value) || 0;
+  const subDist  = (document.getElementById('formSubDistricts').value || '').trim();
+  const ha       = document.getElementById('formPrimaryHA').value || '';
+
+  if(!name){ showToast('\u26a0 Please enter a Cluster Name first'); return; }
+
+  const btn = document.getElementById('aiGenBtn');
+  const statusDiv = document.getElementById('aiGenerateStatus');
+  btn.disabled = true;
+  btn.textContent = '\u23f3 Generating\u2026';
+  statusDiv.style.display = 'flex';
+  statusDiv.style.background = 'linear-gradient(135deg,rgba(26,107,90,0.04),rgba(61,191,160,0.07))';
+  statusDiv.style.borderColor = 'rgba(26,107,90,0.15)';
+  statusDiv.style.color = 'var(--teal)';
+  document.getElementById('aiStatusIcon').textContent = '\u23f3';
+  document.getElementById('aiStatusText').textContent = 'Reading form data and generating summary\u2026';
+
+  // Auto-fill code if empty
+  const codeEl = document.getElementById('clusterCode');
+  if(!codeEl.value.trim()){
+    const abbr = name.replace(/\s+/g,'').toUpperCase().substring(0,3);
+    codeEl.value = 'WB-' + abbr;
+  }
+  // Auto-fill district if empty
+  if(!district) document.getElementById('formDistrict').value = name;
+  const distFinal = document.getElementById('formDistrict').value.trim();
+
+  const typeDesc = {
+    'Rural':      'predominantly rural with dispersed village habitations and limited transport connectivity',
+    'Semi-Urban': 'semi-urban with a mix of township settlements and surrounding agricultural villages',
+    'Urban':      'densely urban with high population density and proximity to secondary healthcare facilities',
+    'Tribal':     'tribal with indigenous communities, often in forested terrain with restricted road access',
+    'Coastal':    'coastal with fishing communities and seasonal migration patterns affecting service delivery'
+  }[type] || 'mixed-terrain';
+
+  const subLine = subDist
+    ? 'It covers the sub-districts of ' + subDist + ', ensuring structured ward-level outreach.'
+    : 'Sub-district boundaries are yet to be defined and should be mapped before field deployment.';
+
+  const fillRate = (pop && target) ? (Math.round((target/pop)*1000)/10) : null;
+  const covLine = (pop && target)
+    ? 'With an estimated population of ' + pop.toLocaleString() + ', the cluster is projected to register ' + target.toLocaleString() + ' patients (' + fillRate + '% coverage).'
+    : pop
+      ? 'The cluster serves an estimated population of ' + pop.toLocaleString() + '; target patient count is pending finalisation.'
+      : 'Population coverage and target patient count are yet to be entered.';
+
+  const haAdequacy = (target && haSlots) ? Math.round(target / haSlots) : null;
+  const haLine = (haSlots && haAdequacy)
+    ? haSlots + ' Health Assistant' + (haSlots > 1 ? 's' : '') + (haSlots > 1 ? ' are' : ' is') + ' allocated, each managing approximately ' + haAdequacy + ' patients — ' + (haAdequacy <= 150 ? 'within' : 'above') + ' the recommended 1:150 HA-to-patient ratio.'
+    : haSlots
+      ? haSlots + ' HA slot' + (haSlots > 1 ? 's' : '') + ' assigned; patient load ratio will update once target count is confirmed.'
+      : 'HA staffing is not yet assigned; deployment plan should be completed before cluster activation.';
+
+  const haName = ha ? ha.split('(')[0].trim() : null;
+  const haAssignLine = haName ? ' Primary HA assigned: ' + haName + '.' : '';
+
+  const summary =
+    name + ' is a ' + type.toLowerCase() + ' health cluster in ' + distFinal + ' district, ' + state + ', ' + typeDesc + '. ' +
+    subLine + ' ' + covLine + ' ' + haLine + haAssignLine;
+
+  setTimeout(function(){
+    document.getElementById('formNotes').value = summary;
+    document.getElementById('aiStatusIcon').textContent = '\u2705';
+    document.getElementById('aiStatusText').textContent = 'Summary generated from your form data. Review and edit before saving.';
+    statusDiv.style.background = 'linear-gradient(135deg,rgba(22,163,74,0.06),rgba(74,222,128,0.1))';
+    statusDiv.style.borderColor = 'rgba(22,163,74,0.25)';
+    statusDiv.style.color = '#16a34a';
+    btn.disabled = false;
+    btn.textContent = '\u2726 AI Generate Details';
+    showToast('\u2726 Summary generated from form data!');
+  }, 500);
+}
+
+// Cluster code becomes "user edited" if manually changed
+document.addEventListener('DOMContentLoaded',()=>{
+  const codeEl = document.getElementById('clusterCode');
+  if(codeEl){
+    codeEl.addEventListener('input', ()=>{ codeEl.dataset.userEdited = 'manual'; });
+  }
+});
+
+function submitCluster(){
+  const name = document.getElementById('clusterName')?.value.trim();
+  const code = document.getElementById('clusterCode')?.value.trim();
+  if(!name || !code){ showToast('⚠ Cluster Name and Code are required'); return; }
+  showToast('✅ Cluster "'+name+'" ('+code+') created successfully!');
+  // Clear form
+  ['clusterCode','clusterName','formDistrict','formSubDistricts','formPopulation','formTargetPatients','formHASlots','formNotes'].forEach(id=>{
+    const el = document.getElementById(id); if(el){ el.value=''; if(el.dataset) delete el.dataset.userEdited; }
+  });
+  document.getElementById('aiGenerateStatus').style.display='none';
+}
+
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+function navTo(page){ const o=document.getElementById('pageOverlay'); o.classList.add('active'); setTimeout(()=>window.location.href=page,280); }
+function updateClock(){ const el=document.querySelector('.date-pill'); if(!el)return; const now=new Date(); el.textContent='📅 '+now.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'})+' · '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}); }
+
+window.addEventListener('DOMContentLoaded',()=>{
+  const o=document.getElementById('pageOverlay');
+  o.classList.add('active');
+  setTimeout(()=>o.classList.remove('active'),350);
+  updateStats();
+  renderCards();
+  renderTable();
+  renderInsightBoxes();
+  updateClock();
+  setInterval(updateClock,30000);
+  generateLiveInsight();
+});
+
+function buildInsightTemplateFromData(){
+  const top = [...clusters].sort((a,b)=>b.aiScore-a.aiScore)[0];
+  const worst = [...clusters].sort((a,b)=>a.aiScore-b.aiScore)[0];
+  const maxAlloc = [...clusters].sort((a,b)=>b.allocated-a.allocated)[0];
+  const avgFill = Math.round(clusters.reduce((s,c)=>s+c.fillPct,0)/clusters.length);
+  const urgentAction = worst.fillPct < 55
+    ? `Urgent: deploy an additional HA to <strong>${worst.name}</strong> within 14 days to lift fill rate above the 55% critical threshold.`
+    : maxAlloc.allocated > 30
+    ? `Urgent: review allocation queue for <strong>${maxAlloc.name}</strong> — ${maxAlloc.allocated} pending patients risk follow-up delays with only ${maxAlloc.haCount} HA${maxAlloc.haCount!==1?'s':''}.`
+    : `Priority: schedule an outreach camp in <strong>${worst.name}</strong> to improve its ${worst.fillPct}% fill rate toward the system average.`;
+  return `<strong>${top.name}</strong> leads the network with a ${top.fillPct}% fill rate and AI score of ${top.aiScore}, `
+    + `while <strong>${worst.name}</strong> (score: ${worst.aiScore}, fill: ${worst.fillPct}%) and `
+    + `<strong>${maxAlloc.name}</strong> (${maxAlloc.allocated} allocated patients) require immediate attention. `
+    + `System-wide average fill stands at <strong>${avgFill}%</strong>. `
+    + urgentAction;
+}
+
+async function generateLiveInsight(){
+  const insightEl = document.getElementById('aiInsightText');
+  if(!insightEl) return;
+
+  // Step 1: Show predefined template instantly
+  const template = buildInsightTemplateFromData();
+  insightEl.innerHTML = template;
+
+  // Step 2: Optionally enhance via API
+  const top = [...clusters].sort((a,b)=>b.aiScore-a.aiScore)[0];
+  const worst = [...clusters].sort((a,b)=>a.aiScore-b.aiScore)[0];
+  const maxAlloc = [...clusters].sort((a,b)=>b.allocated-a.allocated)[0];
+  const prompt = `Summarise in 2 sentences (max 60 words) the most important cluster health insights for a West Bengal HealthOS administrator:
+- Best cluster: ${top.name} (score:${top.aiScore}, fill:${top.fillPct}%)
+- Worst cluster: ${worst.name} (score:${worst.aiScore}, fill:${worst.fillPct}%)  
+- Highest allocation risk: ${maxAlloc.name} (${maxAlloc.allocated} allocated patients, ${maxAlloc.haCount} HAs)
+- System avg fill: ${Math.round(clusters.reduce((s,c)=>s+c.fillPct,0)/clusters.length)}%
+Highlight 1 urgent action. Use <strong> tags for cluster names.`;
+  let full = '';
+  try {
+    await callAnthropicStreaming(prompt, (chunk)=>{
+      if(!full) insightEl.innerHTML = ''; // clear template only once streaming starts
+      full += chunk;
+      insightEl.innerHTML = full + '<span style="display:inline-block;width:2px;height:12px;background:var(--teal-glow);animation:blink 0.8s step-end infinite;vertical-align:middle;margin-left:2px"></span>';
+    }, (err)=>{
+      // If API failed or returned nothing, keep/restore the template
+      if(err || !full.trim()) insightEl.innerHTML = template;
+      else insightEl.innerHTML = full;
+    });
+  } catch(e) {
+    insightEl.innerHTML = template;
+  }
+}
+</script>
+
+<!-- ══════════════ MODAL: AI CLUSTER COMPARE ══════════════ -->
+<div class="modal-overlay" id="modalCompare">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">✦ AI Cluster Comparison</div>
+        <div class="modal-sub">Side-by-side performance analysis · All 16 clusters ranked</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalCompare')">✕</div>
+    </div>
+    <div class="modal-body" id="compareModalBody">
+      <div class="ai-loading-wrap"><div class="ai-spinner"></div><div class="ai-loading-label">Loading comparison…</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-btn" onclick="showToast('⬇ Comparison CSV exported!')">⬇ Export CSV</button>
+      <button class="mf-btn" id="compareRefreshBtn" onclick="openCompareModal()">🔄 Refresh Analysis</button>
+      <button class="mf-btn pri" onclick="showToast('🖨 Print report sent!')">🖨 Print Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL: HEALTH REPORT ══════════════ -->
+<div class="modal-overlay" id="modalHealthReport">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">📋 Cluster Health Report</div>
+        <div class="modal-sub">System-wide health metrics · Generated <span id="reportDate"></span></div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalHealthReport')">✕</div>
+    </div>
+    <div class="modal-body" id="healthReportBody">
+      <div class="ai-loading-wrap"><div class="ai-spinner"></div><div class="ai-loading-label">Generating report…</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-btn" onclick="showToast('📄 PDF report saved!')">📄 Save as PDF</button>
+      <button class="mf-btn" id="healthRefreshBtn" onclick="openHealthReportModal()">🔄 Regenerate</button>
+      <button class="mf-btn pri" onclick="showToast('📧 Report emailed to admin!')">📧 Email Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL: COVERAGE MAP ══════════════ -->
+<div class="modal-overlay" id="modalCoverageMap">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">🗺 District Coverage Map</div>
+        <div class="modal-sub">Geographic cluster distribution across West Bengal</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalCoverageMap')">✕</div>
+    </div>
+    <div class="modal-body" id="coverageMapBody">
+      <div class="ai-loading-wrap"><div class="ai-spinner"></div><div class="ai-loading-label">Mapping coverage…</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-btn" onclick="showToast('🗺 Map exported as PNG!')">🖼 Export Map</button>
+      <button class="mf-btn" id="coverageRefreshBtn" onclick="openCoverageMapModal()">🔄 Refresh</button>
+      <button class="mf-btn pri" onclick="showToast('📍 Deployment plan generated!')">📍 Generate Deployment Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL: REBALANCE PATIENTS ══════════════ -->
+<div class="modal-overlay" id="modalRebalance">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">♻ AI Patient Rebalancing</div>
+        <div class="modal-sub">Smart redistribution suggestions to equalise HA workloads</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('modalRebalance')">✕</div>
+    </div>
+    <div class="modal-body" id="rebalanceBody">
+      <div class="ai-loading-wrap"><div class="ai-spinner"></div><div class="ai-loading-label">Analysing workloads…</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-btn" onclick="closeModal('modalRebalance')">Cancel</button>
+      <button class="mf-btn" id="rebalanceRefreshBtn" onclick="openRebalanceModal()">🔄 Re-analyse</button>
+      <button class="mf-btn pri" onclick="applyRebalancing()">✅ Approve All & Apply</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

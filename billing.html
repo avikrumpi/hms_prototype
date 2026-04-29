@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Billing & Revenue</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+  --shadow-lg: 0 12px 48px rgba(26,107,90,0.16);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(ellipse 800px 600px at 90% 10%, rgba(200,150,62,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 10% 80%, rgba(61,191,160,0.05) 0%, transparent 70%);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px; position: fixed; top: 0; left: 0; height: 100vh;
+  background: var(--text-dark); display: flex; flex-direction: column;
+  z-index: 100; box-shadow: 4px 0 40px rgba(0,0,0,0.15);
+}
+.sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.logo-mark { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #fff; }
+.logo-mark span { color: var(--teal-glow); }
+.logo-sub { font-size: 11px; color: var(--text-soft); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+.sidebar-admin {
+  padding: 20px 24px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.admin-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; position: relative;
+}
+.admin-avatar::after {
+  content:''; position: absolute; bottom: 2px; right: 2px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #4ADE80; border: 2px solid var(--text-dark);
+}
+.admin-name { font-weight: 600; font-size: 14px; color: #fff; }
+.admin-role { font-size: 11px; color: var(--text-soft); }
+.nav-section { padding: 16px 12px 8px; }
+.nav-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0 12px 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 10px;
+  color: rgba(255,255,255,0.55); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; text-decoration: none; margin-bottom: 2px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #fff; }
+.nav-item .icon { font-size: 18px; width: 22px; }
+.sidebar-bottom { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+.date-pill {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 8px 14px; text-align: center;
+  font-size: 12px; color: var(--text-soft); font-family: 'DM Mono', monospace;
+}
+
+/* MAIN */
+.main { margin-left: 260px; min-height: 100vh; }
+.topbar {
+  background: var(--glass); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 36px; display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 50;
+}
+.page-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--text-dark); }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.topbar-btn {
+  padding: 8px 16px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: #fff; font-size: 13px; font-weight: 500; color: var(--text-mid);
+  cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif; white-space: nowrap;
+}
+.topbar-btn:hover { border-color: var(--teal); color: var(--teal); }
+.topbar-btn.gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border-color: transparent; color: #fff;
+  box-shadow: 0 4px 14px rgba(200,150,62,0.3);
+}
+.topbar-btn.gold:hover { opacity:0.9; transform: translateY(-1px); }
+
+.content { padding: 32px 36px; }
+
+/* REVENUE HERO */
+.revenue-hero {
+  background: linear-gradient(135deg, var(--gold) 0%, #D4A44A 40%, var(--gold-light) 100%);
+  border-radius: 20px; padding: 28px 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px; position: relative; overflow: hidden;
+  box-shadow: 0 12px 48px rgba(200,150,62,0.28);
+  animation: slideDown 0.5s ease;
+}
+@keyframes slideDown { from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);} }
+.revenue-hero::before {
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:220px; height:220px; border-radius:50%;
+  background:rgba(255,255,255,0.08); pointer-events:none;
+}
+.revenue-hero::after {
+  content:''; position:absolute; bottom:-80px; right:180px;
+  width:160px; height:160px; border-radius:50%;
+  background:rgba(255,255,255,0.05); pointer-events:none;
+}
+.revenue-hero-left { flex:1; }
+.revenue-label { font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,0.7); margin-bottom:6px; }
+.revenue-val { font-family:'Playfair Display',serif; font-size:48px; font-weight:700; color:#fff; line-height:1; }
+.revenue-val sup { font-size:22px; vertical-align:top; margin-top:8px; display:inline-block; }
+.revenue-sub { font-size:14px; color:rgba(255,255,255,0.75); margin-top:8px; display:flex; align-items:center; gap:10px; }
+.rev-delta { background:rgba(255,255,255,0.2); border-radius:20px; padding:3px 10px; font-size:12px; font-weight:700; }
+.revenue-hero-right { display:flex; flex-direction:column; gap:10px; align-items:flex-end; }
+.rev-stat-pill {
+  background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.25);
+  border-radius:14px; padding:12px 20px; text-align:center; min-width:120px;
+}
+.rev-stat-pill .rsp-val { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:#fff; }
+.rev-stat-pill .rsp-label { font-size:11px; color:rgba(255,255,255,0.65); margin-top:2px; }
+
+/* AI BILLING PANEL */
+.ai-billing-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.ai-panel {
+  background:#fff; border:1px solid var(--border); border-radius:18px; padding:22px;
+  position:relative; overflow:hidden;
+  box-shadow:0 2px 16px rgba(0,0,0,0.04);
+  animation: fadeUp 0.4s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.ai-panel:nth-child(1){animation-delay:0.05s;}
+.ai-panel:nth-child(2){animation-delay:0.1s;}
+.ai-panel-accent { position:absolute; top:0; left:0; right:0; height:3px; border-radius:18px 18px 0 0; }
+.ai-panel-accent.gold { background:linear-gradient(90deg,var(--gold),var(--gold-light)); }
+.ai-panel-accent.teal { background:linear-gradient(90deg,var(--teal),var(--teal-glow)); }
+.ai-panel-title { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-soft); font-weight:600; margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+.ai-forecast-val { font-family:'Playfair Display',serif; font-size:36px; font-weight:700; color:var(--gold); }
+.ai-forecast-sub { font-size:13px; color:var(--text-soft); margin-top:4px; margin-bottom:16px; }
+.ai-insight-list { display:flex; flex-direction:column; gap:8px; }
+.ai-insight-item {
+  display:flex; align-items:flex-start; gap:10px;
+  background:var(--ivory); border-radius:10px; padding:10px 14px;
+  border:1px solid var(--border);
+}
+.ai-insight-icon { font-size:16px; flex-shrink:0; }
+.ai-insight-text { font-size:13px; color:var(--text-dark); line-height:1.4; }
+.ai-insight-text strong { color:var(--teal); }
+.chart-wrap { height:90px; display:flex; align-items:flex-end; gap:6px; padding-top:10px; }
+.chart-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.chart-bar {
+  width:100%; border-radius:6px 6px 0 0;
+  background:linear-gradient(180deg,var(--gold-light),var(--gold));
+  position:relative; cursor:pointer; transition:opacity 0.2s;
+}
+.chart-bar:hover { opacity:0.8; }
+.chart-bar.teal { background:linear-gradient(180deg,var(--teal-glow),var(--teal)); }
+.chart-bar.projected { background:linear-gradient(180deg,rgba(200,150,62,0.4),rgba(200,150,62,0.2)); border:1px dashed rgba(200,150,62,0.5); }
+.chart-label { font-size:10px; color:var(--text-soft); font-family:'DM Mono',monospace; }
+
+/* STATS ROW */
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.stat-card {
+  background:#fff; border:1px solid var(--border); border-radius:16px; padding:20px 22px;
+  position:relative; overflow:hidden; transition:transform 0.2s,box-shadow 0.2s;
+  animation:fadeUp 0.4s ease both;
+}
+.stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+.stat-card:nth-child(1){animation-delay:0.1s;}
+.stat-card:nth-child(2){animation-delay:0.15s;}
+.stat-card:nth-child(3){animation-delay:0.2s;}
+.stat-card:nth-child(4){animation-delay:0.25s;}
+.stat-accent { position:absolute; top:0; left:0; right:0; height:3px; border-radius:16px 16px 0 0; }
+.stat-accent.teal{background:linear-gradient(90deg,var(--teal),var(--teal-glow));}
+.stat-accent.gold{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.stat-accent.rose{background:linear-gradient(90deg,var(--rose),var(--rose-light));}
+.stat-accent.indigo{background:linear-gradient(90deg,var(--indigo),#6B7FCA);}
+.stat-label { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-soft); margin-bottom:8px; }
+.stat-val { font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:var(--text-dark); line-height:1; }
+.stat-sub { font-size:12px; color:var(--text-soft); margin-top:6px; display:flex; align-items:center; gap:4px; }
+.stat-delta { font-size:11px; font-weight:600; padding:2px 7px; border-radius:20px; }
+.stat-delta.up { background:rgba(26,107,90,0.1); color:var(--teal); }
+.stat-delta.down { background:rgba(192,80,74,0.1); color:var(--rose); }
+
+/* TOOLBAR */
+.toolbar { display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+.search-wrap {
+  background:#fff; border:1.5px solid var(--border); border-radius:12px;
+  display:flex; align-items:center; overflow:hidden;
+  transition:border-color 0.2s,box-shadow 0.2s; flex:1; min-width:220px;
+}
+.search-wrap:focus-within { border-color:var(--gold); box-shadow:0 0 0 3px rgba(200,150,62,0.1); }
+.search-icon { padding:0 14px; color:var(--text-soft); font-size:16px; }
+.search-input {
+  flex:1; padding:11px 0; font-size:13px; font-family:'DM Sans',sans-serif;
+  border:none; outline:none; background:transparent; color:var(--text-dark);
+}
+.search-input::placeholder { color:var(--text-soft); }
+.filter-btn {
+  padding:9px 16px; border-radius:10px; border:1.5px solid var(--border);
+  background:#fff; font-size:13px; font-weight:500; color:var(--text-mid);
+  cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.2s;
+  font-family:'DM Sans',sans-serif; white-space:nowrap;
+}
+.filter-btn:hover { border-color:var(--gold); color:var(--gold); }
+.filter-btn.active { border-color:var(--gold); background:rgba(200,150,62,0.08); color:var(--gold); }
+.ai-autofill-btn {
+  padding:9px 18px; border-radius:10px;
+  background:linear-gradient(135deg,var(--teal),var(--teal-light));
+  border:none; font-size:13px; font-weight:600; color:#fff;
+  cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.2s;
+  font-family:'DM Sans',sans-serif; white-space:nowrap;
+  box-shadow:0 4px 14px rgba(26,107,90,0.3);
+}
+.ai-autofill-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(26,107,90,0.4); }
+
+/* BILLING TABLE */
+.table-card {
+  background:#fff; border:1px solid var(--border); border-radius:20px;
+  overflow:hidden; box-shadow:0 2px 20px rgba(0,0,0,0.04);
+}
+.table-head {
+  display:grid;
+  grid-template-columns:40px 1.8fr 1fr 1fr 1fr 1fr 1.2fr 1fr 110px;
+  padding:14px 24px; background:var(--ivory); border-bottom:1px solid var(--border);
+}
+.th { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-soft); font-weight:600; }
+.table-body { max-height:520px; overflow-y:auto; }
+.table-row {
+  display:grid;
+  grid-template-columns:40px 1.8fr 1fr 1fr 1fr 1fr 1.2fr 1fr 110px;
+  padding:14px 24px; align-items:center;
+  border-bottom:1px solid rgba(226,217,204,0.5);
+  transition:background 0.15s; cursor:pointer;
+}
+.table-row:last-child { border-bottom:none; }
+.table-row:hover { background:rgba(200,150,62,0.03); }
+.row-num { font-size:12px; color:var(--text-soft); font-family:'DM Mono',monospace; }
+.pat-name { font-weight:600; font-size:14px; color:var(--text-dark); }
+.inv-id { font-size:11px; color:var(--text-soft); font-family:'DM Mono',monospace; margin-top:2px; }
+.td { font-size:13px; color:var(--text-mid); }
+.amt { font-family:'DM Mono',monospace; font-size:13px; font-weight:600; color:var(--text-dark); }
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-green { background:rgba(26,107,90,0.1); color:var(--teal); }
+.badge-gold { background:rgba(200,150,62,0.12); color:var(--gold); }
+.badge-rose { background:rgba(192,80,74,0.1); color:var(--rose); }
+.badge-indigo { background:rgba(61,79,138,0.1); color:var(--indigo); }
+.action-row { display:flex; gap:6px; }
+.action-btn {
+  padding:4px 10px; border-radius:8px; font-size:11px; font-weight:500;
+  border:1.5px solid var(--border); background:#fff; color:var(--text-mid);
+  cursor:pointer; transition:all 0.18s; font-family:'DM Sans',sans-serif;
+}
+.action-btn:hover { border-color:var(--teal); color:var(--teal); background:rgba(26,107,90,0.04); }
+.action-btn.gold-btn:hover { border-color:var(--gold); color:var(--gold); background:rgba(200,150,62,0.04); }
+
+/* INVOICE MODAL */
+.modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(28,35,49,0.45);
+  backdrop-filter:blur(6px); z-index:999; align-items:center; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:#fff; border-radius:24px; max-width:620px; width:90%;
+  position:relative; box-shadow:0 24px 80px rgba(0,0,0,0.18);
+  animation:modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1); overflow:hidden;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.9) translateY(20px);}to{opacity:1;transform:none;}}
+.modal-header {
+  background:linear-gradient(135deg,var(--teal),var(--teal-light));
+  padding:28px 32px; position:relative; overflow:hidden;
+}
+.modal-header::before {
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.07);
+}
+.modal-close {
+  position:absolute; top:16px; right:16px;
+  width:30px; height:30px; border-radius:50%; border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:14px; color:#fff; transition:all 0.15s;
+}
+.modal-close:hover { background:var(--rose); border-color:var(--rose); }
+.modal-inv-label { font-size:10px; letter-spacing:2px; color:rgba(255,255,255,0.65); text-transform:uppercase; }
+.modal-inv-id { font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:#fff; margin:4px 0 2px; }
+.modal-inv-patient { font-size:14px; color:rgba(255,255,255,0.8); }
+.modal-body { padding:28px 32px; }
+.invoice-line-table { width:100%; border-collapse:collapse; margin-bottom:20px; }
+.invoice-line-table th {
+  text-align:left; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--text-soft); font-weight:600; padding:8px 0; border-bottom:1px solid var(--border);
+}
+.invoice-line-table td { padding:10px 0; font-size:13px; color:var(--text-mid); border-bottom:1px solid rgba(226,217,204,0.4); }
+.invoice-line-table td:last-child { text-align:right; font-weight:600; color:var(--text-dark); font-family:'DM Mono',monospace; }
+.invoice-total-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 18px; background:var(--ivory); border-radius:14px;
+  border:1px solid var(--border); margin-bottom:16px;
+}
+.invoice-total-label { font-size:13px; color:var(--text-mid); font-weight:500; }
+.invoice-total-val { font-family:'Playfair Display',serif; font-size:24px; font-weight:700; color:var(--teal); }
+.ai-billing-insight {
+  background:linear-gradient(135deg,rgba(200,150,62,0.08),rgba(232,185,106,0.04));
+  border:1px solid rgba(200,150,62,0.2); border-radius:14px; padding:14px 18px;
+  margin-bottom:18px; position:relative;
+}
+.ai-billing-insight::before { content:'✦'; position:absolute; top:12px; right:14px; font-size:18px; color:var(--gold-light); opacity:0.5; }
+.ai-bi-label { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:6px; }
+.ai-bi-text { font-size:13px; color:var(--text-dark); line-height:1.5; }
+.modal-actions { display:flex; gap:10px; }
+.modal-btn {
+  flex:1; padding:12px; border-radius:12px; font-size:13px; font-weight:600;
+  cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; border:none;
+}
+.modal-btn.primary { background:linear-gradient(135deg,var(--teal),var(--teal-light)); color:#fff; }
+.modal-btn.gold { background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:#fff; }
+.modal-btn.secondary { background:var(--ivory); color:var(--text-mid); border:1.5px solid var(--border); }
+.modal-btn:hover { transform:translateY(-1px); opacity:0.93; }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:32px; right:32px;
+  background:var(--text-dark); color:#fff; padding:14px 22px;
+  border-radius:14px; font-size:13px; font-weight:500;
+  display:flex; align-items:center; gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.2);
+  transform:translateY(80px); opacity:0;
+  transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  z-index:9999;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+
+/* AI ANOMALY */
+.overdue-flag { display:inline-flex; align-items:center; gap:4px; background:rgba(192,80,74,0.1); border:1px solid rgba(192,80,74,0.2); border-radius:20px; padding:2px 8px; font-size:10px; font-weight:600; color:var(--rose); margin-left:4px; vertical-align:middle; }
+.pulse-dot { width:6px; height:6px; border-radius:50%; background:var(--rose); animation:pulse 1.5s ease-in-out infinite; display:inline-block; }
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.4);opacity:0.6;}}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+/* BILLING SUBTABS */
+.billing-subtabs {
+  display:flex; gap:0; margin-bottom:28px;
+  background:#fff; border:1px solid var(--border); border-radius:14px; overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,0.04);
+}
+.billing-subtab {
+  flex:1; padding:13px 20px; border:none; background:transparent;
+  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500;
+  color:var(--text-soft); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; gap:7px; transition:all 0.2s;
+  border-right:1px solid var(--border); position:relative;
+}
+.billing-subtab:last-child { border-right:none; }
+.billing-subtab:hover { background:var(--ivory); color:var(--text-dark); }
+.billing-subtab.active {
+  background:linear-gradient(135deg,var(--teal),var(--teal-light));
+  color:#fff; font-weight:600;
+}
+.billing-subtab .tab-badge {
+  background:rgba(255,255,255,0.25); border-radius:20px;
+  padding:1px 7px; font-size:10px; font-weight:700;
+}
+.billing-subtab:not(.active) .tab-badge {
+  background:rgba(200,150,62,0.12); color:var(--gold);
+}
+
+/* PANEL VISIBILITY */
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* REVENUE TAB STYLES */
+.rev-view-toggle {
+  display:flex; align-items:center; gap:8px; background:#fff;
+  border:1px solid var(--border); border-radius:12px; padding:5px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.04);
+}
+.rev-toggle-btn {
+  padding:8px 18px; border-radius:9px; border:none; font-family:'DM Sans',sans-serif;
+  font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s;
+  background:transparent; color:var(--text-soft);
+}
+.rev-toggle-btn.active {
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  color:#fff; font-weight:600; box-shadow:0 4px 12px rgba(200,150,62,0.3);
+}
+
+.rev-toolbar {
+  display:flex; align-items:center; gap:12px; margin-bottom:22px; flex-wrap:wrap;
+}
+.rev-filter-select {
+  padding:10px 14px; border-radius:11px; border:1.5px solid var(--border);
+  background:#fff; font-family:'DM Sans',sans-serif; font-size:13px;
+  color:var(--text-mid); cursor:pointer; outline:none;
+  transition:border-color 0.2s;
+}
+.rev-filter-select:focus { border-color:var(--gold); }
+.add-rev-btn {
+  padding:10px 18px; border-radius:11px; border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600;
+  color:#fff; cursor:pointer; display:flex; align-items:center; gap:7px;
+  box-shadow:0 4px 14px rgba(200,150,62,0.3); transition:all 0.2s;
+}
+.add-rev-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(200,150,62,0.4); }
+.export-rev-btn {
+  padding:10px 16px; border-radius:11px; border:1.5px solid var(--border);
+  background:#fff; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500;
+  color:var(--text-mid); cursor:pointer; transition:all 0.2s;
+}
+.export-rev-btn:hover { border-color:var(--teal); color:var(--teal); }
+
+/* CLUSTER GRID */
+.cluster-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;
+}
+.cluster-card {
+  background:#fff; border:1px solid var(--border); border-radius:18px;
+  overflow:hidden; transition:transform 0.2s,box-shadow 0.2s;
+  box-shadow:0 2px 14px rgba(0,0,0,0.04); animation:fadeUp 0.4s ease both;
+  cursor:pointer;
+}
+.cluster-card:hover { transform:translateY(-3px); box-shadow:0 8px 32px rgba(0,0,0,0.10); }
+.cluster-card-header {
+  padding:16px 20px; display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+.cluster-name { font-weight:700; font-size:15px; color:var(--text-dark); display:flex; align-items:center; gap:8px; }
+.cluster-dot { width:10px; height:10px; border-radius:50%; }
+.cluster-status-badge {
+  font-size:10px; padding:3px 9px; border-radius:20px; font-weight:600;
+}
+.cluster-card-body { padding:16px 20px; }
+.cluster-rev-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;
+}
+.cluster-rev-item { }
+.cluster-rev-label { font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-soft); margin-bottom:3px; }
+.cluster-rev-val { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:var(--text-dark); }
+.cluster-rev-val.gold { color:var(--gold); }
+.cluster-rev-val.teal { color:var(--teal); }
+.cluster-rev-val.rose { color:var(--rose); }
+.cluster-progress-wrap { margin-bottom:10px; }
+.cluster-progress-label { display:flex; justify-content:space-between; font-size:11px; color:var(--text-soft); margin-bottom:5px; }
+.cluster-progress-bar { height:6px; background:var(--ivory); border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+.cluster-progress-fill { height:100%; border-radius:10px; transition:width 1s cubic-bezier(0.4,0,0.2,1); }
+.cluster-actions { display:flex; gap:8px; margin-top:12px; }
+.cluster-btn {
+  flex:1; padding:8px; border-radius:10px; font-size:12px; font-weight:600;
+  cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; border:none; text-align:center;
+}
+.cluster-btn.edit { background:var(--ivory); color:var(--text-mid); border:1.5px solid var(--border); }
+.cluster-btn.edit:hover { border-color:var(--teal); color:var(--teal); }
+.cluster-btn.view-detail { background:linear-gradient(135deg,var(--teal),var(--teal-light)); color:#fff; }
+.cluster-btn.view-detail:hover { opacity:0.9; }
+
+/* PER-PATIENT REVENUE TABLE */
+.rev-table-card {
+  background:#fff; border:1px solid var(--border); border-radius:20px;
+  overflow:hidden; box-shadow:0 2px 20px rgba(0,0,0,0.04);
+}
+.rev-table-head {
+  display:grid;
+  grid-template-columns:40px 1.6fr 1fr 1fr 1fr 1fr 1fr 110px;
+  padding:14px 24px; background:var(--ivory); border-bottom:1px solid var(--border);
+}
+.rev-table-row {
+  display:grid;
+  grid-template-columns:40px 1.6fr 1fr 1fr 1fr 1fr 1fr 110px;
+  padding:13px 24px; align-items:center;
+  border-bottom:1px solid rgba(226,217,204,0.5);
+  transition:background 0.15s; cursor:pointer;
+}
+.rev-table-row:last-child { border-bottom:none; }
+.rev-table-row:hover { background:rgba(200,150,62,0.03); }
+.rev-cluster-chip {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600;
+  border:1px solid;
+}
+
+/* REVENUE EDIT MODAL */
+.rev-modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(28,35,49,0.5);
+  backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center;
+}
+.rev-modal-overlay.open { display:flex; }
+.rev-modal {
+  background:#fff; border-radius:24px; max-width:680px; width:92%;
+  max-height:88vh; overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,0.18);
+  animation:modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.rev-modal-header {
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  padding:26px 32px; position:sticky; top:0; z-index:2;
+}
+.rev-modal-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#fff; margin-bottom:4px; }
+.rev-modal-sub { font-size:13px; color:rgba(255,255,255,0.75); }
+.rev-modal-close {
+  position:absolute; top:16px; right:16px; width:30px; height:30px;
+  border-radius:50%; border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.15); display:flex; align-items:center;
+  justify-content:center; cursor:pointer; font-size:14px; color:#fff;
+  transition:all 0.15s;
+}
+.rev-modal-close:hover { background:var(--rose); border-color:var(--rose); }
+.rev-modal-body { padding:28px 32px; }
+.rev-form-section { margin-bottom:22px; }
+.rev-form-label { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-soft); font-weight:600; margin-bottom:10px; display:block; }
+.rev-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.rev-form-input {
+  width:100%; padding:11px 14px; border-radius:11px;
+  border:1.5px solid var(--border); background:#fff;
+  font-family:'DM Sans',sans-serif; font-size:13px; color:var(--text-dark);
+  outline:none; transition:border-color 0.2s,box-shadow 0.2s;
+}
+.rev-form-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(200,150,62,0.1); }
+.rev-form-select { appearance:none; cursor:pointer; }
+
+.rev-line-items { }
+.rev-line-head {
+  display:grid; grid-template-columns:2fr 1fr 1fr 40px;
+  padding:8px 0; border-bottom:1px solid var(--border); margin-bottom:8px;
+}
+.rev-line-th { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-soft); font-weight:600; }
+.rev-line-row {
+  display:grid; grid-template-columns:2fr 1fr 1fr 40px;
+  gap:8px; align-items:center; margin-bottom:8px;
+}
+.rev-line-total {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 16px; background:var(--ivory); border-radius:12px; border:1px solid var(--border);
+  margin-top:12px;
+}
+.rev-line-total-label { font-size:13px; color:var(--text-mid); }
+.rev-line-total-val { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--teal); }
+.add-line-btn {
+  width:100%; padding:9px; border-radius:10px; border:1.5px dashed var(--border);
+  background:transparent; font-family:'DM Sans',sans-serif; font-size:13px;
+  color:var(--text-soft); cursor:pointer; transition:all 0.2s; margin-top:8px;
+}
+.add-line-btn:hover { border-color:var(--gold); color:var(--gold); background:rgba(200,150,62,0.03); }
+.del-line-btn {
+  width:28px; height:28px; border-radius:8px; border:1.5px solid var(--border);
+  background:#fff; color:var(--rose); font-size:14px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:all 0.15s;
+}
+.del-line-btn:hover { background:var(--rose); color:#fff; border-color:var(--rose); }
+.rev-modal-footer {
+  display:flex; gap:10px; padding:20px 32px 28px;
+}
+.rev-save-btn {
+  flex:2; padding:13px; border-radius:12px; border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700;
+  color:#fff; cursor:pointer; transition:all 0.2s;
+  box-shadow:0 4px 16px rgba(200,150,62,0.3);
+}
+.rev-save-btn:hover { transform:translateY(-1px); }
+.rev-cancel-btn {
+  flex:1; padding:13px; border-radius:12px; border:1.5px solid var(--border);
+  background:#fff; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500;
+  color:var(--text-mid); cursor:pointer; transition:all 0.2s;
+}
+.rev-cancel-btn:hover { border-color:var(--rose); color:var(--rose); }
+
+/* AI PREFILL BANNER */
+.ai-prefill-banner {
+  background:linear-gradient(135deg,rgba(61,191,160,0.08),rgba(26,107,90,0.04));
+  border:1px solid rgba(61,191,160,0.25); border-radius:14px;
+  padding:14px 18px; margin-bottom:20px;
+  display:flex; align-items:center; gap:12px;
+}
+.ai-prefill-icon { font-size:22px; }
+.ai-prefill-text { flex:1; font-size:13px; color:var(--text-dark); line-height:1.5; }
+.ai-prefill-text strong { color:var(--teal); }
+.ai-prefill-apply {
+  padding:8px 16px; border-radius:10px; border:none;
+  background:var(--teal); color:#fff; font-size:12px; font-weight:600;
+  font-family:'DM Sans',sans-serif; cursor:pointer; white-space:nowrap;
+  transition:all 0.2s;
+}
+.ai-prefill-apply:hover { background:var(--teal-light); }
+
+/* SUMMARY CARDS FOR CLUSTER VIEW */
+.rev-summary-strip {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;
+}
+.rev-sum-card {
+  background:#fff; border:1px solid var(--border); border-radius:14px;
+  padding:16px 18px; animation:fadeUp 0.4s ease both;
+}
+.rev-sum-card:nth-child(1){animation-delay:0.05s;}
+.rev-sum-card:nth-child(2){animation-delay:0.10s;}
+.rev-sum-card:nth-child(3){animation-delay:0.15s;}
+.rev-sum-card:nth-child(4){animation-delay:0.20s;}
+.rev-sum-label { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-soft); margin-bottom:6px; }
+.rev-sum-val { font-family:'Playfair Display',serif; font-size:24px; font-weight:700; }
+.rev-sum-sub { font-size:11px; color:var(--text-soft); margin-top:4px; }
+
+/* AUTOFILL SHIMMER */
+@keyframes shimmer {
+  0%{background-position:-400px 0;} 100%{background-position:400px 0;}
+}
+.shimmer {
+  background:linear-gradient(90deg,rgba(200,150,62,0.05) 25%,rgba(200,150,62,0.15) 50%,rgba(200,150,62,0.05) 75%);
+  background-size:800px 100%; animation:shimmer 1.5s linear infinite;
+}
+/* PAGE TRANSITION */
+.page-transition-overlay {
+  position:fixed;inset:0;background:var(--cream);z-index:99999;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.28s ease;
+}
+.page-transition-overlay.active{opacity:1;pointer-events:all;}
+.pt-logo{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text-dark);}
+.pt-logo span{color:var(--teal-glow);}
+</style>
+</head>
+<body>
+
+<div class="page-transition-overlay" id="pageOverlay">
+  <div class="pt-logo">Health<span>OS</span></div>
+</div>
+
+<script>
+(function(){
+  const overlay = document.getElementById('pageOverlay');
+  window.addEventListener('DOMContentLoaded', () => {
+    overlay.classList.add('active');
+    requestAnimationFrame(() => { setTimeout(() => overlay.classList.remove('active'), 320); });
+  });
+  document.addEventListener('click', function(e){
+    const link = e.target.closest('a[href]');
+    if(!link) return;
+    const href = link.getAttribute('href');
+    if(!href || href === '#' || href.startsWith('http') || href.startsWith('mailto')) return;
+    if(href === window.location.pathname.split('/').pop()) return;
+    e.preventDefault();
+    overlay.classList.add('active');
+    setTimeout(() => { window.location.href = href; }, 280);
+  });
+})();
+function navTo(page){
+  const overlay = document.getElementById('pageOverlay');
+  overlay.classList.add('active');
+  setTimeout(() => { window.location.href = page; }, 280);
+}
+</script>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div><div class="admin-name">Dr. Sumit C.</div><div class="admin-role">Administrator</div></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Management</div>
+    <a class="nav-item" href="admin_panel.html"><span class="icon">🏥</span> Patients</a>
+    <a class="nav-item" href="doctor_panel.html"><span class="icon">👨‍⚕️</span> Doctor</a>
+    <a class="nav-item" href="ha_panel.html"><span class="icon">🏥</span> HA</a>
+    <a class="nav-item" href="cluster_panel.html"><span class="icon">🏘️</span> Cluster</a>
+    <a class="nav-item" href="medicine_panel.html"><span class="icon">💊</span> Medicine</a>
+    <a class="nav-item" href="all_services.html"><span class="icon">🩺</span> Services</a>
+    <a class="nav-item" href="inventory_panel.html"><span class="icon">📦</span> Inventory</a>
+    <a class="nav-item" href="reports.html"><span class="icon">📋</span> Report</a>
+    <a class="nav-item active" href="billing.html"><span class="icon">💰</span> Billing</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="date-pill">📅 25 / 04 / 2026</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title">💰 Billing & Revenue</div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="showToast('📊','Revenue analytics report opened')">📊 Analytics</button>
+      <button class="topbar-btn" onclick="showToast('📥','Billing export started — Excel & PDF ready shortly')">⬇️ Export</button>
+      <button class="topbar-btn gold" onclick="openNewInvoice()">+ New Invoice</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- BILLING SUBTABS -->
+    <div class="billing-subtabs">
+      <button class="billing-subtab active" onclick="switchBillingTab('invoices', this)">
+        🧾 Patient Invoices <span class="tab-badge">20</span>
+      </button>
+      <button class="billing-subtab" onclick="switchBillingTab('revenue', this)">
+        📊 Revenue <span class="tab-badge">6</span>
+      </button>
+    </div>
+
+    <!-- ═══════════════════ TAB: INVOICES ═══════════════════ -->
+    <div class="tab-panel active" id="panel-invoices">
+
+    <!-- REVENUE HERO -->
+    <div class="revenue-hero">
+      <div class="revenue-hero-left">
+        <div class="revenue-label">✦ Total Revenue — April 2026</div>
+        <div class="revenue-val"><sup>₹</sup>4,82,350</div>
+        <div class="revenue-sub">
+          <span class="rev-delta">↑ 18.4% vs March</span>
+          <span>AI projects ₹5.2L by month-end</span>
+        </div>
+      </div>
+      <div class="revenue-hero-right">
+        <div class="rev-stat-pill">
+          <div class="rsp-val">₹1.12L</div>
+          <div class="rsp-label">Outstanding</div>
+        </div>
+        <div class="rev-stat-pill">
+          <div class="rsp-val">94.2%</div>
+          <div class="rsp-label">Collection Rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI BILLING PANELS -->
+    <div class="ai-billing-row">
+      <div class="ai-panel">
+        <div class="ai-panel-accent gold"></div>
+        <div class="ai-panel-title">📈 AI Revenue Forecast</div>
+        <div class="ai-forecast-val">₹5,21,000</div>
+        <div class="ai-forecast-sub">Projected month-end — 92% confidence interval</div>
+        <div class="chart-wrap">
+          <div class="chart-bar-wrap"><div class="chart-bar teal" style="height:48px"></div><div class="chart-label">Jan</div></div>
+          <div class="chart-bar-wrap"><div class="chart-bar teal" style="height:55px"></div><div class="chart-label">Feb</div></div>
+          <div class="chart-bar-wrap"><div class="chart-bar teal" style="height:52px"></div><div class="chart-label">Mar</div></div>
+          <div class="chart-bar-wrap"><div class="chart-bar" style="height:72px"></div><div class="chart-label">Apr</div></div>
+          <div class="chart-bar-wrap"><div class="chart-bar projected" style="height:78px"></div><div class="chart-label">May*</div></div>
+        </div>
+      </div>
+      <div class="ai-panel">
+        <div class="ai-panel-accent teal"></div>
+        <div class="ai-panel-title">🧠 GenAI Billing Insights</div>
+        <div class="ai-insight-list">
+          <div class="ai-insight-item"><span class="ai-insight-icon">⚠️</span><div class="ai-insight-text"><strong>3 invoices overdue</strong> — PT-003, PT-011, PT-015 have balances &gt;30 days. Recommend auto-reminder SMS.</div></div>
+          <div class="ai-insight-item"><span class="ai-insight-icon">🎯</span><div class="ai-insight-text">Diabetes billing category accounts for <strong>34% of total revenue</strong> this month — highest performing segment.</div></div>
+          <div class="ai-insight-item"><span class="ai-insight-icon">🤖</span><div class="ai-insight-text">AI detected <strong>2 potential coding errors</strong> in recent claims. Review INV-015 and INV-018 for ICD-10 accuracy.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-accent gold"></div><div class="stat-label">Total Invoices</div><div class="stat-val">20</div><div class="stat-sub"><span class="stat-delta up">↑ 4</span> this week</div></div>
+      <div class="stat-card"><div class="stat-accent teal"></div><div class="stat-label">Paid</div><div class="stat-val">14</div><div class="stat-sub"><span class="stat-delta up">70%</span> collection rate</div></div>
+      <div class="stat-card"><div class="stat-accent rose"></div><div class="stat-label">Outstanding</div><div class="stat-val">4</div><div class="stat-sub"><span class="stat-delta down">₹1.12L</span> pending</div></div>
+      <div class="stat-card"><div class="stat-accent indigo"></div><div class="stat-label">Avg. Bill Value</div><div class="stat-val">₹24.1K</div><div class="stat-sub"><span class="stat-delta up">↑ 12%</span> vs last month</div></div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" placeholder="Search by patient, invoice ID, condition..." oninput="filterTable(this.value)">
+      </div>
+      <button class="filter-btn active" onclick="setFilter(this,'All')">All</button>
+      <button class="filter-btn" onclick="setFilter(this,'Paid')">✅ Paid</button>
+      <button class="filter-btn" onclick="setFilter(this,'Pending')">⏳ Pending</button>
+      <button class="filter-btn" onclick="setFilter(this,'Overdue')">⚠️ Overdue</button>
+      <button class="filter-btn" onclick="setFilter(this,'Partial')">🔶 Partial</button>
+      <button class="ai-autofill-btn" onclick="aiAutoFill()">🤖 AI Auto-Code</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <div class="table-head">
+        <div class="th">#</div>
+        <div class="th">Patient</div>
+        <div class="th">Invoice</div>
+        <div class="th">Date</div>
+        <div class="th">Category</div>
+        <div class="th">Amount</div>
+        <div class="th">Payment</div>
+        <div class="th">Status</div>
+        <div class="th">Actions</div>
+      </div>
+      <div class="table-body" id="table-body"></div>
+    </div>
+
+    </div><!-- /panel-invoices -->
+
+    <!-- ═══════════════════ TAB: REVENUE ═══════════════════ -->
+    <div class="tab-panel" id="panel-revenue">
+
+      <!-- REVENUE TOOLBAR -->
+      <div class="rev-toolbar">
+        <div class="rev-view-toggle">
+          <button class="rev-toggle-btn active" id="toggle-cluster" onclick="switchRevView('cluster')">🏘️ By Cluster</button>
+          <button class="rev-toggle-btn" id="toggle-patient" onclick="switchRevView('patient')">👤 Per Patient</button>
+        </div>
+        <select class="rev-filter-select" id="rev-month-filter" onchange="renderRevenue()">
+          <option value="Apr 2026">April 2026</option>
+          <option value="Mar 2026">March 2026</option>
+          <option value="Feb 2026">February 2026</option>
+        </select>
+        <select class="rev-filter-select" id="rev-cluster-filter" onchange="renderRevenue()">
+          <option value="All">All Clusters</option>
+          <option value="Demo Cluster">Demo Cluster</option>
+          <option value="North Purulia">North Purulia</option>
+          <option value="Jhalda Block">Jhalda Block</option>
+          <option value="Manbazar">Manbazar</option>
+          <option value="Raghunathpur">Raghunathpur</option>
+          <option value="Puncha">Puncha</option>
+        </select>
+        <div style="margin-left:auto;display:flex;gap:8px;">
+          <button class="export-rev-btn" onclick="showToast('📥','Revenue report exported to Excel')">📥 Export</button>
+          <button class="add-rev-btn" onclick="openRevModal(null)">+ Add Revenue Entry</button>
+        </div>
+      </div>
+
+      <!-- SUMMARY STRIP -->
+      <div class="rev-summary-strip">
+        <div class="rev-sum-card">
+          <div class="rev-sum-label">Total Revenue</div>
+          <div class="rev-sum-val" style="color:var(--gold)">₹6,84,200</div>
+          <div class="rev-sum-sub">↑ 18.4% vs prev month</div>
+        </div>
+        <div class="rev-sum-card">
+          <div class="rev-sum-label">Target</div>
+          <div class="rev-sum-val" style="color:var(--teal)">₹8,50,000</div>
+          <div class="rev-sum-sub">80.5% achieved</div>
+        </div>
+        <div class="rev-sum-card">
+          <div class="rev-sum-label">Collections</div>
+          <div class="rev-sum-val" style="color:var(--indigo)">₹5,72,000</div>
+          <div class="rev-sum-sub">83.6% collection rate</div>
+        </div>
+        <div class="rev-sum-card">
+          <div class="rev-sum-label">Outstanding</div>
+          <div class="rev-sum-val" style="color:var(--rose)">₹1,12,200</div>
+          <div class="rev-sum-sub">3 clusters with dues</div>
+        </div>
+      </div>
+
+      <!-- CLUSTER VIEW -->
+      <div id="rev-cluster-view">
+        <div class="cluster-grid" id="cluster-grid"></div>
+      </div>
+
+      <!-- PER-PATIENT VIEW -->
+      <div id="rev-patient-view" style="display:none">
+        <div class="rev-table-card">
+          <div class="rev-table-head">
+            <div class="th">#</div>
+            <div class="th">Patient</div>
+            <div class="th">Cluster</div>
+            <div class="th">Category</div>
+            <div class="th">Billed</div>
+            <div class="th">Collected</div>
+            <div class="th">Status</div>
+            <div class="th">Actions</div>
+          </div>
+          <div class="table-body" id="rev-patient-body"></div>
+        </div>
+      </div>
+
+    </div><!-- /panel-revenue -->
+
+  </div>
+</div>
+
+<!-- INVOICE MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-close" onclick="closeModal()">✕</div>
+      <div class="modal-inv-label">Invoice Details</div>
+      <div class="modal-inv-id" id="modal-inv-id">INV-001</div>
+      <div class="modal-inv-patient" id="modal-inv-patient">Patient Name</div>
+    </div>
+    <div class="modal-body">
+      <table class="invoice-line-table">
+        <thead><tr><th>Service</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+        <tbody id="modal-lines"></tbody>
+      </table>
+      <div class="invoice-total-row">
+        <div class="invoice-total-label">Total Amount</div>
+        <div class="invoice-total-val" id="modal-total">₹0</div>
+      </div>
+      <div class="ai-billing-insight">
+        <div class="ai-bi-label">🤖 AI Billing Assistant</div>
+        <div class="ai-bi-text" id="modal-ai-text">Analysing invoice...</div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn primary" onclick="showToast('📄','Invoice downloaded as PDF')">🖨️ Print</button>
+        <button class="modal-btn gold" onclick="showToast('📲','Payment reminder sent via SMS')">📲 Send Reminder</button>
+        <button class="modal-btn secondary" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="toast-icon">✓</span> <span id="toast-msg">Done</span></div>
+
+<!-- REVENUE EDIT/ADD MODAL -->
+<div class="rev-modal-overlay" id="rev-modal">
+  <div class="rev-modal">
+    <div class="rev-modal-header">
+      <div class="rev-modal-close" onclick="closeRevModal()">✕</div>
+      <div class="rev-modal-title" id="rev-modal-title">Add Revenue Entry</div>
+      <div class="rev-modal-sub" id="rev-modal-sub">AI pre-fills based on cluster history</div>
+    </div>
+    <div class="rev-modal-body">
+      <!-- AI PREFILL BANNER -->
+      <div class="ai-prefill-banner">
+        <div class="ai-prefill-icon">🤖</div>
+        <div class="ai-prefill-text">
+          AI has pre-filled revenue based on <strong>cluster averages</strong> and last month's billing patterns. Review and adjust before saving.
+        </div>
+        <button class="ai-prefill-apply" onclick="applyAIPrefill()">Apply AI Suggestion</button>
+      </div>
+
+      <!-- FORM FIELDS -->
+      <div class="rev-form-section">
+        <span class="rev-form-label">Cluster & Period</span>
+        <div class="rev-form-grid">
+          <select class="rev-form-input rev-form-select" id="rf-cluster">
+            <option>Demo Cluster</option>
+            <option>North Purulia</option>
+            <option>Jhalda Block</option>
+            <option>Manbazar</option>
+            <option>Raghunathpur</option>
+            <option>Puncha</option>
+          </select>
+          <select class="rev-form-input rev-form-select" id="rf-month">
+            <option>April 2026</option>
+            <option>March 2026</option>
+            <option>February 2026</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="rev-form-section">
+        <span class="rev-form-label">Revenue Line Items</span>
+        <div class="rev-line-head">
+          <div class="rev-line-th">Service / Category</div>
+          <div class="rev-line-th">Qty / Patients</div>
+          <div class="rev-line-th">Rate (₹)</div>
+          <div class="rev-line-th"></div>
+        </div>
+        <div id="rev-line-items"></div>
+        <button class="add-line-btn" onclick="addRevLine()">+ Add Line Item</button>
+        <div class="rev-line-total">
+          <div class="rev-line-total-label">Total Revenue</div>
+          <div class="rev-line-total-val" id="rev-line-total-val">₹0</div>
+        </div>
+      </div>
+
+      <div class="rev-form-section">
+        <span class="rev-form-label">Additional Details</span>
+        <div class="rev-form-grid">
+          <input class="rev-form-input" type="number" id="rf-target" placeholder="Monthly Target (₹)" value="85000">
+          <select class="rev-form-input rev-form-select" id="rf-status">
+            <option>On Track</option>
+            <option>Below Target</option>
+            <option>Exceeded</option>
+            <option>Critical</option>
+          </select>
+          <input class="rev-form-input" type="number" id="rf-patients" placeholder="Total Patients">
+          <input class="rev-form-input" type="text" id="rf-notes" placeholder="Notes (optional)">
+        </div>
+      </div>
+    </div>
+    <div class="rev-modal-footer">
+      <button class="rev-cancel-btn" onclick="closeRevModal()">Cancel</button>
+      <button class="rev-save-btn" onclick="saveRevEntry()">💾 Save Revenue Entry</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const billingData = [
+  { id:'PT-001', inv:'INV-001', name:'Amitava Chakraborty', date:'22/04/2026', category:'Diabetes Care', amount:28500, paid:0, method:'—', status:'Overdue', services:[{s:'Consultation',q:2,r:1500},{s:'HbA1c Test',q:1,r:850},{s:'Insulin (30U)',q:30,r:42},{s:'Metformin 500mg',q:90,r:8},{s:'BP Monitoring',q:4,r:200}], aiNote:'Invoice overdue by 32 days. AI recommends automated payment reminder via registered mobile. Possible insurance claim — verify PMJAY eligibility for diabetes chronic care package.' },
+  { id:'PT-002', inv:'INV-002', name:'Priya Sen', date:'23/04/2026', category:'Cardiology', amount:18200, paid:18200, method:'UPI', status:'Paid', services:[{s:'Consultation',q:2,r:1500},{s:'ECG',q:1,r:650},{s:'Amlodipine 5mg',q:60,r:6},{s:'BP Monitoring',q:6,r:200}], aiNote:'Payment received promptly via UPI. AI suggests enrolling patient in monthly subscription plan — potential 15% revenue uplift. Billing codes verified: ICD-10 I10 (Hypertension) — accurate.' },
+  { id:'PT-003', inv:'INV-003', name:'Rajiv Mondal', date:'21/04/2026', category:'TB Treatment', amount:12400, paid:6200, method:'Cash', status:'Partial', services:[{s:'DOTS Therapy Kit',q:1,r:8000},{s:'Consultation',q:1,r:1500},{s:'Sputum Culture',q:1,r:1200},{s:'X-Ray Chest',q:1,r:1700}], aiNote:'Partial payment received. Remaining ₹6,200 outstanding. AI recommends coordinating with district TB officer — RNTCP scheme may cover full cost. Flag for government reimbursement processing.' },
+  { id:'PT-004', inv:'INV-004', name:'Sunita Dey', date:'20/04/2026', category:'Pulmonology', amount:34800, paid:34800, method:'Insurance', status:'Paid', services:[{s:'Spirometry',q:1,r:2200},{s:'Consultation',q:3,r:1500},{s:'Tiotropium Inhaler',q:2,r:4800},{s:'O2 Cylinder Refill',q:4,r:3500},{s:'Chest Physiotherapy',q:6,r:800}], aiNote:'Insurance claim processed. PMJAY covered 78% of the amount. AI detected that 2 line items may qualify for additional reimbursement — submit revised claim to insurer.' },
+  { id:'PT-005', inv:'INV-005', name:'Debashis Roy', date:'24/04/2026', category:'General OPD', amount:4200, paid:4200, method:'UPI', status:'Paid', services:[{s:'Consultation',q:1,r:1500},{s:'CBC Test',q:1,r:450},{s:'Paracetamol 500mg',q:20,r:3},{s:'ORS Sachets',q:10,r:12}], aiNote:'Low-value invoice — quick recovery case. AI notes this patient type has high satisfaction scores. Consider offering a health checkup package to convert to recurring customer.' },
+  { id:'PT-006', inv:'INV-006', name:'Ananya Ghosh', date:'22/04/2026', category:'Haematology', amount:15600, paid:15600, method:'Card', status:'Paid', services:[{s:'Blood Iron Panel',q:1,r:1800},{s:'Consultation',q:2,r:1500},{s:'Iron Infusion',q:2,r:3800},{s:'Ferrous Sulphate',q:60,r:5}], aiNote:'Full payment cleared. Billing codes verified. AI insight: Iron deficiency anaemia is under-coded in this region — consider outreach camp to identify new patients in catchment area.' },
+  { id:'PT-007', inv:'INV-007', name:'Subhash Biswas', date:'19/04/2026', category:'Cardiology', amount:42000, paid:42000, method:'Insurance', status:'Paid', services:[{s:'Echo Cardiogram',q:1,r:4500},{s:'Stress Test',q:1,r:6000},{s:'Consultation',q:3,r:1500},{s:'Atorvastatin 40mg',q:90,r:12},{s:'Aspirin 75mg',q:90,r:2},{s:'Cardiac Monitoring',q:10,r:1800}], aiNote:'High-value cardiac care patient. Insurance covered. AI recommends classifying as "cardiac care plan" patient — monthly subscription at ₹8,000/month yields better LTV than episodic billing.' },
+  { id:'PT-008', inv:'INV-008', name:'Mamata Halder', date:'23/04/2026', category:'Diabetes Care', amount:19800, paid:19800, method:'UPI', status:'Paid', services:[{s:'Consultation',q:2,r:1500},{s:'HbA1c',q:1,r:850},{s:'Fasting Glucose',q:4,r:180},{s:'Metformin 1g',q:90,r:9},{s:'Sitagliptin 100mg',q:30,r:120}], aiNote:'Well-managed diabetes patient with good adherence. AI flags this patient as ideal for a Diabetes Care Package subscription. Predicted annual revenue: ₹2.4L from this patient alone.' },
+  { id:'PT-009', inv:'INV-009', name:'Tapas Bose', date:'21/04/2026', category:'Pulmonology', amount:11200, paid:11200, method:'Cash', status:'Paid', services:[{s:'Consultation',q:2,r:1500},{s:'Peak Flow Meter',q:1,r:2200},{s:'Salbutamol Inhaler',q:2,r:1400},{s:'Montelukast 10mg',q:30,r:18}], aiNote:'Asthma well-controlled. Billing accurate. AI tip: Seasonal (April–June) asthma spikes expected in West Bengal — proactive outreach to 12 similar patients on your panel recommended.' },
+  { id:'PT-010', inv:'INV-010', name:'Rinku Sarkar', date:'24/04/2026', category:'Infectious Disease', amount:16500, paid:16500, method:'Card', status:'Paid', services:[{s:'Malaria RDT',q:1,r:350},{s:'Blood Smear',q:1,r:600},{s:'Artemether-Lumefantrine',q:1,r:4800},{s:'Consultation',q:2,r:1500},{s:'CBC',q:2,r:450}], aiNote:'Malaria case — billing complete. AI notes Purulia district has 3 malaria cases this week — possible micro-outbreak. Recommend alerting district health officer and billing under National Vector Borne Disease programme for potential reimbursement.' },
+  { id:'PT-011', inv:'INV-011', name:'Santanu Paul', date:'18/04/2026', category:'Nephrology', amount:58000, paid:0, method:'—', status:'Overdue', services:[{s:'Nephrology Consult',q:3,r:2500},{s:'Creatinine Panel',q:4,r:680},{s:'Kidney Ultrasound',q:1,r:3200},{s:'ACE Inhibitor (90d)',q:1,r:2800},{s:'Dialysis Session',q:6,r:6000}], aiNote:'URGENT: Invoice overdue by 41 days. ₹58,000 outstanding. CKD Stage 3 patient — high lifetime value. AI recommends: (1) immediate phone follow-up, (2) check PMJAY eligibility, (3) offer EMI payment plan. Risk of patient churning to government hospital.' },
+  { id:'PT-012', inv:'INV-012', name:'Keya Mukherjee', date:'22/04/2026', category:'Endocrinology', amount:13400, paid:13400, method:'UPI', status:'Paid', services:[{s:'TSH Panel',q:1,r:900},{s:'Consultation',q:2,r:1500},{s:'Levothyroxine 50mcg',q:90,r:8},{s:'Thyroid Ultrasound',q:1,r:2800}], aiNote:'Thyroid patient — stable. AI note: Hypothyroid is a lifetime condition — convert to annual subscription at ₹18,000/year. Potential for 3x revenue vs current episodic model.' },
+  { id:'PT-013', inv:'INV-013', name:'Palash Das', date:'23/04/2026', category:'General OPD', amount:6800, paid:6800, method:'Cash', status:'Paid', services:[{s:'Consultation',q:1,r:1500},{s:'Endoscopy Ref',q:1,r:3500},{s:'Pantoprazole 40mg',q:30,r:12},{s:'Antacid Syrup',q:2,r:220}], aiNote:'Minor case — recovery achieved. Billing verified. AI suggests recommending a gut health wellness package to convert single-visit patients to recurring care models.' },
+  { id:'PT-014', inv:'INV-014', name:'Indrani Chatterjee', date:'20/04/2026', category:'Orthopaedics', amount:22600, paid:11300, method:'Cash', status:'Partial', services:[{s:'Rheumatology Consult',q:2,r:2000},{s:'Knee X-Ray',q:2,r:1800},{s:'Physiotherapy',q:10,r:800},{s:'Diclofenac Gel',q:3,r:180},{s:'Calcium+D3',q:90,r:12}], aiNote:'Partial payment — ₹11,300 outstanding. AI recommends physiotherapy package pre-billing (block booking). For Osteoarthritis patients, AI finds 68% higher completion rates with bundled billing vs per-session.' },
+  { id:'PT-015', inv:'INV-015', name:'Binoy Mandal', date:'25/04/2026', category:'Infectious Disease', amount:31200, paid:0, method:'—', status:'Pending', services:[{s:'Dengue NS1 Antigen',q:1,r:1200},{s:'Platelet Count (daily)',q:3,r:600},{s:'IV Fluids',q:10,r:850},{s:'Hospitalisation (3d)',q:3,r:6500},{s:'Nursing Care',q:3,r:1200}], aiNote:'ACTIVE CASE — Invoice generated today. Dengue with potential hospitalisation. AI has flagged a possible ICD-10 coding error: Use A90 (Dengue fever) not A91. Estimated total billing may reach ₹55,000 if 7-day admission needed. Insurance pre-auth recommended immediately.' },
+  { id:'PT-016', inv:'INV-016', name:'Srabani Roy', date:'22/04/2026', category:'Neurology', amount:14800, paid:14800, method:'Card', status:'Paid', services:[{s:'Neurology Consult',q:2,r:2200},{s:'MRI Brain (Ref)',q:1,r:7000},{s:'Sumatriptan 50mg',q:6,r:180},{s:'Amitriptyline 10mg',q:30,r:8}], aiNote:'Clean billing — all codes verified by AI. Migraine patients have high recurrence (avg 8 visits/year). Suggest migraine care package at ₹15,000/year — current episodic model is 22% less efficient.' },
+  { id:'PT-017', inv:'INV-017', name:'Partha Sarathi Nath', date:'21/04/2026', category:'Diabetes Care', amount:24600, paid:24600, method:'Insurance', status:'Paid', services:[{s:'Consultation',q:2,r:1500},{s:'HbA1c',q:1,r:850},{s:'Fasting+PP Glucose',q:4,r:180},{s:'Glargine Insulin',q:1,r:4800},{s:'Glucometer + Strips',q:1,r:3200}], aiNote:'Insurance settled. AI cross-check: claim amount matches expected reimbursement. This patient qualifies for CGHS enhanced diabetes benefit — file supplementary claim for additional ₹4,200 reimbursement opportunity.' },
+  { id:'PT-018', inv:'INV-018', name:'Champa Pal', date:'17/04/2026', category:'Geriatrics', amount:45000, paid:45000, method:'Family', status:'Paid', services:[{s:'Geriatric Assessment',q:2,r:3500},{s:'Home Visit (weekly)',q:4,r:3000},{s:'Cognitive Screening',q:1,r:2800},{s:'Medications (30d)',q:1,r:6200},{s:'Caregiver Training',q:2,r:2500}], aiNote:'POTENTIAL CODING ISSUE: AI flagged possible mismatch between service code and ICD-10 F02.8 (Dementia). Recommend clinical documentation review before resubmitting insurance. High-value geriatric package — AI projects ₹5.4L annual revenue from this patient.' },
+  { id:'PT-019', inv:'INV-019', name:'Sourav Ghosh', date:'25/04/2026', category:'General OPD', amount:3800, paid:3800, method:'UPI', status:'Paid', services:[{s:'Consultation',q:1,r:1500},{s:'CBC',q:1,r:450},{s:'Paracetamol 500mg',q:10,r:3},{s:'Antiviral Syrup',q:1,r:380}], aiNote:'Low-value, fast-discharge OPD case. AI notes this patient is young (22y) — recommend annual health package at ₹2,500/year to establish long-term care relationship before chronic conditions develop.' },
+  { id:'PT-020', inv:'INV-020', name:'Tanusree Mitra', date:'23/04/2026', category:'Cardiology', amount:19600, paid:9800, method:'Cash+UPI', status:'Partial', services:[{s:'BP Consultation',q:2,r:1500},{s:'24h BP Monitoring',q:1,r:3800},{s:'ECG',q:1,r:650},{s:'Amlodipine 10mg',q:60,r:8},{s:'Telmisartan 40mg',q:60,r:12}], aiNote:'Split payment received — ₹9,800 outstanding. AI recommends offering 3-month hypertension management package at ₹28,000 (vs current ₹39,200 cumulative episodic). Bundling increases collection probability by 44%.' }
+];
+
+let activeFilter = 'All';
+
+function getStatusBadge(s) {
+  if(s==='Paid') return `<span class="badge badge-green">✓ Paid</span>`;
+  if(s==='Overdue') return `<span class="badge badge-rose">⚠ Overdue</span>`;
+  if(s==='Partial') return `<span class="badge badge-gold">◑ Partial</span>`;
+  return `<span class="badge badge-indigo">⏳ Pending</span>`;
+}
+
+function overdueFlag(row) {
+  if(row.status==='Overdue') return `<span class="overdue-flag"><span class="pulse-dot"></span> Late</span>`;
+  return '';
+}
+
+function renderTable(data) {
+  document.getElementById('table-body').innerHTML = data.map((r,i)=>`
+    <div class="table-row" onclick="openModal('${r.inv}')">
+      <div class="row-num">${String(i+1).padStart(2,'0')}</div>
+      <div>
+        <div class="pat-name">${r.name}${overdueFlag(r)}</div>
+        <div class="inv-id">${r.id}</div>
+      </div>
+      <div class="td" style="font-family:'DM Mono',monospace;font-size:12px;">${r.inv}</div>
+      <div class="td">${r.date}</div>
+      <div class="td">${r.category}</div>
+      <div class="amt">₹${r.amount.toLocaleString('en-IN')}</div>
+      <div class="td">${r.method}</div>
+      <div class="td">${getStatusBadge(r.status)}</div>
+      <div class="action-row">
+        <button class="action-btn" onclick="event.stopPropagation();openModal('${r.inv}')">View</button>
+        <button class="action-btn gold-btn" onclick="event.stopPropagation();showToast('📲','Reminder sent to '+${JSON.stringify(r.name)})">SMS</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterTable(q) {
+  let d = billingData;
+  if(activeFilter!=='All') d = d.filter(r=>r.status===activeFilter);
+  if(q) d = d.filter(r=>r.name.toLowerCase().includes(q.toLowerCase())||r.inv.toLowerCase().includes(q.toLowerCase())||r.category.toLowerCase().includes(q.toLowerCase()));
+  renderTable(d);
+}
+
+function setFilter(btn, f) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterTable(document.querySelector('.search-input').value);
+}
+
+function openModal(inv) {
+  const r = billingData.find(x=>x.inv===inv);
+  document.getElementById('modal-inv-id').textContent = r.inv;
+  document.getElementById('modal-inv-patient').textContent = `${r.name} · ${r.category} · ${r.date}`;
+  document.getElementById('modal-lines').innerHTML = r.services.map(s=>`
+    <tr>
+      <td>${s.s}</td>
+      <td>${s.q}</td>
+      <td>₹${s.r.toLocaleString('en-IN')}</td>
+      <td>₹${(s.q*s.r).toLocaleString('en-IN')}</td>
+    </tr>
+  `).join('');
+  document.getElementById('modal-total').textContent = '₹'+r.amount.toLocaleString('en-IN');
+  
+  // Typing AI note
+  const el = document.getElementById('modal-ai-text');
+  el.textContent = '';
+  let idx = 0;
+  const iv = setInterval(()=>{
+    el.textContent += r.aiNote[idx++];
+    if(idx>=r.aiNote.length) clearInterval(iv);
+  }, 16);
+
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+function openNewInvoice() { showToast('🤖','AI pre-filling new invoice from last visit data...'); }
+function aiAutoFill() { showToast('🤖','AI auto-coded 4 invoices · 2 ICD-10 corrections applied · 1 insurance flag raised'); }
+
+function showToast(icon, msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3400);
+}
+
+renderTable(billingData);
+
+// ═══════════════════════════════════════════════
+// SUBTAB SWITCHING
+// ═══════════════════════════════════════════════
+function switchBillingTab(tabId, btn) {
+  document.querySelectorAll('.billing-subtab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + tabId).classList.add('active');
+  if (tabId === 'revenue') renderRevenue();
+}
+
+// ═══════════════════════════════════════════════
+// REVENUE VIEW TOGGLE
+// ═══════════════════════════════════════════════
+let currentRevView = 'cluster';
+function switchRevView(view) {
+  currentRevView = view;
+  document.getElementById('rev-cluster-view').style.display = view === 'cluster' ? 'block' : 'none';
+  document.getElementById('rev-patient-view').style.display = view === 'patient' ? 'block' : 'none';
+  document.getElementById('toggle-cluster').classList.toggle('active', view === 'cluster');
+  document.getElementById('toggle-patient').classList.toggle('active', view === 'patient');
+  if (view === 'patient') renderPatientRevTable();
+}
+
+// ═══════════════════════════════════════════════
+// CLUSTER REVENUE DATA
+// ═══════════════════════════════════════════════
+let clusterData = [
+  {
+    id: 'CL-001', name: 'Demo Cluster', color: '#1A6B5A', emoji: '🌿',
+    state: 'West Bengal', district: 'Purulia',
+    target: 150000, billed: 148400, collected: 128200,
+    patients: 47, status: 'On Track',
+    lines: [
+      { s: 'OPD Consultations', q: 120, r: 450 },
+      { s: 'Diagnostic Tests', q: 58, r: 680 },
+      { s: 'Medication Dispensing', q: 210, r: 85 },
+      { s: 'Chronic Care Packages', q: 12, r: 2800 },
+    ],
+    aiNote: 'Performing at 98.9% of target. AI recommends adding 2 diabetes care packages to breach ₹1.5L.'
+  },
+  {
+    id: 'CL-002', name: 'North Purulia', color: '#3D4F8A', emoji: '🏔️',
+    state: 'West Bengal', district: 'Purulia',
+    target: 120000, billed: 93600, collected: 81400,
+    patients: 34, status: 'Below Target',
+    lines: [
+      { s: 'OPD Consultations', q: 88, r: 420 },
+      { s: 'TB DOTS Programme', q: 6, r: 1800 },
+      { s: 'Diagnostic Tests', q: 41, r: 580 },
+      { s: 'Immunisation', q: 52, r: 120 },
+    ],
+    aiNote: 'Only 78% of target achieved. AI flags low specialist visit rate — push cardiology outreach camp this week.'
+  },
+  {
+    id: 'CL-003', name: 'Jhalda Block', color: '#C8963E', emoji: '🌾',
+    state: 'West Bengal', district: 'Purulia',
+    target: 100000, billed: 112800, collected: 102600,
+    patients: 52, status: 'Exceeded',
+    lines: [
+      { s: 'OPD Consultations', q: 145, r: 400 },
+      { s: 'Malaria Testing & Treatment', q: 18, r: 1800 },
+      { s: 'Maternal Health Services', q: 14, r: 2200 },
+      { s: 'Pharmacy', q: 320, r: 78 },
+    ],
+    aiNote: 'Exceeded target by 12.8%! AI suggests expanding maternal health programme — highest demand segment.'
+  },
+  {
+    id: 'CL-004', name: 'Manbazar', color: '#6B7FCA', emoji: '🏘️',
+    state: 'West Bengal', district: 'Purulia',
+    target: 90000, billed: 71200, collected: 58800,
+    patients: 29, status: 'Critical',
+    lines: [
+      { s: 'OPD Consultations', q: 72, r: 380 },
+      { s: 'Diagnostic Tests', q: 28, r: 540 },
+      { s: 'Emergency Services', q: 4, r: 3500 },
+      { s: 'Pharmacy', q: 180, r: 72 },
+    ],
+    aiNote: 'CRITICAL: Only 79.1% billed, 65.3% collected. AI recommends urgent revenue intervention — schedule review call.'
+  },
+  {
+    id: 'CL-005', name: 'Raghunathpur', color: '#2A9076', emoji: '🌳',
+    state: 'West Bengal', district: 'Purulia',
+    target: 130000, billed: 138400, collected: 124800,
+    patients: 61, status: 'Exceeded',
+    lines: [
+      { s: 'OPD Consultations', q: 180, r: 430 },
+      { s: 'Surgical Minor Procedures', q: 8, r: 4200 },
+      { s: 'Diagnostic Tests', q: 74, r: 610 },
+      { s: 'Chronic Disease Mgmt', q: 22, r: 2100 },
+    ],
+    aiNote: 'Strong performer — 106.5% of target. AI insight: surgical procedures are highest yield per visit. Capacity can absorb 15 more cases.'
+  },
+  {
+    id: 'CL-006', name: 'Puncha', color: '#C0504A', emoji: '🌄',
+    state: 'West Bengal', district: 'Purulia',
+    target: 80000, billed: 58800, collected: 47200,
+    patients: 22, status: 'Below Target',
+    lines: [
+      { s: 'OPD Consultations', q: 60, r: 360 },
+      { s: 'Maternal Health', q: 8, r: 1800 },
+      { s: 'Diagnostic Tests', q: 22, r: 480 },
+      { s: 'Pharmacy', q: 140, r: 68 },
+    ],
+    aiNote: 'Remote cluster — 73.5% of target. AI recommends telemedicine consultations to increase access and revenue by ~18%.'
+  }
+];
+
+// Per-patient data mapped to clusters
+const patientClusterMap = {
+  'PT-001': 'Demo Cluster', 'PT-002': 'Raghunathpur', 'PT-003': 'North Purulia',
+  'PT-004': 'Jhalda Block', 'PT-005': 'Demo Cluster', 'PT-006': 'Raghunathpur',
+  'PT-007': 'Jhalda Block', 'PT-008': 'Demo Cluster', 'PT-009': 'North Purulia',
+  'PT-010': 'North Purulia', 'PT-011': 'Raghunathpur', 'PT-012': 'Demo Cluster',
+  'PT-013': 'Manbazar', 'PT-014': 'Puncha', 'PT-015': 'Manbazar',
+  'PT-016': 'Jhalda Block', 'PT-017': 'Demo Cluster', 'PT-018': 'Raghunathpur',
+  'PT-019': 'Manbazar', 'PT-020': 'Puncha'
+};
+
+// ═══════════════════════════════════════════════
+// RENDER REVENUE
+// ═══════════════════════════════════════════════
+function renderRevenue() {
+  const clusterFilter = document.getElementById('rev-cluster-filter').value;
+  let data = clusterFilter === 'All' ? clusterData : clusterData.filter(c => c.name === clusterFilter);
+  renderClusterGrid(data);
+  if (currentRevView === 'patient') renderPatientRevTable();
+}
+
+function getStatusStyle(status) {
+  if (status === 'Exceeded') return { bg: 'rgba(26,107,90,0.1)', color: '#1A6B5A' };
+  if (status === 'On Track') return { bg: 'rgba(61,79,138,0.1)', color: '#3D4F8A' };
+  if (status === 'Below Target') return { bg: 'rgba(200,150,62,0.12)', color: '#C8963E' };
+  return { bg: 'rgba(192,80,74,0.1)', color: '#C0504A' };
+}
+
+function renderClusterGrid(data) {
+  const grid = document.getElementById('cluster-grid');
+  grid.innerHTML = data.map((c, i) => {
+    const pct = Math.min(100, Math.round((c.billed / c.target) * 100));
+    const collPct = Math.min(100, Math.round((c.collected / c.billed) * 100));
+    const st = getStatusStyle(c.status);
+    return `
+    <div class="cluster-card" style="animation-delay:${i * 0.07}s">
+      <div class="cluster-card-header">
+        <div class="cluster-name">
+          <span style="font-size:20px">${c.emoji}</span>
+          ${c.name}
+        </div>
+        <span class="cluster-status-badge" style="background:${st.bg};color:${st.color}">${c.status}</span>
+      </div>
+      <div class="cluster-card-body">
+        <div class="cluster-rev-row">
+          <div class="cluster-rev-item">
+            <div class="cluster-rev-label">Billed</div>
+            <div class="cluster-rev-val gold">₹${(c.billed/1000).toFixed(1)}K</div>
+          </div>
+          <div class="cluster-rev-item">
+            <div class="cluster-rev-label">Collected</div>
+            <div class="cluster-rev-val teal">₹${(c.collected/1000).toFixed(1)}K</div>
+          </div>
+          <div class="cluster-rev-item">
+            <div class="cluster-rev-label">Target</div>
+            <div class="cluster-rev-val" style="font-size:16px;color:var(--text-soft)">₹${(c.target/1000).toFixed(0)}K</div>
+          </div>
+          <div class="cluster-rev-item">
+            <div class="cluster-rev-label">Patients</div>
+            <div class="cluster-rev-val" style="font-size:20px;color:var(--indigo)">${c.patients}</div>
+          </div>
+        </div>
+        <div class="cluster-progress-wrap">
+          <div class="cluster-progress-label">
+            <span>vs Target</span><span>${pct}%</span>
+          </div>
+          <div class="cluster-progress-bar">
+            <div class="cluster-progress-fill" style="width:${pct}%;background:linear-gradient(90deg,${c.color},${c.color}99)"></div>
+          </div>
+        </div>
+        <div class="cluster-progress-wrap">
+          <div class="cluster-progress-label">
+            <span>Collection Rate</span><span>${collPct}%</span>
+          </div>
+          <div class="cluster-progress-bar">
+            <div class="cluster-progress-fill" style="width:${collPct}%;background:linear-gradient(90deg,var(--teal),var(--teal-glow))"></div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-soft);background:var(--ivory);border-radius:9px;padding:8px 10px;border:1px solid var(--border);margin-bottom:10px;line-height:1.45;">
+          🤖 ${c.aiNote}
+        </div>
+        <div class="cluster-actions">
+          <button class="cluster-btn edit" onclick="openRevModal('${c.id}')">✏️ Edit</button>
+          <button class="cluster-btn view-detail" onclick="showToast('🏘️','Showing detailed breakdown for ${c.name}')">📊 Detail</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPatientRevTable() {
+  const clusterFilter = document.getElementById('rev-cluster-filter').value;
+  let data = billingData.filter(r => clusterFilter === 'All' || patientClusterMap[r.id] === clusterFilter);
+  const clusterColors = {
+    'Demo Cluster': '#1A6B5A', 'North Purulia': '#3D4F8A', 'Jhalda Block': '#C8963E',
+    'Manbazar': '#6B7FCA', 'Raghunathpur': '#2A9076', 'Puncha': '#C0504A'
+  };
+  document.getElementById('rev-patient-body').innerHTML = data.map((r, i) => {
+    const cluster = patientClusterMap[r.id] || 'Unknown';
+    const cc = clusterColors[cluster] || '#888';
+    return `
+    <div class="rev-table-row" onclick="openModal('${r.inv}')">
+      <div class="row-num">${String(i+1).padStart(2,'0')}</div>
+      <div>
+        <div class="pat-name">${r.name}</div>
+        <div class="inv-id">${r.id} · ${r.inv}</div>
+      </div>
+      <div><span class="rev-cluster-chip" style="background:${cc}18;color:${cc};border-color:${cc}44">${cluster}</span></div>
+      <div class="td">${r.category}</div>
+      <div class="amt">₹${r.amount.toLocaleString('en-IN')}</div>
+      <div class="amt" style="color:var(--teal)">₹${r.paid.toLocaleString('en-IN')}</div>
+      <div class="td">${getStatusBadge(r.status)}</div>
+      <div class="action-row">
+        <button class="action-btn" onclick="event.stopPropagation();openRevPatientEdit('${r.id}')">✏️ Edit</button>
+        <button class="action-btn gold-btn" onclick="event.stopPropagation();openModal('${r.inv}')">View</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openRevPatientEdit(patId) {
+  const r = billingData.find(x => x.id === patId);
+  document.getElementById('rev-modal-title').textContent = 'Edit Revenue — ' + r.name;
+  document.getElementById('rev-modal-sub').textContent = r.category + ' · ' + patientClusterMap[r.id];
+  document.getElementById('rf-cluster').value = patientClusterMap[r.id] || 'Demo Cluster';
+  document.getElementById('rf-patients').value = 1;
+  document.getElementById('rf-target').value = r.amount;
+  // pre-fill lines
+  revLines = r.services.map(s => ({ s: s.s, q: s.q, r: s.r }));
+  renderRevLines();
+  document.getElementById('rev-modal').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════
+// REVENUE MODAL
+// ═══════════════════════════════════════════════
+let editingClusterId = null;
+let revLines = [];
+
+function openRevModal(clusterId) {
+  editingClusterId = clusterId;
+  const c = clusterId ? clusterData.find(x => x.id === clusterId) : null;
+  document.getElementById('rev-modal-title').textContent = c ? 'Edit Revenue — ' + c.name : 'Add Revenue Entry';
+  document.getElementById('rev-modal-sub').textContent = c ? c.district + ', ' + c.state : 'AI pre-fills based on cluster history';
+  if (c) {
+    document.getElementById('rf-cluster').value = c.name;
+    document.getElementById('rf-target').value = c.target;
+    document.getElementById('rf-patients').value = c.patients;
+    document.getElementById('rf-status').value = c.status;
+    revLines = c.lines.map(l => ({ s: l.s, q: l.q, r: l.r }));
+  } else {
+    revLines = [
+      { s: 'OPD Consultations', q: 100, r: 400 },
+      { s: 'Diagnostic Tests', q: 50, r: 600 },
+    ];
+    document.getElementById('rf-status').value = 'On Track';
+  }
+  renderRevLines();
+  document.getElementById('rev-modal').classList.add('open');
+}
+
+function closeRevModal() {
+  document.getElementById('rev-modal').classList.remove('open');
+  editingClusterId = null;
+}
+document.getElementById('rev-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeRevModal(); });
+
+function renderRevLines() {
+  document.getElementById('rev-line-items').innerHTML = revLines.map((l, i) => `
+    <div class="rev-line-row">
+      <input class="rev-form-input" style="font-size:12px" value="${l.s}" oninput="revLines[${i}].s=this.value" placeholder="Service name">
+      <input class="rev-form-input" style="font-size:12px" type="number" value="${l.q}" oninput="revLines[${i}].q=+this.value;calcRevTotal()" placeholder="Qty">
+      <input class="rev-form-input" style="font-size:12px" type="number" value="${l.r}" oninput="revLines[${i}].r=+this.value;calcRevTotal()" placeholder="Rate">
+      <button class="del-line-btn" onclick="deleteRevLine(${i})">✕</button>
+    </div>
+  `).join('');
+  calcRevTotal();
+}
+
+function addRevLine() {
+  revLines.push({ s: '', q: 1, r: 0 });
+  renderRevLines();
+}
+
+function deleteRevLine(i) {
+  revLines.splice(i, 1);
+  renderRevLines();
+}
+
+function calcRevTotal() {
+  const total = revLines.reduce((sum, l) => sum + (l.q * l.r), 0);
+  document.getElementById('rev-line-total-val').textContent = '₹' + total.toLocaleString('en-IN');
+}
+
+function applyAIPrefill() {
+  const cluster = document.getElementById('rf-cluster').value;
+  const c = clusterData.find(x => x.name === cluster);
+  if (c) {
+    revLines = c.lines.map(l => ({ s: l.s, q: Math.round(l.q * 1.05), r: l.r }));
+    document.getElementById('rf-target').value = Math.round(c.target * 1.1);
+    document.getElementById('rf-patients').value = c.patients;
+    renderRevLines();
+  }
+  showToast('🤖', 'AI prefill applied — values based on cluster history +5% growth projection');
+}
+
+function saveRevEntry() {
+  const clusterName = document.getElementById('rf-cluster').value;
+  const idx = clusterData.findIndex(x => x.name === clusterName);
+  const total = revLines.reduce((sum, l) => sum + (l.q * l.r), 0);
+  if (idx >= 0) {
+    clusterData[idx].lines = revLines.map(l => ({ s: l.s, q: l.q, r: l.r }));
+    clusterData[idx].billed = total;
+    clusterData[idx].target = +document.getElementById('rf-target').value || clusterData[idx].target;
+    clusterData[idx].patients = +document.getElementById('rf-patients').value || clusterData[idx].patients;
+    clusterData[idx].status = document.getElementById('rf-status').value;
+  }
+  closeRevModal();
+  renderRevenue();
+  showToast('✅', 'Revenue entry saved for ' + clusterName);
+}
+</script>
+</body>
+</html>

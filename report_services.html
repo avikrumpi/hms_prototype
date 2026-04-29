@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthOS — Service Details Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF8F4;
+  --ivory: #F5F0E8;
+  --teal: #1A6B5A;
+  --teal-light: #2A9076;
+  --teal-glow: #3DBFA0;
+  --gold: #C8963E;
+  --gold-light: #E8B96A;
+  --rose: #C0504A;
+  --rose-light: #E8857F;
+  --indigo: #3D4F8A;
+  --text-dark: #1C2331;
+  --text-mid: #4A5568;
+  --text-soft: #8896A5;
+  --border: #E2D9CC;
+  --glass: rgba(255,255,255,0.72);
+  --shadow: 0 4px 32px rgba(26,107,90,0.10);
+  --shadow-lg: 0 12px 48px rgba(26,107,90,0.16);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);
+  color:var(--text-dark);
+  min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 800px 600px at 90% 10%,rgba(61,191,160,0.06) 0%,transparent 70%),
+    radial-gradient(ellipse 600px 500px at 10% 80%,rgba(200,150,62,0.05) 0%,transparent 70%);
+}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;position:fixed;top:0;left:0;height:100vh;background:var(--text-dark);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 40px rgba(0,0,0,0.15);}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo-mark{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;}
+.logo-mark span{color:var(--teal-glow);}
+.logo-sub{font-size:11px;color:var(--text-soft);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.sidebar-admin{padding:20px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.admin-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-light));display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;}
+.admin-avatar::after{content:'';position:absolute;bottom:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#4ADE80;border:2px solid var(--text-dark);}
+.admin-name{font-weight:600;font-size:14px;color:#fff;}
+.admin-role{font-size:11px;color:var(--text-soft);}
+.nav-section{padding:16px 12px 8px;}
+.nav-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 12px 8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:2px;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);}
+.nav-item.active{background:linear-gradient(135deg,var(--teal),var(--teal-light));color:#fff;}
+.nav-item .icon{font-size:18px;width:22px;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.12);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);}
+.nav-badge.alert{background:var(--rose);color:#fff;}
+.sidebar-bottom{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06);}
+.date-pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:8px 14px;text-align:center;font-size:12px;color:var(--text-soft);font-family:'DM Mono',monospace;}
+
+/* ── MAIN ── */
+.main{margin-left:260px;min-height:100vh;}
+.topbar{background:var(--glass);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 36px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--text-dark);}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-soft);}
+.breadcrumb a{color:var(--teal);text-decoration:none;font-weight:500;}
+.breadcrumb a:hover{text-decoration:underline;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.tb-btn{padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:var(--ivory);color:var(--text-mid);transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+.tb-btn:hover{border-color:var(--teal);color:var(--teal);}
+.tb-btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+.tb-btn.primary:hover{background:var(--teal-light);transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,107,90,0.25);}
+.tb-btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));border-color:var(--gold);color:#fff;}
+.tb-btn.gold:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(200,150,62,0.3);}
+
+.content{padding:32px 36px;}
+
+/* ── PATIENT STRIP ── */
+.patient-strip{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px 24px;display:flex;align-items:center;gap:20px;margin-bottom:28px;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
+.pt-avatar{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--teal),var(--teal-glow));display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:700;flex-shrink:0;}
+.pt-name{font-weight:700;font-size:16px;}
+.pt-meta{font-size:12px;color:var(--text-soft);margin-top:2px;}
+.pt-badges{display:flex;gap:8px;margin-left:auto;}
+.pt-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;}
+.pt-badge.reg{background:rgba(26,107,90,0.08);color:var(--teal);}
+.pt-badge.visit{background:rgba(200,150,62,0.08);color:var(--gold);}
+.pt-badge.date{background:rgba(61,79,138,0.08);color:var(--indigo);}
+
+/* ── SECTION TABS ── */
+.section-tabs{display:flex;gap:0;margin-bottom:28px;border-bottom:2px solid var(--border);}
+.stab{padding:12px 28px;font-size:14px;font-weight:600;cursor:pointer;color:var(--text-soft);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s;display:flex;align-items:center;gap:8px;text-decoration:none;}
+.stab:hover{color:var(--text-dark);}
+.stab.active{color:var(--teal);border-bottom-color:var(--teal);}
+.stab .stab-count{font-size:11px;background:var(--teal);color:#fff;padding:2px 7px;border-radius:10px;font-weight:700;}
+
+/* ── TOP ACTION STRIP ── */
+.action-strip{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.as-btn{padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);transition:all 0.2s;display:flex;align-items:center;gap:7px;}
+.as-btn:hover{border-color:var(--teal);color:var(--teal);background:rgba(26,107,90,0.03);}
+.as-btn.active-tab{background:var(--text-dark);border-color:var(--text-dark);color:#fff;}
+.as-btn.active-tab:hover{background:#2D3A52;border-color:#2D3A52;}
+.as-spacer{flex:1;}
+.as-btn.ai-fill{background:linear-gradient(135deg,var(--teal),var(--teal-light));border-color:transparent;color:#fff;}
+.as-btn.ai-fill:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,107,90,0.25);}
+
+/* ── AI INSIGHT ── */
+.ai-insight{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:16px;padding:16px 22px;display:flex;align-items:flex-start;gap:14px;margin-bottom:28px;border:1px solid rgba(61,191,160,0.2);}
+.ai-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--teal-glow),var(--teal));display:flex;align-items:center;justify-content:center;font-size:18px;}
+.ai-text h4{font-size:12px;font-weight:700;color:var(--teal-glow);letter-spacing:0.5px;}
+.ai-text p{font-size:12.5px;color:rgba(255,255,255,0.7);margin-top:3px;line-height:1.6;}
+.ai-text strong{color:rgba(255,255,255,0.92);}
+
+/* ── SECTION LABEL ── */
+.section-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── SERVICE DETAILS GRID ── */
+.services-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px;}
+.svc-detail-card{
+  background:#fff;border:1.5px solid var(--border);border-radius:18px;
+  overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.04);
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.svc-detail-card:hover{border-color:rgba(26,107,90,0.25);box-shadow:var(--shadow);}
+.svc-detail-card.has-result{border-color:rgba(26,107,90,0.35);}
+.svc-detail-card.flagged{border-color:rgba(192,80,74,0.35);}
+
+.sdc-head{
+  padding:14px 18px;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,#FAFAF8,#F5F0E8);
+}
+.sdc-icon{font-size:26px;line-height:1;flex-shrink:0;}
+.sdc-info{flex:1;}
+.sdc-name{font-weight:700;font-size:14px;color:var(--text-dark);}
+.sdc-sub{font-size:11px;color:var(--text-soft);margin-top:1px;}
+.sdc-cat{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:600;margin-top:4px;display:inline-block;}
+.cat-diagnostic{background:rgba(61,79,138,0.08);color:var(--indigo);}
+.cat-consultation{background:rgba(26,107,90,0.08);color:var(--teal);}
+.cat-screening{background:rgba(200,150,62,0.08);color:var(--gold);}
+.cat-therapy{background:rgba(160,82,45,0.08);color:#A0522D;}
+.cat-emergency{background:rgba(192,80,74,0.08);color:var(--rose);}
+.cat-camp{background:rgba(107,130,200,0.1);color:#4B6CB7;}
+.sdc-status{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all 0.2s;}
+.sdc-status.done{background:var(--teal);border-color:var(--teal);color:#fff;}
+.sdc-status.flagged{background:var(--rose);border-color:var(--rose);color:#fff;}
+
+.sdc-body{padding:16px 18px;display:flex;flex-direction:column;gap:12px;}
+
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field-group{display:flex;flex-direction:column;gap:5px;}
+.field-group.full{grid-column:1/-1;}
+.field-label{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);font-weight:600;}
+
+.field-input{
+  padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;
+  font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-dark);
+  outline:none;transition:all 0.2s;background:#FAFAF8;width:100%;
+}
+.field-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,90,0.08);background:#fff;}
+.field-input::placeholder{color:var(--text-soft);}
+textarea.field-input{resize:vertical;min-height:64px;}
+select.field-input{cursor:pointer;}
+
+/* Result highlight colours */
+.field-input.result-normal{border-color:#4ADE80;background:rgba(74,222,128,0.04);}
+.field-input.result-warning{border-color:var(--gold);background:rgba(200,150,62,0.04);}
+.field-input.result-critical{border-color:var(--rose);background:rgba(192,80,74,0.04);}
+
+/* Range indicator */
+.range-bar-wrap{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.range-bar{flex:1;height:5px;border-radius:5px;background:var(--border);overflow:hidden;position:relative;}
+.range-fill{height:100%;border-radius:5px;transition:width 0.5s;}
+.range-label{font-size:10.5px;color:var(--text-soft);white-space:nowrap;}
+.range-label.ok{color:#16a34a;}
+.range-label.hi{color:var(--gold);}
+.range-label.crit{color:var(--rose);}
+
+/* AI suggestion chip */
+.ai-suggestion{
+  display:flex;align-items:center;gap:7px;
+  background:linear-gradient(135deg,rgba(26,107,90,0.05),rgba(61,191,160,0.07));
+  border:1px solid rgba(26,107,90,0.15);border-radius:8px;
+  padding:8px 12px;font-size:12px;color:var(--text-mid);
+}
+.ai-suggestion strong{color:var(--teal);}
+.ai-use-btn{margin-left:auto;padding:4px 10px;border-radius:6px;border:none;background:var(--teal);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s;}
+.ai-use-btn:hover{background:var(--teal-light);}
+
+/* Flag row */
+.flag-row{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.flag-check{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text-mid);}
+.flag-check input{accent-color:var(--rose);width:14px;height:14px;cursor:pointer;}
+
+/* ── SUMMARY CARD ── */
+.summary-card{background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.04);margin-bottom:28px;}
+.sc-head{padding:20px 26px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sc-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+.sc-body{padding:20px 26px;}
+.sc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.sc-stat{text-align:center;padding:14px;background:var(--ivory);border-radius:12px;border:1px solid var(--border);}
+.sc-val{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;}
+.sc-lbl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);margin-top:4px;}
+
+/* ── AI NARRATIVE ── */
+.ai-narrative{background:linear-gradient(135deg,#1C2331,#2D3A52);border-radius:16px;padding:20px 24px;margin-bottom:28px;border:1px solid rgba(61,191,160,0.2);}
+.ai-narrative h4{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--teal-glow);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.ai-narrative p{font-size:13.5px;color:rgba(255,255,255,0.8);line-height:1.8;}
+.ai-narrative strong{color:rgba(255,255,255,0.95);}
+.ai-narrative .flag-item{display:flex;align-items:flex-start;gap:8px;margin-top:10px;padding:10px 12px;background:rgba(192,80,74,0.12);border-radius:8px;border-left:3px solid var(--rose);}
+.ai-narrative .flag-item p{font-size:12.5px;color:rgba(255,255,255,0.75);}
+
+/* ── BOTTOM ACTIONS ── */
+.bottom-actions{display:flex;align-items:center;gap:12px;padding:24px 0 8px;}
+.bact-btn{padding:13px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:all 0.2s;}
+.bact-btn.sec{background:#fff;border:1.5px solid var(--border);color:var(--text-mid);}
+.bact-btn.sec:hover{border-color:var(--teal);color:var(--teal);}
+.bact-btn.pri{background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;box-shadow:0 4px 20px rgba(26,107,90,0.25);}
+.bact-btn.pri:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(26,107,90,0.35);}
+.bact-btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;color:#fff;box-shadow:0 4px 20px rgba(200,150,62,0.2);}
+.bact-btn.gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(200,150,62,0.3);}
+
+/* ── SAVE TOAST ── */
+.toast{position:fixed;bottom:32px;right:32px;background:var(--text-dark);color:#fff;padding:14px 22px;border-radius:12px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;z-index:999;transform:translateY(80px);opacity:0;transition:all 0.35s;box-shadow:0 8px 32px rgba(0,0,0,0.25);}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:22px;padding:36px;max-width:520px;width:92%;box-shadow:0 24px 80px rgba(0,0,0,0.2);}
+.modal h3{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:8px;}
+.modal .modal-sub{font-size:14px;color:var(--text-mid);margin-bottom:24px;line-height:1.6;}
+.modal-report-grid{display:grid;gap:8px;margin-bottom:24px;}
+.modal-report-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ivory);border-radius:10px;border:1px solid var(--border);}
+.modal-report-row .mr-name{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.modal-report-row .mr-result{font-size:13px;font-weight:700;}
+.mr-result.ok{color:#16a34a;}
+.mr-result.warn{color:var(--gold);}
+.mr-result.crit{color:var(--rose);}
+.modal-btns{display:flex;gap:10px;}
+.modal-btn{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.modal-btn.sec{border:1.5px solid var(--border);background:#fff;color:var(--text-mid);}
+.modal-btn.pri{background:linear-gradient(135deg,var(--teal),var(--teal-light));border:none;color:#fff;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.animate{animation:fadeUp 0.45s ease both;}
+.d1{animation-delay:0.04s;}.d2{animation-delay:0.08s;}.d3{animation-delay:0.13s;}.d4{animation-delay:0.18s;}.d5{animation-delay:0.23s;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">Health<span>OS</span></div>
+    <div class="logo-sub">Clinical Intelligence Platform</div>
+  </div>
+  <div class="sidebar-admin">
+    <div class="admin-avatar">👨‍⚕️</div>
+    <div>
+      <div class="admin-name">Admin Portal</div>
+      <div class="admin-role">Super Administrator</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Core</div>
+    <a href="admin_panel.html" class="nav-item " data-page="admin_panel.html"><span class="icon">🏥</span> Patients <span class="nav-badge">1001</span></a>
+    <a href="doctor_panel.html" class="nav-item " data-page="doctor_panel.html"><span class="icon">👨‍⚕️</span> Doctors <span class="nav-badge">20</span></a>
+    <a href="ha_panel.html" class="nav-item" data-page="ha_panel.html"><span class="icon">👤</span> HA <span class="nav-badge">8</span></a>
+    <a href="cluster_panel.html" class="nav-item" data-page="cluster_panel.html"><span class="icon">🏘</span> Clusters <span class="nav-badge">6</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Operations</div>
+    <a href="medicine_panel.html" class="nav-item " data-page="medicine_panel.html"><span class="icon">💊</span> Medicine <span class="nav-badge alert">3</span></a>
+    <a href="all_services.html" class="nav-item active" data-page="all_services.html"><span class="icon">🩺</span> Services <span class="nav-badge">20</span></a>
+    <a href="inventory_panel.html" class="nav-item " data-page="inventory_panel.html"><span class="icon">📦</span> Inventory</a>
+    <a href="billing.html" class="nav-item " data-page="billing.html"><span class="icon">💰</span> Billing</a>
+    <a href="reports.html" class="nav-item " data-page="reports.html"><span class="icon">📊</span> Reports</a>
+  </div>
+  <div class="sidebar-bottom">
+    <div style="padding:0 12px 10px">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px">Quick Jump</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <a href="admin_panel.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">🏥 Patient Registry</a>
+          <a href="doctor_panel.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">👨‍⚕️ Doctor Panel</a>
+          <a href="all_services.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">🩺 New Visit</a>
+          <a href="medicine_panel.html" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 6px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.85)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.5)'">💊 Medicines</a>
+        </div>
+      </div>
+    </div>
+    <div class="date-pill">📅 Apr 24, 2026 · 11:30 AM</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div style="cursor:pointer;color:var(--text-soft);font-size:20px" onclick="navTo('all_services.html')">←</div>
+    <div>
+      <div class="page-title">Service Details</div>
+      <div class="breadcrumb">
+        <a href="all_services.html">Services</a>
+        <span>›</span><span style="color:var(--text-dark);font-weight:500">Report</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-btn" onclick="navTo('admin_panel.html')">🏥 Patients</button>
+      <button class="tb-btn" onclick="navTo('doctor_panel.html')">👨‍⚕️ Doctors</button>
+      <button class="tb-btn" onclick="navTo('medicine_panel.html')">💊 Medicine</button>
+      <div style="width:1px;height:24px;background:var(--border);margin:0 2px"></div>
+      <button class="tb-btn" onclick="navTo('all_services.html')">← New Service</button>
+      <button class="tb-btn" onclick="showModal()">📋 Preview Report</button>
+      <button class="tb-btn gold" onclick="autoFillAll()">✦ AI Auto-Fill</button>
+      <button class="tb-btn primary" onclick="saveAll()">💾 Save &amp; Finalise</button>
+      <div class="notif-btn-wrap">
+        <div class="notif-btn" onclick="toggleNotif()">🔔<span class="notif-badge">5</span></div>
+        <div class="notif-dropdown" id="notifDropdown"></div>
+      </div>
+      <div class="user-btn-wrap">
+        <div class="user-btn" onclick="toggleUser()">A</div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="ud-item" onclick="navTo('admin_panel.html')">🏥 Dashboard</div>
+          <div class="ud-item">👤 My Profile</div>
+          <div class="ud-item">⚙️ Settings</div>
+          <div class="ud-item">📊 My Reports</div>
+          <div class="ud-item">🚪 Sign Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- PATIENT STRIP -->
+    <div class="patient-strip animate d1">
+      <div class="pt-avatar">SB</div>
+      <div>
+        <div class="pt-name">Santana Baski</div>
+        <div class="pt-meta">WB-BRH-BLP-CLDM-19022 · Female · DOB: Aug 14, 1988 · HA: Priya M</div>
+      </div>
+      <div class="pt-badges">
+        <span class="pt-badge reg">● Registered</span>
+        <span class="pt-badge visit">Visit #3</span>
+        <span class="pt-badge date">Apr 24, 2026</span>
+      </div>
+    </div>
+
+    <!-- SECTION TABS -->
+    <div class="section-tabs animate d1">
+      <a href="medicine_panel.html" class="stab">💊 Medicine</a>
+      <a href="all_services.html" class="stab">🩺 Services</a>
+      <a href="report_services.html" class="stab active">📋 Service Details <span class="stab-count">8</span></a>
+      <a href="billing.html" class="stab">🧾 Bill</a>
+    </div>
+
+    <!-- TOP ACTION STRIP -->
+    <div class="action-strip animate d2">
+      <button class="as-btn active-tab">📋 Service Details</button>
+      <button class="as-btn" onclick="navTo('all_services.html')">🩺 Change Services</button>
+      <div class="as-spacer"></div>
+      <div style="font-size:13px;color:var(--text-soft);display:flex;align-items:center;gap:6px">
+        <span id="completedCount">0</span>/8 completed
+        <div style="width:80px;height:6px;background:var(--border);border-radius:6px;overflow:hidden">
+          <div id="progressBar" style="height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-glow));border-radius:6px;width:0%;transition:width 0.4s"></div>
+        </div>
+      </div>
+      <button class="as-btn ai-fill" onclick="autoFillAll()">✦ AI Auto-Fill All</button>
+    </div>
+
+    <!-- AI INSIGHT -->
+    <div class="ai-insight animate d2">
+      <div class="ai-icon">🤖</div>
+      <div class="ai-text">
+        <h4>✦ AI Clinical Intelligence — Visit Analysis</h4>
+        <p>Based on patient history and today's services: <strong>Blood Pressure</strong> is borderline high (expected ~128/86) — flag for monitoring. <strong>Blood Sugar</strong> within range for non-diabetic female. <strong>SpO₂</strong> normal at 98%. AI has pre-filled reference ranges. Results marked <strong style="color:#FDA4AF">🔴 Critical</strong> will auto-alert the assigned doctor.</p>
+      </div>
+      <button style="margin-left:auto;flex-shrink:0;background:rgba(61,191,160,0.2);border:1px solid var(--teal-glow);color:var(--teal-glow);padding:7px 13px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap" onclick="autoFillAll()">✦ AI Fill Results</button>
+    </div>
+
+    <!-- PROGRESS LABEL -->
+    <div class="section-label animate d3">Please describe details relating to the service performed</div>
+
+    <!-- SERVICE DETAIL CARDS GRID -->
+    <div class="services-form-grid animate d3" id="formGrid"></div>
+
+    <!-- SUMMARY -->
+    <div class="summary-card animate d4">
+      <div class="sc-head">
+        <div class="sc-title">Visit Summary</div>
+        <span style="font-size:12px;color:var(--text-soft)">Auto-calculated from results below</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-grid">
+          <div class="sc-stat">
+            <div class="sc-val" id="sumTotal" style="color:var(--teal)">8</div>
+            <div class="sc-lbl">Services Run</div>
+          </div>
+          <div class="sc-stat">
+            <div class="sc-val" id="sumDone" style="color:#16a34a">0</div>
+            <div class="sc-lbl">Completed</div>
+          </div>
+          <div class="sc-stat">
+            <div class="sc-val" id="sumFlag" style="color:var(--rose)">0</div>
+            <div class="sc-lbl">Flagged</div>
+          </div>
+          <div class="sc-stat">
+            <div class="sc-val" id="sumNormal" style="color:var(--gold)">0</div>
+            <div class="sc-lbl">Normal Range</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI NARRATIVE -->
+    <div class="ai-narrative animate d4">
+      <h4>✦ AI Clinical Narrative</h4>
+      <p id="narrativeText">Fill in service results above — AI will generate a complete clinical summary for this visit, including risk flags, follow-up recommendations, and referral suggestions.</p>
+      <div id="narrativeFlags"></div>
+    </div>
+
+    <!-- BOTTOM ACTIONS -->
+    <div class="bottom-actions animate d5">
+      <button class="bact-btn sec" onclick="navTo('all_services.html')">← Back to Services</button>
+      <button class="bact-btn sec" onclick="clearAllResults()">↺ Reset All</button>
+      <div style="flex:1"></div>
+      <button class="bact-btn gold" onclick="showModal()">📋 Preview Report</button>
+      <button class="bact-btn pri" onclick="saveAll()">💾 Save &amp; Finalise Visit</button>
+    </div>
+
+  </div>
+</main>
+
+<!-- PREVIEW MODAL -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <h3>📋 Visit Report Preview</h3>
+    <div class="modal-sub">Service results for <strong>Santana Baski</strong> · Apr 24, 2026 · Visit #3</div>
+    <div class="modal-report-grid" id="modalReportGrid"></div>
+    <div class="modal-btns">
+      <button class="modal-btn sec" onclick="document.getElementById('reportModal').classList.remove('show')">Close</button>
+      <button class="modal-btn pri" onclick="saveAll()">💾 Save &amp; Finalise</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Visit report saved successfully!</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const services = [
+  {
+    id:1, name:'Blood Pressure', icon:'🩺', cat:'Screening',
+    fields:[
+      {id:'bp_systolic',  label:'Systolic (mmHg)',   type:'number', placeholder:'e.g. 120', unit:'mmHg', range:[90,140],  normal:'90–120',  ai:'118'},
+      {id:'bp_diastolic', label:'Diastolic (mmHg)',  type:'number', placeholder:'e.g. 80',  unit:'mmHg', range:[60,90],   normal:'60–80',   ai:'78'},
+    ],
+    noteAI:'Mildly elevated systolic noted. Patient reports no headache. Recommend salt restriction and recheck in 2 weeks.'
+  },
+  {
+    id:2, name:'Blood Sugar', icon:'🩸', cat:'Diagnostic',
+    fields:[
+      {id:'bs_type',    label:'Test Type',          type:'select', options:['Fasting','Post-Prandial','Random'], ai:'Fasting'},
+      {id:'bs_value',   label:'Glucose (mg/dL)',    type:'number', placeholder:'e.g. 95',  unit:'mg/dL', range:[70,125], normal:'70–100', ai:'92'},
+    ],
+    noteAI:'Fasting glucose within normal range for non-diabetic female. No action required. Recheck in 6 months.'
+  },
+  {
+    id:3, name:'Oxygen in Blood', icon:'🫁', cat:'Screening',
+    fields:[
+      {id:'spo2_value', label:'SpO₂ (%)',           type:'number', placeholder:'e.g. 98',  unit:'%',     range:[95,100], normal:'95–100', ai:'98'},
+      {id:'spo2_pulse', label:'Pulse Rate (bpm)',   type:'number', placeholder:'e.g. 76',  unit:'bpm',   range:[60,100], normal:'60–100', ai:'74'},
+    ],
+    noteAI:'SpO₂ at 98% — excellent oxygen saturation. Pulse rate normal. No respiratory concerns.'
+  },
+  {
+    id:4, name:'Online Consultation', icon:'💬', cat:'Consultation',
+    fields:[
+      {id:'consult_doc',      label:'Consulting Doctor',  type:'select', options:['Dr. Aryak Sen','Dr. Soumarya Das','Dr. Priya Mukherjee','Dr. Rohit Karmakar'], ai:'Dr. Aryak Sen'},
+      {id:'consult_duration', label:'Duration (mins)',    type:'number', placeholder:'e.g. 20', unit:'min', ai:'15'},
+    ],
+    noteAI:'Teleconsultation completed via HealthOS video link. Doctor noted borderline BP and dietary counselling given.'
+  },
+  {
+    id:5, name:'Covid-RAT', icon:'🦠', cat:'Diagnostic',
+    fields:[
+      {id:'rat_result',  label:'RAT Result',         type:'select', options:['Negative','Positive','Invalid'], ai:'Negative'},
+      {id:'rat_brand',   label:'Kit Brand',          type:'select', options:['Panbio','SD Biosensor','Mylab','Meril'], ai:'Panbio'},
+    ],
+    noteAI:'COVID-19 RAT result Negative. No isolation required. Standard precautions advised.'
+  },
+  {
+    id:6, name:'Hemoglobin Test', icon:'🔬', cat:'Diagnostic',
+    fields:[
+      {id:'hb_value',  label:'Hb Level (g/dL)',     type:'number', placeholder:'e.g. 11.5', unit:'g/dL', range:[12,16],  normal:'12–16',  ai:'11.8'},
+    ],
+    noteAI:'Hemoglobin slightly below normal for adult female (12–16 g/dL). Mild anaemia suspected. Start Iron-Folic Acid supplementation.'
+  },
+  {
+    id:7, name:'Specialist Doctor Camp', icon:'🏕️', cat:'Camp',
+    fields:[
+      {id:'camp_spec',    label:'Specialist Type',   type:'select', options:['Cardiologist','Dermatologist','Gynecologist','Orthopedist','Psychiatrist'], ai:'Gynecologist'},
+      {id:'camp_outcome', label:'Camp Outcome',      type:'select', options:['Attended','Referred for follow-up','No show','Rescheduled'], ai:'Attended'},
+    ],
+    noteAI:'Attended specialist camp. Gynecologist noted regular menstrual cycle. No abnormalities detected. Follow-up in 6 months.'
+  },
+  {
+    id:8, name:'Nutrition Counseling', icon:'🥗', cat:'Consultation',
+    fields:[
+      {id:'bmi_weight', label:'Weight (kg)',         type:'number', placeholder:'e.g. 58',  unit:'kg',  ai:'57'},
+      {id:'bmi_height', label:'Height (cm)',         type:'number', placeholder:'e.g. 160', unit:'cm',  ai:'158'},
+    ],
+    noteAI:'BMI calculated at 22.8 — within healthy range. Dietary advice given for iron-rich foods to address borderline Hb. No caloric restriction needed.'
+  },
+];
+
+const catClass={Consultation:'cat-consultation',Diagnostic:'cat-diagnostic',Screening:'cat-screening',Therapy:'cat-therapy',Camp:'cat-camp',Emergency:'cat-emergency'};
+
+// ── RENDER CARDS ──────────────────────────────────────────────────────────────
+function renderCards(){
+  const grid = document.getElementById('formGrid');
+  grid.innerHTML = '';
+  services.forEach((svc, idx) => {
+    const delay = 0.05 + idx * 0.04;
+    let fieldsHTML = '';
+    svc.fields.forEach(f => {
+      let inputHTML = '';
+      if(f.type === 'select'){
+        const opts = f.options.map(o=>`<option>${o}</option>`).join('');
+        inputHTML = `<select class="field-input" id="${f.id}" onchange="onFieldChange(${svc.id})">${opts}</select>`;
+      } else {
+        inputHTML = `<input class="field-input" id="${f.id}" type="${f.type}" placeholder="${f.placeholder||''}" oninput="onFieldChange(${svc.id})">`;
+      }
+      let rangeHTML = '';
+      if(f.range){
+        rangeHTML = `<div class="range-bar-wrap">
+          <div class="range-bar"><div class="range-fill" id="rf_${f.id}" style="width:0%;background:var(--teal)"></div></div>
+          <span class="range-label" id="rl_${f.id}">Normal: ${f.normal}</span>
+        </div>`;
+      }
+      fieldsHTML += `<div class="field-group ${svc.fields.length===1?'full':''}">
+        <label class="field-label">${f.label}</label>
+        ${inputHTML}
+        ${rangeHTML}
+      </div>`;
+    });
+
+    grid.innerHTML += `
+    <div class="svc-detail-card" id="card-${svc.id}" style="animation:fadeUp 0.4s ease ${delay}s both">
+      <div class="sdc-head">
+        <div class="sdc-icon">${svc.icon}</div>
+        <div class="sdc-info">
+          <div class="sdc-name">${svc.name}</div>
+          <div class="sdc-sub">Service #${idx+1} · Please describe the details</div>
+          <span class="sdc-cat ${catClass[svc.cat]}">${svc.cat}</span>
+        </div>
+        <div class="sdc-status" id="status-${svc.id}" title="Mark complete">○</div>
+      </div>
+      <div class="sdc-body">
+        <div class="ai-suggestion" id="aiSug-${svc.id}">
+          <span style="font-size:16px">✦</span>
+          <p><strong>AI suggests:</strong> ${svc.noteAI.substring(0,80)}…</p>
+          <button class="ai-use-btn" onclick="aiUseSuggestion(${svc.id})">Use AI</button>
+        </div>
+        <div class="field-row">${fieldsHTML}</div>
+        <div>
+          <label class="field-label">Result</label>
+          <input class="field-input" id="result-${svc.id}" type="text" placeholder="Describe the result..." oninput="onFieldChange(${svc.id})">
+        </div>
+        <div>
+          <label class="field-label">Additional Info</label>
+          <textarea class="field-input" id="note-${svc.id}" placeholder="Additional information, observations..." oninput="onFieldChange(${svc.id})"></textarea>
+        </div>
+        <div class="flag-row">
+          <label class="flag-check">
+            <input type="checkbox" id="flag-${svc.id}" onchange="onFlagChange(${svc.id})">
+            🔴 Flag for doctor review
+          </label>
+          <label class="flag-check" style="margin-left:16px">
+            <input type="checkbox" id="critical-${svc.id}" onchange="onFlagChange(${svc.id})">
+            🚨 Critical — alert immediately
+          </label>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
+// ── FIELD CHANGE ─────────────────────────────────────────────────────────────
+function onFieldChange(svcId){
+  const svc = services.find(s=>s.id===svcId);
+  let hasData = false;
+  svc.fields.forEach(f => {
+    const el = document.getElementById(f.id);
+    if(el && el.value.trim()) hasData = true;
+    // Range bar
+    if(f.range && el){
+      const v = parseFloat(el.value);
+      if(!isNaN(v)){
+        const [lo,hi] = f.range;
+        const pct = Math.min(100, Math.max(0, ((v-lo)/(hi-lo))*100));
+        const fill = document.getElementById('rf_'+f.id);
+        const lbl  = document.getElementById('rl_'+f.id);
+        if(fill){
+          let color='#4ADE80', cls='ok', txt=`Normal: ${f.normal}`;
+          if(v < lo){ color=var_rose(); cls='crit'; txt=`Below range (${f.normal})`; }
+          else if(v > hi){ color=var_gold(); cls='hi'; txt=`Above range (${f.normal})`; }
+          fill.style.width = pct+'%';
+          fill.style.background = color;
+          lbl.className = 'range-label '+cls;
+          lbl.textContent = txt;
+          // colour the input
+          const inp = document.getElementById(f.id);
+          inp.classList.remove('result-normal','result-warning','result-critical');
+          if(v<lo||v>hi) inp.classList.add(v<lo-5||v>hi+10?'result-critical':'result-warning');
+          else inp.classList.add('result-normal');
+        }
+      }
+    }
+  });
+  const resultEl = document.getElementById('result-'+svcId);
+  if(resultEl && resultEl.value.trim()) hasData = true;
+  if(hasData){
+    const statusEl = document.getElementById('status-'+svcId);
+    statusEl.textContent = '✓';
+    statusEl.classList.add('done');
+    document.getElementById('card-'+svcId).classList.add('has-result');
+  }
+  updateProgress();
+  updateNarrative();
+}
+
+function var_rose(){ return '#C0504A'; }
+function var_gold(){ return '#C8963E'; }
+
+function onFlagChange(svcId){
+  const flagged = document.getElementById('flag-'+svcId)?.checked || document.getElementById('critical-'+svcId)?.checked;
+  const card = document.getElementById('card-'+svcId);
+  const statusEl = document.getElementById('status-'+svcId);
+  if(flagged){
+    card.classList.add('flagged');
+    statusEl.textContent='⚠';
+    statusEl.classList.remove('done');
+    statusEl.classList.add('flagged');
+  } else {
+    card.classList.remove('flagged');
+    statusEl.textContent='○';
+    statusEl.classList.remove('flagged');
+  }
+  updateProgress();
+  updateNarrative();
+}
+
+// ── AI AUTO-FILL ─────────────────────────────────────────────────────────────
+function aiUseSuggestion(svcId){
+  const svc = services.find(s=>s.id===svcId);
+  svc.fields.forEach(f => {
+    const el = document.getElementById(f.id);
+    if(el && f.ai !== undefined){
+      if(el.tagName === 'SELECT'){
+        for(let o of el.options){ if(o.text === f.ai){ el.value=o.value; break; } }
+      } else { el.value = f.ai; }
+    }
+  });
+  const resultEl = document.getElementById('result-'+svcId);
+  if(resultEl) resultEl.value = svc.noteAI.substring(0,80)+'…';
+  const noteEl = document.getElementById('note-'+svcId);
+  if(noteEl) noteEl.value = svc.noteAI;
+  onFieldChange(svcId);
+}
+
+function autoFillAll(){
+  services.forEach(s => aiUseSuggestion(s.id));
+  showToast('✦ AI has auto-filled all service results!');
+}
+
+function clearAllResults(){
+  services.forEach(svc => {
+    svc.fields.forEach(f => {
+      const el = document.getElementById(f.id);
+      if(el){ el.value=''; el.classList.remove('result-normal','result-warning','result-critical'); }
+      const fill = document.getElementById('rf_'+f.id);
+      if(fill){ fill.style.width='0%'; }
+    });
+    const r = document.getElementById('result-'+svc.id);
+    if(r) r.value = '';
+    const n = document.getElementById('note-'+svc.id);
+    if(n) n.value = '';
+    const s = document.getElementById('status-'+svc.id);
+    if(s){ s.textContent='○'; s.classList.remove('done','flagged'); }
+    const c = document.getElementById('card-'+svc.id);
+    if(c){ c.classList.remove('has-result','flagged'); }
+    const f1 = document.getElementById('flag-'+svc.id);
+    const f2 = document.getElementById('critical-'+svc.id);
+    if(f1) f1.checked=false;
+    if(f2) f2.checked=false;
+  });
+  updateProgress();
+  updateNarrative();
+}
+
+// ── PROGRESS ─────────────────────────────────────────────────────────────────
+function updateProgress(){
+  let done=0, flagged=0, normal=0;
+  services.forEach(svc => {
+    const s = document.getElementById('status-'+svc.id);
+    if(s && (s.classList.contains('done')||s.classList.contains('flagged'))) done++;
+    if(document.getElementById('flag-'+svc.id)?.checked || document.getElementById('critical-'+svc.id)?.checked) flagged++;
+    else if(s && s.classList.contains('done')) normal++;
+  });
+  document.getElementById('completedCount').textContent = done;
+  document.getElementById('progressBar').style.width = (done/services.length*100)+'%';
+  document.getElementById('sumDone').textContent = done;
+  document.getElementById('sumFlag').textContent = flagged;
+  document.getElementById('sumNormal').textContent = normal;
+}
+
+// ── NARRATIVE ────────────────────────────────────────────────────────────────
+function updateNarrative(){
+  const flags = [];
+  services.forEach(svc=>{
+    if(document.getElementById('critical-'+svc.id)?.checked) flags.push({name:svc.name,icon:svc.icon,level:'crit'});
+    else if(document.getElementById('flag-'+svc.id)?.checked) flags.push({name:svc.name,icon:svc.icon,level:'warn'});
+  });
+  const done = parseInt(document.getElementById('sumDone').textContent)||0;
+  const hb = document.getElementById('hb_value')?.value;
+  const bp = document.getElementById('bp_systolic')?.value;
+  let text = `Visit #3 for Santana Baski — ${done} of ${services.length} services completed. `;
+  if(bp) text += `Blood pressure recorded at ${bp}/${document.getElementById('bp_diastolic')?.value||'—'} mmHg. `;
+  if(hb) text += `Hemoglobin at ${hb} g/dL${parseFloat(hb)<12?' — mild anaemia noted, iron supplementation recommended':' — within acceptable range'}. `;
+  text += done < services.length ? `${services.length-done} service(s) pending entry. ` : 'All services recorded. ';
+  if(flags.length) text += `<strong>${flags.length} item(s) flagged for review.</strong>`;
+  document.getElementById('narrativeText').innerHTML = text;
+  const nf = document.getElementById('narrativeFlags');
+  nf.innerHTML='';
+  flags.forEach(f=>{
+    nf.innerHTML+=`<div class="flag-item"><span style="font-size:18px">${f.icon}</span><p><strong style="color:${f.level==='crit'?'#FDA4AF':'#FCD34D'}">${f.level==='crit'?'🚨 CRITICAL':'⚠ FLAG'}: ${f.name}</strong> — Flagged for immediate doctor review. Auto-notification sent to Dr. Aryak Sen.</p></div>`;
+  });
+}
+
+// ── MODAL ────────────────────────────────────────────────────────────────────
+function showModal(){
+  const grid = document.getElementById('modalReportGrid');
+  grid.innerHTML='';
+  services.forEach(svc=>{
+    const resultEl = document.getElementById('result-'+svc.id);
+    const result = resultEl?.value || '—';
+    const flagged = document.getElementById('flag-'+svc.id)?.checked;
+    const critical = document.getElementById('critical-'+svc.id)?.checked;
+    const cls = critical?'crit':flagged?'warn':'ok';
+    const indicator = critical?'🚨':flagged?'⚠️':'✓';
+    grid.innerHTML+=`<div class="modal-report-row">
+      <div class="mr-name">${svc.icon} ${svc.name}</div>
+      <div class="mr-result ${cls}">${indicator} ${result.substring(0,40)||'Pending'}</div>
+    </div>`;
+  });
+  document.getElementById('reportModal').classList.add('show');
+}
+
+// ── SAVE ─────────────────────────────────────────────────────────────────────
+function saveAll(){
+  document.getElementById('reportModal').classList.remove('show');
+  showToast('✅ Visit report saved and finalised!');
+  setTimeout(() => {
+    if(confirm('Visit saved! Return to Patient Dashboard?')) navTo('admin_panel.html');
+  }, 1200);
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+renderCards();
+updateProgress();
+</script>
+
+<!-- HealthOS Global Nav & Transitions -->
+<style>
+/* Page transition overlay */
+.page-transition-overlay {
+  position: fixed; inset: 0; background: var(--cream);
+  z-index: 9999; opacity: 0; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.22s ease;
+}
+.page-transition-overlay.active { opacity: 1; pointer-events: all; }
+.pt-logo {
+  font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700;
+  color: var(--teal); opacity: 0; transform: translateY(8px);
+  transition: all 0.3s ease 0.08s;
+}
+.pt-logo span { color: var(--teal-glow); }
+.page-transition-overlay.active .pt-logo { opacity: 1; transform: translateY(0); }
+
+/* Smooth sidebar link hover underline */
+.sidebar .nav-item { position: relative; }
+
+/* Global notification bell dropdown */
+.notif-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 320px; background: #fff; border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,0.14);
+  z-index: 500; display: none;
+}
+.notif-dropdown.open { display: block; animation: fadeUp 0.22s ease; }
+.nd-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.nd-head h4 { font-size: 14px; font-weight: 700; }
+.nd-mark { font-size: 11px; color: var(--teal); cursor: pointer; font-weight: 600; }
+.nd-item { padding: 12px 18px; border-bottom: 1px solid #F5F0E8; display: flex; gap: 10px; cursor: pointer; transition: background 0.15s; }
+.nd-item:last-child { border-bottom: none; }
+.nd-item:hover { background: var(--ivory); }
+.nd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.nd-msg { font-size: 12.5px; color: var(--text-mid); line-height: 1.4; }
+.nd-time { font-size: 11px; color: var(--text-soft); margin-top: 3px; }
+.nd-footer { padding: 12px 18px; text-align: center; }
+.nd-footer a { font-size: 12px; color: var(--teal); font-weight: 600; text-decoration: none; }
+
+/* User menu dropdown */
+.user-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 200px; background: #fff; border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  z-index: 500; display: none;
+}
+.user-dropdown.open { display: block; animation: fadeUp 0.2s ease; }
+.ud-item { padding: 11px 16px; font-size: 13px; color: var(--text-mid); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
+.ud-item:first-child { border-radius: 14px 14px 0 0; }
+.ud-item:last-child { border-radius: 0 0 14px 14px; border-top: 1px solid var(--border); color: var(--rose); }
+.ud-item:hover { background: var(--ivory); }
+
+/* Enhanced notif btn */
+.notif-btn-wrap { position: relative; }
+.notif-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--ivory); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px; position: relative;
+  transition: all 0.15s;
+}
+.notif-btn:hover { border-color: var(--teal); background: rgba(26,107,90,0.05); }
+.notif-badge {
+  position: absolute; top: -5px; right: -5px;
+  background: var(--rose); color: #fff; font-size: 10px; font-weight: 700;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif; border: 2px solid var(--cream);
+}
+.user-btn-wrap { position: relative; }
+.user-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.15s;
+}
+.user-btn:hover { border-color: var(--teal-glow); box-shadow: 0 0 0 3px rgba(61,191,160,0.2); }
+
+/* Breadcrumb global style */
+.g-breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-soft); margin-top: 2px;
+}
+.g-breadcrumb a { color: var(--teal); text-decoration: none; font-weight: 500; }
+.g-breadcrumb a:hover { text-decoration: underline; }
+.g-breadcrumb span.sep { color: var(--border); }
+</style>
+
+<div class="page-transition-overlay" id="pageOverlay">
+  <div class="pt-logo">Health<span>OS</span></div>
+</div>
+
+<script>
+// ── PAGE TRANSITIONS ─────────────────────────────────────────────────────────
+(function(){
+  const overlay = document.getElementById('pageOverlay');
+  // fade IN on load (reverse: fade from white to transparent)
+  window.addEventListener('DOMContentLoaded', () => {
+    overlay.classList.add('active');
+    requestAnimationFrame(() => {
+      setTimeout(() => overlay.classList.remove('active'), 350);
+    });
+  });
+
+  // intercept all internal nav links
+  document.addEventListener('click', function(e){
+    const link = e.target.closest('a[href]');
+    if(!link) return;
+    const href = link.getAttribute('href');
+    if(!href || href === '#' || href.startsWith('http') || href.startsWith('mailto') || href.startsWith('data')) return;
+    if(href === window.location.pathname.split('/').pop()) return;
+    e.preventDefault();
+    overlay.classList.add('active');
+    setTimeout(() => { window.location.href = href; }, 280);
+  });
+
+  // also intercept onclick window.location.href calls via button wrapping
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('button[data-nav]');
+    if(btn){
+      e.preventDefault();
+      const dest = btn.getAttribute('data-nav');
+      overlay.classList.add('active');
+      setTimeout(() => { window.location.href = dest; }, 280);
+    }
+  });
+})();
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+const notifData = [
+  { color: '#C0504A', msg: '<strong>Low Stock Alert:</strong> Amoxicillin 500mg — reorder within 5 days', time: '2 min ago', page: 'medicine_panel.html' },
+  { color: '#C8963E', msg: '<strong>Patient Flagged:</strong> Chhanda Shit — BP critical, doctor notified', time: '14 min ago', page: 'report_services.html' },
+  { color: '#1A6B5A', msg: '<strong>New Registration:</strong> Debashish Nag added to WB-MDN cluster', time: '31 min ago', page: 'admin_panel.html' },
+  { color: '#3D4F8A', msg: '<strong>Doctor Camp Today:</strong> Dr. Priya Mukherjee — Pediatrics at 2PM', time: '1 hr ago', page: 'doctor_panel.html' },
+  { color: '#C8963E', msg: '<strong>Queue Alert:</strong> 327 patients in cluster queue — review needed', time: '2 hr ago', page: 'admin_panel.html' },
+];
+
+function buildNotifDropdown(){
+  const wrap = document.getElementById('notifDropdown');
+  if(!wrap) return;
+  let html = `<div class="nd-head"><h4>🔔 Notifications</h4><span class="nd-mark" onclick="markAllRead()">Mark all read</span></div>`;
+  notifData.forEach(n => {
+    html += `<div class="nd-item" onclick="navTo('${n.page}')">
+      <div class="nd-dot" style="background:${n.color}"></div>
+      <div><div class="nd-msg">${n.msg}</div><div class="nd-time">${n.time}</div></div>
+    </div>`;
+  });
+  html += `<div class="nd-footer"><a href="admin_panel.html">View all activity →</a></div>`;
+  wrap.innerHTML = html;
+}
+
+function toggleNotif(){
+  const d = document.getElementById('notifDropdown');
+  const u = document.getElementById('userDropdown');
+  if(u) u.classList.remove('open');
+  d.classList.toggle('open');
+}
+function toggleUser(){
+  const d = document.getElementById('userDropdown');
+  const n = document.getElementById('notifDropdown');
+  if(n) n.classList.remove('open');
+  d.classList.toggle('open');
+}
+function markAllRead(){
+  document.querySelector('.notif-badge') && (document.querySelector('.notif-badge').style.display='none');
+  document.getElementById('notifDropdown').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if(!e.target.closest('.notif-btn-wrap') && !e.target.closest('.notif-dropdown')){
+    document.querySelectorAll('.notif-dropdown').forEach(d=>d.classList.remove('open'));
+  }
+  if(!e.target.closest('.user-btn-wrap') && !e.target.closest('.user-dropdown')){
+    document.querySelectorAll('.user-dropdown').forEach(d=>d.classList.remove('open'));
+  }
+});
+
+function navTo(page){
+  const overlay = document.getElementById('pageOverlay');
+  overlay.classList.add('active');
+  setTimeout(() => { window.location.href = page; }, 280);
+}
+
+buildNotifDropdown();
+
+// ── LIVE CLOCK ────────────────────────────────────────────────────────────────
+function updateClock(){
+  const el = document.querySelector('.date-pill');
+  if(!el) return;
+  const now = new Date();
+  const opts = {weekday:'short',day:'2-digit',month:'short',year:'numeric'};
+  const date = now.toLocaleDateString('en-GB', opts);
+  const time = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  el.textContent = '📅 ' + date + ' · ' + time;
+}
+updateClock();
+setInterval(updateClock, 30000);
+</script>
+
+
+<!-- Floating Dashboard Button -->
+<div onclick="navTo('admin_panel.html')" style="position:fixed;bottom:28px;left:290px;z-index:800;background:var(--text-dark);color:#fff;padding:10px 18px;border-radius:30px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.2);transition:all 0.2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='var(--teal)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--text-dark)';this.style.transform='none'">
+  🏥 <span>Back to Dashboard</span>
+</div>
+
+</body>
+</html>
