@@ -201,6 +201,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 .flag.H{background:rgba(192,80,74,0.1);color:var(--rose);}
 .flag.L{background:rgba(61,79,138,0.1);color:var(--indigo);}
 .flag.N{background:var(--green-dim);color:var(--green);}
+.flag.P{background:rgba(61,79,138,0.1);color:var(--indigo);}
 .ref-range{font-size:12px;color:var(--text-soft);}
 
 /* PRESCRIPTION */
@@ -668,39 +669,289 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 
       <!-- ======== EXAMS TAB ======== -->
       <div class="tab-panel" id="panel-exams" style="margin-top:16px">
-        <div class="two-col">
-          <div>
-            <div class="card" style="margin-bottom:16px">
-              <div class="card-header"><div class="card-title"><span class="cticon">🫃</span> GI / Abdomen Findings</div></div>
-              <div class="card-body" style="display:flex;flex-direction:column;gap:14px" id="exam-gi">
-                <div style="font-size:12px;color:var(--text-soft)">Examination findings recorded at time of visit.</div>
-              </div>
+
+        <!-- EXAM AI SUMMARY RIBBON -->
+        <div style="background:linear-gradient(135deg,#1C2331,#2D3A52);border:1px solid rgba(61,191,160,0.2);border-radius:14px;padding:14px 20px;display:flex;align-items:flex-start;gap:12px;margin-bottom:18px">
+          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--teal-glow),var(--teal));display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🔬</div>
+          <div style="flex:1">
+            <div style="font-size:10px;font-weight:700;color:var(--teal-glow);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">✦ AI Examination Summary</div>
+            <div id="exam-ai-summary" style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">Examination findings loaded from patient record. <strong style="color:rgba(255,255,255,0.9)">Abdominal tenderness (mild, epigastric)</strong> noted. Respiratory and CNS examinations within normal limits. Cardiovascular — tachycardia present consistent with febrile state.</div>
+          </div>
+        </div>
+
+        <!-- ROW 1: GI + Respiratory -->
+        <div class="two-col" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">🫃</span> GI / Abdomen Findings</div>
+              <span class="card-badge amber" id="exam-gi-badge">Mild Finding</span>
             </div>
-            <div class="card">
-              <div class="card-header"><div class="card-title"><span class="cticon">🫁</span> Respiratory Findings</div><span class="card-badge green">Normal</span></div>
-              <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Chest Wall Movements</div><div class="exam-chip-grid"><span class="ec sel">Both sides moving equally</span></div></div>
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Breath Sounds</div><div class="exam-chip-grid"><span class="ec sel">Clear</span></div></div>
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Trachea Position</div><div class="exam-chip-grid"><span class="ec sel">Central</span></div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:14px" id="exam-gi">
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Inspection</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Abdomen flat</span>
+                  <span class="ec sel">No visible pulsations</span>
+                  <span class="ec sel">No distension</span>
+                  <span class="ec sel">No visible peristalsis</span>
+                  <span class="ec">Umbilicus central</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Palpation</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel rose">Mild epigastric tenderness</span>
+                  <span class="ec sel">Soft abdomen</span>
+                  <span class="ec sel">No guarding</span>
+                  <span class="ec sel">No rigidity</span>
+                  <span class="ec sel">No rebound tenderness</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Organomegaly</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Liver — not palpable</span>
+                  <span class="ec sel">Spleen — not palpable</span>
+                  <span class="ec sel">Kidneys — not ballotable</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Percussion / Auscultation</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Tympanic — all quadrants</span>
+                  <span class="ec sel rose">Bowel sounds hyperactive</span>
+                  <span class="ec sel">No ascites</span>
+                </div>
+              </div>
+              <div style="background:var(--teal-dim);border:1px solid rgba(26,107,90,0.15);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--teal)">✦ AI: Hyperactive bowel sounds + epigastric tenderness consistent with acute gastroenteritis. No peritoneal signs.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">🫁</span> Respiratory Findings</div>
+              <span class="card-badge green">Normal</span>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Inspection</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Normal chest shape</span>
+                  <span class="ec sel">Equal bilateral movement</span>
+                  <span class="ec sel">No use of accessory muscles</span>
+                  <span class="ec sel">No intercostal recession</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Palpation</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Trachea — central</span>
+                  <span class="ec sel">Chest expansion — equal</span>
+                  <span class="ec sel">No tenderness</span>
+                  <span class="ec sel">Vocal fremitus — normal</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Percussion</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Resonant — bilateral</span>
+                  <span class="ec sel">No dullness</span>
+                  <span class="ec sel">Cardiac dullness normal</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Auscultation</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Breath sounds — vesicular</span>
+                  <span class="ec sel">No crepitations</span>
+                  <span class="ec sel">No wheeze</span>
+                  <span class="ec sel">No bronchial breathing</span>
+                </div>
+              </div>
+              <div style="background:var(--green-dim);border:1px solid rgba(22,163,74,0.15);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--green)">✦ Respiratory exam entirely normal — no pulmonary involvement in this episode.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 2: CVS + Neuro -->
+        <div class="two-col" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">❤️</span> Cardiovascular Findings</div>
+              <span class="card-badge amber">Tachycardia</span>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Inspection / Palpation</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Apex beat — 5th ICS MCL</span>
+                  <span class="ec sel">No heaves</span>
+                  <span class="ec sel">No thrills</span>
+                  <span class="ec sel">JVP — not raised</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Auscultation</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">S1 — normal</span>
+                  <span class="ec sel">S2 — normal</span>
+                  <span class="ec sel">No S3 / S4</span>
+                  <span class="ec sel">No murmurs</span>
+                  <span class="ec sel rose">HR 104 bpm — tachycardia</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Peripheral Circulation</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Radial pulses — bilaterally equal</span>
+                  <span class="ec sel">Capillary refill — &lt;2s</span>
+                  <span class="ec sel">No pedal edema</span>
+                  <span class="ec sel">Peripheral pulses — present all limbs</span>
+                </div>
+              </div>
+              <div style="background:rgba(200,150,62,0.1);border:1px solid rgba(200,150,62,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--gold)">✦ Tachycardia 104 bpm — likely compensatory (febrile state + early dehydration). Recheck after ORS rehydration.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">🧠</span> Neurological Findings</div>
+              <span class="card-badge green">Normal</span>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Higher Functions</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Alert and oriented ×3</span>
+                  <span class="ec sel">GCS 15/15</span>
+                  <span class="ec sel">Speech — normal</span>
+                  <span class="ec sel">Memory intact</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Cranial Nerves</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Pupils equal, round, reactive</span>
+                  <span class="ec sel">EOMs — full</span>
+                  <span class="ec sel">Facial symmetry — normal</span>
+                  <span class="ec sel">CN II–XII intact</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Motor / Sensory</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Power 5/5 all limbs</span>
+                  <span class="ec sel">Tone — normal</span>
+                  <span class="ec sel">Reflexes — 2+ bilateral</span>
+                  <span class="ec sel">Sensation — intact</span>
+                  <span class="ec sel">Gait — normal</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Signs</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">No neck stiffness</span>
+                  <span class="ec sel">Kernig's — negative</span>
+                  <span class="ec sel">Brudzinski's — negative</span>
+                </div>
+              </div>
+              <div style="background:var(--green-dim);border:1px solid rgba(22,163,74,0.15);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--green)">✦ CNS exam normal — systemic neurological complications not present.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 3: General Exam + MSK -->
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">👁️</span> General Examination</div>
+              <span class="card-badge amber">Dehydration Signs</span>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Build / Appearance</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Well-built male</span>
+                  <span class="ec sel">BMI 23.4 — normal</span>
+                  <span class="ec sel rose">Mildly dehydrated appearance</span>
+                  <span class="ec sel rose">Dry tongue</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Eyes / Conjunctiva</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">No pallor</span>
+                  <span class="ec sel">No icterus</span>
+                  <span class="ec sel">Sunken eyes — mild</span>
+                  <span class="ec sel">No chemosis</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Skin / Hydration</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel rose">Skin turgor — mildly reduced</span>
+                  <span class="ec sel">No cyanosis</span>
+                  <span class="ec sel">No jaundice</span>
+                  <span class="ec sel">No rash / petechiae</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Lymph Nodes</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">Cervical — not palpable</span>
+                  <span class="ec sel">Axillary — not palpable</span>
+                  <span class="ec sel">Inguinal — not palpable</span>
+                </div>
               </div>
             </div>
           </div>
-          <div>
-            <div class="card" style="margin-bottom:16px">
-              <div class="card-header"><div class="card-title"><span class="cticon">🧠</span> Neurological Findings</div><span class="card-badge green">Normal</span></div>
-              <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Consciousness</div><div class="exam-chip-grid"><span class="ec sel">Alert (GCS 15)</span></div></div>
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Pupil Response</div><div class="exam-chip-grid"><span class="ec sel">Equal &amp; Reactive</span></div></div>
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Gait</div><div class="exam-chip-grid"><span class="ec sel">Normal</span></div></div>
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Reflexes</div><div class="exam-chip-grid"><span class="ec sel">Normal</span></div></div>
-              </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">🦴</span> Musculoskeletal / Other</div>
+              <span class="card-badge green">Normal</span>
             </div>
-            <div class="card">
-              <div class="card-header"><div class="card-title"><span class="cticon">❤️</span> Cardiovascular Findings</div></div>
-              <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Heart Sounds</div><div class="exam-chip-grid"><span class="ec sel">S1 &amp; S2 Normal</span></div></div>
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Peripheral Pulses</div><div class="exam-chip-grid"><span class="ec sel">Present bilaterally</span></div></div>
-                <div><div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Pedal Edema</div><div class="exam-chip-grid"><span class="ec sel">None</span></div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Joints</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">No joint swelling</span>
+                  <span class="ec sel">Full ROM all joints</span>
+                  <span class="ec sel">No arthralgia on palpation</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Spine</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">No scoliosis</span>
+                  <span class="ec sel">No spinal tenderness</span>
+                  <span class="ec sel">Normal lumbar lordosis</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Throat / ENT</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel rose">Throat — mildly congested</span>
+                  <span class="ec sel">Tonsils — Grade I</span>
+                  <span class="ec sel">No ear discharge</span>
+                  <span class="ec sel">Nasal — clear</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Genitourinary</div>
+                <div class="exam-chip-grid">
+                  <span class="ec sel">No suprapubic tenderness</span>
+                  <span class="ec sel">No loin tenderness</span>
+                  <span class="ec sel">External genitalia — normal</span>
+                </div>
+              </div>
+              <div style="margin-top:4px;padding:10px 12px;background:var(--ai-dim);border-radius:8px;border:1px solid rgba(26,107,90,0.1)">
+                <div style="font-size:11px;font-weight:600;color:var(--teal);margin-bottom:4px">✦ AI Examination Score</div>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="width:72%;height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-glow));border-radius:3px"></div></div>
+                  <span style="font-size:12px;font-weight:700;color:var(--teal);font-family:'DM Mono',monospace">72%</span>
+                  <span style="font-size:11px;color:var(--text-soft)">Moderate acuity</span>
+                </div>
               </div>
             </div>
           </div>
@@ -709,94 +960,618 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 
       <!-- ======== LAB RESULTS TAB ======== -->
       <div class="tab-panel" id="panel-labs" style="margin-top:16px">
+
+        <!-- LAB SUMMARY CHIPS -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:90px">
+            <div style="font-size:18px;font-weight:700;color:var(--rose);font-family:'DM Mono',monospace" id="labs-abnormal-count">5</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Abnormals</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:90px">
+            <div style="font-size:18px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">3</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Normal</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:90px">
+            <div style="font-size:18px;font-weight:700;color:var(--indigo);font-family:'DM Mono',monospace">2</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Pending</div>
+          </div>
+          <div style="background:var(--teal-dim);border:1px solid rgba(26,107,90,0.2);border-radius:10px;padding:10px 16px;flex:1;min-width:200px">
+            <div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:3px">✦ AI Priority Alert</div>
+            <div style="font-size:12px;color:var(--text-mid)">K⁺ 3.2 + Widal 1:160 + WBC 11.2K — <strong>enteric fever with hypokalemia</strong>. Arrhythmia risk. Immediate potassium replacement.</div>
+          </div>
+        </div>
+
+        <!-- MAIN LAB TABLE -->
         <div class="card" style="margin-bottom:16px">
           <div class="card-header">
-            <div class="card-title"><span class="cticon">🧪</span> Lab Results</div>
-            <span class="card-badge amber" id="labs-badge">—</span>
+            <div class="card-title"><span class="cticon">🧪</span> Complete Blood Count (CBC)</div>
+            <span class="card-badge amber" id="labs-badge">2 Flagged</span>
           </div>
           <div class="card-body" style="padding:0">
             <table class="lab-table">
-              <thead><tr><th>Test / Parameter</th><th>Result</th><th>Ref Range</th><th>AI Note</th></tr></thead>
+              <thead><tr><th>Parameter</th><th>Result</th><th>Reference Range</th><th>Flag</th><th>✦ AI Note</th></tr></thead>
               <tbody id="lab-tbody">
-                <tr><td colspan="4" style="text-align:center;color:var(--text-soft);padding:24px">Loading lab results…</td></tr>
+                <tr>
+                  <td style="font-weight:500">Haemoglobin (Hb)</td>
+                  <td><span class="result-val ok">13.8 g/dL</span></td>
+                  <td class="ref-range">13.0 – 17.0 g/dL</td>
+                  <td><span class="flag N">N</span></td>
+                  <td style="font-size:12px;color:var(--text-soft)">Normal range</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Total WBC Count</td>
+                  <td><span class="result-val high">11,200 /µL</span></td>
+                  <td class="ref-range">4,000 – 10,000 /µL</td>
+                  <td><span class="flag H">H</span></td>
+                  <td style="font-size:12px;color:var(--teal)">✦ Bacterial infection likely</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Neutrophils</td>
+                  <td><span class="result-val high">78%</span></td>
+                  <td class="ref-range">40 – 70%</td>
+                  <td><span class="flag H">H</span></td>
+                  <td style="font-size:12px;color:var(--teal)">✦ Left shift possible — bacterial</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Lymphocytes</td>
+                  <td><span class="result-val ok">16%</span></td>
+                  <td class="ref-range">20 – 40%</td>
+                  <td><span class="flag N">N</span></td>
+                  <td style="font-size:12px;color:var(--text-soft)">Relatively low — acute phase</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Eosinophils</td>
+                  <td><span class="result-val ok">2%</span></td>
+                  <td class="ref-range">1 – 4%</td>
+                  <td><span class="flag N">N</span></td>
+                  <td style="font-size:12px;color:var(--text-soft)">Normal</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Platelet Count</td>
+                  <td><span class="result-val ok">2,10,000 /µL</span></td>
+                  <td class="ref-range">1,50,000 – 4,00,000</td>
+                  <td><span class="flag N">N</span></td>
+                  <td style="font-size:12px;color:var(--text-soft)">Normal — dengue ruled out</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Haematocrit (PCV)</td>
+                  <td><span class="result-val ok">42%</span></td>
+                  <td class="ref-range">40 – 50%</td>
+                  <td><span class="flag N">N</span></td>
+                  <td style="font-size:12px;color:var(--text-soft)">Normal — no haemoconcentration</td>
+                </tr>
               </tbody>
             </table>
           </div>
-          <div style="padding:12px 16px;background:var(--ai-dim);border-top:1px solid var(--border)">
-            <div style="font-size:11px;color:var(--teal);">✦ AI Lab Interpretation: <span id="labs-ai-note">Analyzing patient lab results…</span></div>
+          <div style="padding:10px 16px;background:var(--ai-dim);border-top:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--teal);">✦ CBC AI Interpretation: <span id="labs-ai-note">WBC 11.2K with 78% neutrophilia — consistent with bacterial infection. Enteric fever (typhoid) is primary suspect. Platelet count normal — dengue haemorrhagic fever unlikely.</span></div>
+          </div>
+        </div>
+
+        <!-- BIOCHEMISTRY -->
+        <div class="two-col" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">⚗️</span> Biochemistry Panel</div>
+              <span class="card-badge rose">2 Critical</span>
+            </div>
+            <div class="card-body" style="padding:0">
+              <table class="lab-table">
+                <thead><tr><th>Test</th><th>Result</th><th>Ref Range</th><th>Flag</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight:500">Serum Potassium (K⁺)</td>
+                    <td><span class="result-val high">3.2 mEq/L</span></td>
+                    <td class="ref-range">3.5 – 5.0</td>
+                    <td><span class="flag H">L</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Serum Sodium (Na⁺)</td>
+                    <td><span class="result-val ok">136 mEq/L</span></td>
+                    <td class="ref-range">135 – 145</td>
+                    <td><span class="flag N">N</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Serum Chloride (Cl⁻)</td>
+                    <td><span class="result-val ok">101 mEq/L</span></td>
+                    <td class="ref-range">96 – 106</td>
+                    <td><span class="flag N">N</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Blood Urea</td>
+                    <td><span class="result-val ok">28 mg/dL</span></td>
+                    <td class="ref-range">15 – 40</td>
+                    <td><span class="flag N">N</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Serum Creatinine</td>
+                    <td><span class="result-val ok">0.9 mg/dL</span></td>
+                    <td class="ref-range">0.7 – 1.2</td>
+                    <td><span class="flag N">N</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">CRP (C-Reactive Protein)</td>
+                    <td><span class="result-val high">24 mg/L</span></td>
+                    <td class="ref-range">&lt; 5 mg/L</td>
+                    <td><span class="flag H">H</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Serum Glucose (Random)</td>
+                    <td><span class="result-val ok">98 mg/dL</span></td>
+                    <td class="ref-range">70 – 140 (random)</td>
+                    <td><span class="flag N">N</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="padding:10px 16px;background:var(--ai-dim);border-top:1px solid var(--border)">
+                <div style="font-size:11px;color:var(--teal);">✦ K⁺ 3.2 — critically low. Potassium replacement started. CRP 24 confirms active systemic inflammation. Renal function preserved.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">🦠</span> Serology / Microbiology</div>
+              <span class="card-badge rose">Widal Positive</span>
+            </div>
+            <div class="card-body" style="padding:0">
+              <table class="lab-table">
+                <thead><tr><th>Test</th><th>Result</th><th>Cut-off</th><th>Flag</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight:500">Widal — S. Typhi O</td>
+                    <td><span class="result-val high">1 : 160</span></td>
+                    <td class="ref-range">&lt; 1:80 (endemic)</td>
+                    <td><span class="flag H">H</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Widal — S. Typhi H</td>
+                    <td><span class="result-val ok">1 : 40</span></td>
+                    <td class="ref-range">&lt; 1:80</td>
+                    <td><span class="flag N">N</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Widal — Paratyphi AO</td>
+                    <td><span class="result-val ok">Negative</span></td>
+                    <td class="ref-range">Negative</td>
+                    <td><span class="flag N">N</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Dengue NS1 Antigen</td>
+                    <td><span class="result-val ok">Negative</span></td>
+                    <td class="ref-range">Negative</td>
+                    <td><span class="flag N">N</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Malaria RDT (P.falciparum)</td>
+                    <td><span class="result-val ok">Negative</span></td>
+                    <td class="ref-range">Negative</td>
+                    <td><span class="flag N">N</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Stool Culture</td>
+                    <td><span class="result-val warn">Pending 48h</span></td>
+                    <td class="ref-range">No pathogen</td>
+                    <td><span class="flag H">P</span></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:500">Blood Culture</td>
+                    <td><span class="result-val warn">Pending 72h</span></td>
+                    <td class="ref-range">No growth</td>
+                    <td><span class="flag H">P</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="padding:10px 16px;background:var(--ai-dim);border-top:1px solid var(--border)">
+                <div style="font-size:11px;color:var(--teal);">✦ Widal S.Typhi O 1:160 — significant titre. Dengue + Malaria excluded. Blood culture gold standard — await 72h. Azithromycin empirically started.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STOOL RE -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="cticon">🔬</span> Stool Routine Examination (RE)</div>
+            <span class="card-badge amber">Findings Present</span>
+          </div>
+          <div class="card-body" style="padding:0">
+            <table class="lab-table">
+              <thead><tr><th>Parameter</th><th>Result</th><th>Normal</th><th>Significance</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:500">Consistency</td>
+                  <td><span class="result-val high">Loose / watery</span></td>
+                  <td class="ref-range">Formed</td>
+                  <td style="font-size:12px;color:var(--teal)">Active diarrhoea</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Colour</td>
+                  <td><span class="result-val ok">Yellow-brown</span></td>
+                  <td class="ref-range">Brown</td>
+                  <td style="font-size:12px;color:var(--text-soft)">Normal colour</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Mucus</td>
+                  <td><span class="result-val high">Present (+)</span></td>
+                  <td class="ref-range">Absent</td>
+                  <td style="font-size:12px;color:var(--teal)">Intestinal irritation</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Blood</td>
+                  <td><span class="result-val ok">Absent</span></td>
+                  <td class="ref-range">Absent</td>
+                  <td style="font-size:12px;color:var(--green)">No dysentery</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Pus Cells (WBC)</td>
+                  <td><span class="result-val high">4–6 / HPF</span></td>
+                  <td class="ref-range">&lt; 3 / HPF</td>
+                  <td style="font-size:12px;color:var(--teal)">✦ Mild inflammatory response</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">RBC</td>
+                  <td><span class="result-val ok">Absent</span></td>
+                  <td class="ref-range">Absent</td>
+                  <td style="font-size:12px;color:var(--green)">No haemorrhage</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Ova / Cysts / Parasites</td>
+                  <td><span class="result-val ok">Not seen</span></td>
+                  <td class="ref-range">Not seen</td>
+                  <td style="font-size:12px;color:var(--green)">Parasitic cause excluded</td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="padding:10px 16px;background:var(--ai-dim);border-top:1px solid var(--border)">
+              <div style="font-size:11px;color:var(--teal);">✦ AI Stool Analysis: Mucus + pus cells — bacterial gastroenteritis. No blood/RBCs → dysentery unlikely. No parasites. Consistent with Salmonella typhi GI involvement. Culture result pending.</div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- ======== REPORTS TAB ======== -->
       <div class="tab-panel" id="panel-reports" style="margin-top:16px">
-        <div class="two-col">
+
+        <!-- AI VISION ANALYSIS BANNER -->
+        <div style="background:linear-gradient(135deg,#1C2331,#2D3A52);border:1px solid rgba(61,191,160,0.2);border-radius:14px;padding:14px 20px;display:flex;gap:14px;align-items:flex-start;margin-bottom:18px">
+          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--purple),#9f7be0);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">👁️</div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#c4b5fd;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">✦ AI Vision Analysis — Apr 25, 2025</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6"><strong style="color:rgba(255,255,255,0.95)">Tongue:</strong> Dry, mildly coated white. Dehydration indicator. <strong style="color:rgba(255,255,255,0.95)">Conjunctiva:</strong> No pallor, no icterus. <strong style="color:rgba(255,255,255,0.95)">Abdomen photo:</strong> No visible distension. No skin rash or petechiae. Consistent with acute GE + febrile state.</div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-bottom:16px">
+          <!-- CLINICAL PHOTOS -->
           <div class="card">
-            <div class="card-header"><div class="card-title"><span class="cticon">📷</span> Clinical Photos</div><span class="card-badge teal">3 uploaded</span></div>
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">📷</span> Clinical Photos</div>
+              <span class="card-badge teal">5 uploaded</span>
+            </div>
             <div class="card-body">
               <div class="photo-grid">
-                <div class="photo-thumb">👅<div class="photo-label">Tongue</div></div>
+                <div class="photo-thumb" style="border-color:var(--teal)">👅<div class="photo-label">Tongue</div></div>
                 <div class="photo-thumb">🫃<div class="photo-label">Abdomen</div></div>
                 <div class="photo-thumb">👁️<div class="photo-label">Eyes</div></div>
-                <div class="photo-thumb" style="border-style:dashed;color:var(--text3)">+<div class="photo-label">Add Photo</div></div>
+                <div class="photo-thumb">🤲<div class="photo-label">Palmar pallor</div></div>
+                <div class="photo-thumb">🦷<div class="photo-label">Throat</div></div>
+                <div class="photo-thumb" id="addPhotoBtn" style="border-style:dashed;color:var(--text3)" onclick="document.getElementById('photoUploadInput').click()">+<div class="photo-label">Add Photo</div></div>
+                <input type="file" id="photoUploadInput" accept="image/*" multiple style="display:none">
               </div>
-              <div style="margin-top:12px;background:var(--ai-dim);border:1px solid rgba(167,139,250,0.15);border-radius:8px;padding:10px;">
-                <div style="font-size:11px;color:var(--ai);font-weight:600;margin-bottom:4px;">✦ AI Vision Analysis</div>
-                <div style="font-size:12px;color:var(--text-mid);">Tongue: <strong>Normal color and moisture</strong>. No coating detected. Abdomen: <strong>No visible distension</strong>.</div>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;gap:10px;align-items:flex-start">
+                  <span style="font-size:16px;flex-shrink:0">👅</span>
+                  <div><div style="font-size:12px;font-weight:600;color:var(--text-dark)">Tongue</div><div style="font-size:11px;color:var(--text-mid);margin-top:2px">Dry, mild white coating. Suggests dehydration. Colour — normal pink base.</div></div>
+                </div>
+                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;gap:10px;align-items:flex-start">
+                  <span style="font-size:16px;flex-shrink:0">👁️</span>
+                  <div><div style="font-size:12px;font-weight:600;color:var(--text-dark)">Eyes / Conjunctiva</div><div style="font-size:11px;color:var(--text-mid);margin-top:2px">No pallor. Sclera clear — no icterus. Mild periorbital dullness.</div></div>
+                </div>
+                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;gap:10px;align-items:flex-start">
+                  <span style="font-size:16px;flex-shrink:0">🦷</span>
+                  <div><div style="font-size:12px;font-weight:600;color:var(--text-dark)">Throat</div><div style="font-size:11px;color:var(--rose);margin-top:2px">Mildly congested posterior pharynx. Tonsils Grade I. No exudates.</div></div>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- ATTACHED REPORTS -->
           <div class="card">
-            <div class="card-header"><div class="card-title"><span class="cticon">📄</span> Attached Reports</div></div>
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">📄</span> Attached Reports & Documents</div>
+              <span class="card-badge blue">6 files</span>
+            </div>
             <div class="card-body" id="reports-list" style="display:flex;flex-direction:column;gap:8px">
               <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center">
-                <span style="font-size:20px">📊</span>
-                <div style="flex:1"><div style="font-size:13px;font-weight:500">Lab Report.pdf</div><div style="font-size:11px;color:var(--text3)">Latest episode</div></div>
-                <div style="font-size:11px;color:var(--teal);cursor:pointer">View</div>
+                <span style="font-size:20px">🧪</span>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:500">CBC_Report_Apr25.pdf</div>
+                  <div style="font-size:11px;color:var(--text-soft)">EP-007 · Uploaded Apr 25, 2025 · 1.2 MB</div>
+                </div>
+                <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--rose-dim);color:var(--rose)">2 Flags</span>
+                <div style="font-size:11px;color:var(--teal);cursor:pointer;font-weight:600">View</div>
               </div>
-              <div style="background:var(--ivory);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center;cursor:pointer">
+              <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center">
+                <span style="font-size:20px">⚗️</span>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:500">Biochemistry_Panel_Apr25.pdf</div>
+                  <div style="font-size:11px;color:var(--text-soft)">EP-007 · Serum K⁺, Na⁺, CRP, Glucose · 0.9 MB</div>
+                </div>
+                <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--rose-dim);color:var(--rose)">K⁺ Low</span>
+                <div style="font-size:11px;color:var(--teal);cursor:pointer;font-weight:600">View</div>
+              </div>
+              <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center">
+                <span style="font-size:20px">🦠</span>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:500">Widal_Test_Apr25.pdf</div>
+                  <div style="font-size:11px;color:var(--text-soft)">EP-007 · S.Typhi O 1:160 · 0.4 MB</div>
+                </div>
+                <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:rgba(200,150,62,0.1);color:var(--gold)">Positive</span>
+                <div style="font-size:11px;color:var(--teal);cursor:pointer;font-weight:600">View</div>
+              </div>
+              <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center">
+                <span style="font-size:20px">🔬</span>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:500">Stool_RE_Apr25.pdf</div>
+                  <div style="font-size:11px;color:var(--text-soft)">EP-007 · Mucus present, pus cells 4-6/HPF · 0.3 MB</div>
+                </div>
+                <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:rgba(200,150,62,0.1);color:var(--gold)">Abnormal</span>
+                <div style="font-size:11px;color:var(--teal);cursor:pointer;font-weight:600">View</div>
+              </div>
+              <div style="background:var(--ivory);border:1px dashed var(--border);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center;opacity:0.7">
+                <span style="font-size:20px">⏳</span>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:500;color:var(--text-mid)">Stool_Culture — awaiting result</div>
+                  <div style="font-size:11px;color:var(--text-soft)">EP-007 · Sent Apr 25 · Expected by Apr 27</div>
+                </div>
+                <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--blue-dim);color:var(--blue)">Pending</span>
+              </div>
+              <div style="background:var(--ivory);border:1px solid rgba(61,191,160,0.2);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center;cursor:pointer">
                 <span style="font-size:20px">✦</span>
-                <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--teal)">AI Summary Report</div><div style="font-size:11px;color:var(--text3)">Auto-generated</div></div>
-                <div style="font-size:11px;color:var(--ai);cursor:pointer">Generate</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:500;color:var(--teal)">AI Clinical Summary Report</div>
+                  <div style="font-size:11px;color:var(--text-soft)">Auto-generated — EP-007 · Dr. Arnav Sen</div>
+                </div>
+                <div style="font-size:11px;color:var(--teal);cursor:pointer;font-weight:600;padding:5px 12px;border-radius:6px;background:var(--teal-dim);border:1px solid rgba(26,107,90,0.2)">Generate</div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- PREVIOUS REPORTS HISTORY -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="cticon">🗂️</span> Past Reports Archive</div>
+            <span class="card-badge teal">All episodes</span>
+          </div>
+          <div class="card-body" style="padding:0">
+            <table class="fu-table">
+              <thead><tr><th>Episode</th><th>Date</th><th>Report Type</th><th>Key Finding</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:500;color:var(--teal)">EP-007</td>
+                  <td>Apr 25, 2025</td>
+                  <td>CBC, Widal, Biochemistry, Stool RE</td>
+                  <td style="font-size:12px;color:var(--rose)">WBC↑, K⁺↓, Widal+</td>
+                  <td><span style="color:var(--amber);font-size:12px;font-weight:600">Active</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500;color:var(--text-mid)">EP-006</td>
+                  <td>Jan 15, 2025</td>
+                  <td>CBC, Throat swab culture</td>
+                  <td style="font-size:12px;color:var(--green)">All normal — viral URI</td>
+                  <td><span style="color:var(--green);font-size:12px;font-weight:600">Archived</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500;color:var(--text-mid)">EP-005</td>
+                  <td>Oct 08, 2024</td>
+                  <td>IgE, Eosinophil count, Skin prick test</td>
+                  <td style="font-size:12px;color:var(--gold)">IgE mildly elevated</td>
+                  <td><span style="color:var(--green);font-size:12px;font-weight:600">Archived</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500;color:var(--text-mid)">EP-004</td>
+                  <td>Jul 22, 2024</td>
+                  <td>UGI endoscopy referral, H.pylori RUT</td>
+                  <td style="font-size:12px;color:var(--rose)">H.pylori negative — acute gastritis</td>
+                  <td><span style="color:var(--green);font-size:12px;font-weight:600">Archived</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500;color:var(--text-mid)">EP-003</td>
+                  <td>Mar 10, 2024</td>
+                  <td>Annual Health Screen — CBC, LFT, RFT, FBS, Lipids</td>
+                  <td style="font-size:12px;color:var(--green)">All within normal limits</td>
+                  <td><span style="color:var(--green);font-size:12px;font-weight:600">Archived</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
       <!-- ======== PRESCRIPTION TAB ======== -->
       <div class="tab-panel" id="panel-prescription" style="margin-top:16px">
+
+        <!-- RX HEADER STATS -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--teal);font-family:'DM Mono',monospace">5</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Medicines</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--rose);font-family:'DM Mono',monospace">1</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Allergy Alert</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">0</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Interactions</div>
+          </div>
+          <div style="background:var(--teal-dim);border:1px solid rgba(26,107,90,0.2);border-radius:10px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:2px">✦ AI Drug Check</div>
+            <div style="font-size:11px;color:var(--text-mid)">⚠ Penicillin allergy — Azithromycin selected safely.</div>
+          </div>
+        </div>
+
         <div class="sidebar-layout">
+          <!-- MAIN PRESCRIPTION LIST -->
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="cticon">💊</span> Prescriptions</div>
-              <span class="card-badge teal" id="rx-badge">—</span>
+              <div class="card-title"><span class="cticon">💊</span> Prescription — EP-007</div>
+              <span class="card-badge teal" id="rx-badge">5 medicines</span>
             </div>
             <div class="card-body">
               <div class="rx-list" id="rx-list">
-                <div style="color:var(--text-soft);font-size:13px">Loading prescriptions…</div>
+
+                <!-- Medicine 1 -->
+                <div class="rx-item">
+                  <div class="rx-icon" style="background:rgba(200,150,62,0.12)">🌡️</div>
+                  <div style="flex:1">
+                    <div class="rx-name">Tab. Paracetamol 500 mg</div>
+                    <div class="rx-dose">TID — 8:00 AM · 2:00 PM · 8:00 PM · After food</div>
+                    <div class="rx-dur">Duration: 3 days · Route: Oral · ⚠ Do not exceed 4 tabs/day</div>
+                  </div>
+                  <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:rgba(200,150,62,0.1);color:var(--gold);border:1px solid rgba(200,150,62,0.2)">Fever</div>
+                  </div>
+                </div>
+
+                <!-- Medicine 2 -->
+                <div class="rx-item">
+                  <div class="rx-icon" style="background:rgba(61,191,160,0.1)">🦠</div>
+                  <div style="flex:1">
+                    <div class="rx-name">Tab. Metronidazole 400 mg</div>
+                    <div class="rx-dose">TID — 8:00 AM · 2:00 PM · 8:00 PM · After food</div>
+                    <div class="rx-dur">Duration: 5 days · Route: Oral · Avoid alcohol during course</div>
+                  </div>
+                  <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--teal-dim);color:var(--teal);border:1px solid rgba(26,107,90,0.2)">GI Infection</div>
+                  </div>
+                </div>
+
+                <!-- Medicine 3 -->
+                <div class="rx-item" style="border-color:rgba(26,107,90,0.2)">
+                  <div class="rx-icon" style="background:rgba(26,107,90,0.1)">💉</div>
+                  <div style="flex:1">
+                    <div class="rx-name">Tab. Azithromycin 500 mg</div>
+                    <div class="rx-dose">OD — Once daily · Before food (empty stomach)</div>
+                    <div class="rx-dur">Duration: 7 days · Route: Oral · ⚠ Penicillin allergy → Azithromycin selected for enteric fever</div>
+                    <div class="rx-ai" style="color:var(--teal)">✦ AI: Widal O 1:160 confirmed → empirical Azithromycin warranted. Safe in Penicillin allergy.</div>
+                  </div>
+                  <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--teal-dim);color:var(--teal);border:1px solid rgba(26,107,90,0.2)">Typhoid Rx</div>
+                  </div>
+                </div>
+
+                <!-- Medicine 4 -->
+                <div class="rx-item">
+                  <div class="rx-icon" style="background:rgba(61,79,138,0.08)">🧫</div>
+                  <div style="flex:1">
+                    <div class="rx-name">Saccharomyces boulardii (Probiotic) 250 mg</div>
+                    <div class="rx-dose">BD — Twice daily · With meals (Breakfast &amp; Dinner)</div>
+                    <div class="rx-dur">Duration: 5 days · Route: Oral · Do not take with antibiotics — separate by 2h</div>
+                  </div>
+                  <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--blue-dim);color:var(--blue);border:1px solid rgba(61,79,138,0.2)">Probiotic</div>
+                  </div>
+                </div>
+
+                <!-- Medicine 5 -->
+                <div class="rx-item" style="border-color:rgba(192,80,74,0.2)">
+                  <div class="rx-icon" style="background:rgba(192,80,74,0.08)">⚡</div>
+                  <div style="flex:1">
+                    <div class="rx-name">Syp. Potassium Chloride 15 mL</div>
+                    <div class="rx-dose">BD — Morning &amp; Evening · Dilute in 100mL water before drinking</div>
+                    <div class="rx-dur">Duration: 3 days · Route: Oral · Indication: K⁺ = 3.2 mEq/L (hypokalemia)</div>
+                    <div class="rx-ai" style="color:var(--rose)">✦ Critical: K⁺ 3.2 — arrhythmia risk if untreated. Potassium replacement mandatory.</div>
+                  </div>
+                  <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--rose-dim);color:var(--rose);border:1px solid rgba(192,80,74,0.2)">K⁺ Replace</div>
+                  </div>
+                </div>
+
+                <!-- ORS -->
+                <div class="rx-item" style="background:linear-gradient(135deg,rgba(22,163,74,0.03),rgba(61,191,160,0.03));border-color:rgba(22,163,74,0.2)">
+                  <div class="rx-icon" style="background:rgba(22,163,74,0.1)">💧</div>
+                  <div style="flex:1">
+                    <div class="rx-name" style="color:var(--green)">ORS (Oral Rehydration Solution)</div>
+                    <div class="rx-dose">200 mL after every loose stool · Minimum 1.5 L total per day</div>
+                    <div class="rx-dur">Duration: Until diarrhoea resolves · Route: Oral · Essential for rehydration</div>
+                  </div>
+                  <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">Hydration</div>
+                  </div>
+                </div>
+
               </div>
-              <div style="margin-top:14px;padding:12px;background:var(--ai-dim);border-radius:8px;border:1px solid rgba(167,139,250,0.15)">
-                <div style="font-size:11px;color:var(--ai);font-weight:600;margin-bottom:6px;">✦ AI Drug Safety Check</div>
-                <div style="font-size:12px;color:var(--text-mid);line-height:1.5;" id="rx-allergy-note">Checking allergy interactions…</div>
+
+              <!-- AI Drug Safety Check -->
+              <div style="margin-top:14px;padding:12px;background:var(--ai-dim);border-radius:8px;border:1px solid rgba(26,107,90,0.12)">
+                <div style="font-size:11px;color:var(--teal);font-weight:600;margin-bottom:6px;">✦ AI Drug Safety Check</div>
+                <div style="font-size:12px;color:var(--text-mid);line-height:1.5;" id="rx-allergy-note">⚠ <strong>Penicillin allergy</strong> documented — Azithromycin chosen for enteric fever (safe alternative). No drug-drug interactions detected in current prescription. Metronidazole + Azithromycin: QTc monitoring recommended if patient has cardiac history (none known). ✓ Probiotic separated from antibiotics — instruction given.</div>
               </div>
             </div>
           </div>
+
+          <!-- SIDE PANEL -->
           <div>
-            <div class="card" style="margin-bottom:16px">
-              <div class="card-header"><div class="card-title">🥗 Diet &amp; Lifestyle</div></div>
-              <div class="card-body" id="diet-list" style="display:flex;flex-direction:column;gap:8px">
-                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid);">🍌 <strong style="color:var(--text-dark)">Balanced diet</strong> — follow physician advice</div>
-                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid);">💧 <strong style="color:var(--text-dark)">Adequate hydration</strong> — minimum 2L/day</div>
-                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid);">🛏️ Rest — as advised by treating physician</div>
+            <!-- DISPENSING SCHEDULE -->
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-header"><div class="card-title">🕐 Dosing Schedule</div></div>
+              <div class="card-body" style="padding:0">
+                <table style="width:100%;border-collapse:collapse;font-size:12px">
+                  <thead>
+                    <tr style="background:#FAFAF8;border-bottom:1px solid var(--border)">
+                      <th style="padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-soft)">Time</th>
+                      <th style="padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-soft)">Medicines</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="border-bottom:1px solid var(--border)">
+                      <td style="padding:9px 12px;font-weight:600;color:var(--gold)">🌅 8:00 AM</td>
+                      <td style="padding:9px 12px;color:var(--text-mid)">Azithromycin, Paracetamol, KCl, Probiotic</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--border)">
+                      <td style="padding:9px 12px;font-weight:600;color:var(--text-mid)">☀️ 2:00 PM</td>
+                      <td style="padding:9px 12px;color:var(--text-mid)">Paracetamol, Metronidazole</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--border)">
+                      <td style="padding:9px 12px;font-weight:600;color:var(--indigo)">🌙 8:00 PM</td>
+                      <td style="padding:9px 12px;color:var(--text-mid)">Paracetamol, Metronidazole, KCl, Probiotic</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:9px 12px;font-weight:600;color:var(--green)">💧 PRN</td>
+                      <td style="padding:9px 12px;color:var(--text-mid)">ORS after each loose stool</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
+
+            <!-- DIET & LIFESTYLE -->
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-header"><div class="card-title">🥗 Diet &amp; Lifestyle</div></div>
+              <div class="card-body" id="diet-list" style="display:flex;flex-direction:column;gap:7px">
+                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid)">🍌 <strong style="color:var(--text-dark)">BRAT diet</strong> — Banana, Rice, Applesauce, Toast. Avoid spicy/oily food</div>
+                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid)">💧 <strong style="color:var(--text-dark)">Hydration:</strong> ORS + water minimum 2.5L/day. Coconut water beneficial</div>
+                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid)">🛏️ <strong style="color:var(--text-dark)">Complete rest</strong> — no school/work until afebrile for 24 hours</div>
+                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid)">🚫 <strong style="color:var(--text-dark)">Avoid:</strong> Dairy products, raw vegetables, street food, alcohol</div>
+                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid)">🧼 <strong style="color:var(--text-dark)">Hygiene:</strong> Hand wash before eating. Drink only boiled/filtered water</div>
+                <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid)">📊 <strong style="color:var(--text-dark)">Monitoring:</strong> Record stool frequency, count stools, note blood/mucus</div>
+              </div>
+            </div>
+
+            <!-- RED FLAGS -->
             <div class="card">
-              <div class="card-header"><div class="card-title">⚠️ Red Flags</div><span class="card-badge rose">Urgent</span></div>
+              <div class="card-header"><div class="card-title">🚨 Red Flag Signs</div><span class="card-badge rose">Return Immediately</span></div>
               <div class="card-body" id="redflags-list" style="display:flex;flex-direction:column;gap:6px">
-                <div style="background:var(--rose-dim);border:1px solid rgba(255,107,107,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--rose);">Return immediately if symptoms worsen significantly</div>
-                <div style="background:var(--rose-dim);border:1px solid rgba(255,107,107,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--rose);">Unable to retain food or fluids</div>
-                <div style="background:var(--rose-dim);border:1px solid rgba(255,107,107,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--rose);">High fever not responding to medication</div>
+                <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--rose)">🔴 <strong>Blood in stool</strong> — go to ER immediately</div>
+                <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--rose)">🔴 <strong>Unable to retain any fluids</strong> — IV hydration needed</div>
+                <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--rose)">🔴 <strong>Fever &gt;103°F</strong> not responding to Paracetamol</div>
+                <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--rose)">🔴 <strong>Confusion, altered consciousness</strong> or seizures</div>
+                <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--rose)">🔴 <strong>Muscle cramps or irregular heartbeat</strong> — K⁺ critical drop</div>
+                <div style="background:rgba(200,150,62,0.08);border:1px solid rgba(200,150,62,0.2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--gold)">⚠ <strong>Stool frequency &gt;8×/day</strong> or signs of severe dehydration</div>
+                <div style="margin-top:4px;padding:9px 12px;background:var(--teal-dim);border-radius:8px;font-size:12px;color:var(--teal)">📞 Emergency: Dr. Arnav Sen — +91 98324 27873 (OPD hours) or nearest ER</div>
               </div>
             </div>
           </div>
@@ -805,14 +1580,266 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 
       <!-- ======== EPISODES TAB ======== -->
       <div class="tab-panel" id="panel-episodes" style="margin-top:16px">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title"><span class="cticon">📋</span> All Episodes — <span id="ep-name">—</span></div>
-            <span class="card-badge teal" id="ep-count-badge">—</span>
+
+        <!-- EPISODE STATS -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--teal);font-family:'DM Mono',monospace">7</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Total Episodes</div>
           </div>
-          <div class="card-body">
-            <div class="timeline" id="timeline-list" style="padding:0">
-              <div style="font-size:13px;color:var(--text-soft)">Loading episode history…</div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace">1</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Active</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">6</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Closed</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--indigo);font-family:'DM Mono',monospace">3</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Years Patient</div>
+          </div>
+          <div style="background:var(--teal-dim);border:1px solid rgba(26,107,90,0.2);border-radius:10px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:2px">✦ AI Pattern</div>
+            <div style="font-size:11px;color:var(--text-mid)">GI episodes recurring. EP-004 similar in Jul '24. Assess water source.</div>
+          </div>
+        </div>
+
+        <div class="sidebar-layout">
+          <!-- TIMELINE -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="cticon">🗓️</span> Episode History — <span id="ep-name">Rohan Das</span></div>
+              <span class="card-badge teal" id="ep-count-badge">7 episodes</span>
+            </div>
+            <div class="card-body">
+              <div class="timeline" id="timeline-list" style="padding:0">
+
+                <!-- EP-007 -->
+                <div class="tl-item">
+                  <div class="tl-dot-col">
+                    <div class="tl-dot" style="background:var(--amber);width:16px;height:16px;border:3px solid rgba(200,150,62,0.3)"></div>
+                    <div class="tl-line"></div>
+                  </div>
+                  <div class="tl-content">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                      <div class="tl-title">EP-007 · Acute Gastroenteritis + Suspected Typhoid (Active)</div>
+                      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:rgba(200,150,62,0.1);color:var(--gold);border:1px solid rgba(200,150,62,0.2)">ACTIVE</span>
+                    </div>
+                    <div class="tl-meta">Apr 25, 2025 · OPD · Dr. Arnav Sen · WB-BRH Cluster</div>
+                    <div class="tl-tags">
+                      <span class="tl-tag" style="color:var(--rose)">🔴 Fever 102.1°F</span>
+                      <span class="tl-tag" style="color:var(--rose)">💓 Tachycardia 104 bpm</span>
+                      <span class="tl-tag" style="color:var(--gold)">🧪 Widal O 1:160</span>
+                      <span class="tl-tag" style="color:var(--rose)">⚡ K⁺ 3.2 Low</span>
+                    </div>
+                    <div style="margin-top:8px;background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+                      <div style="font-size:11px;font-weight:600;color:var(--text-dark);margin-bottom:4px">Chief Complaint</div>
+                      <div style="font-size:12px;color:var(--text-mid)">Acidity, loose stools 4×/day for 3 days, fever since yesterday, one episode of fainting, crampy abdominal pain, reduced appetite and general weakness.</div>
+                    </div>
+                    <div style="margin-top:6px;background:var(--teal-dim);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--teal)">✦ AI: EP-007 mirrors EP-004 presentation. Possible recurring GI susceptibility — assess water/food habits. Enteric fever empirically treated.</div>
+                  </div>
+                </div>
+
+                <!-- EP-006 -->
+                <div class="tl-item">
+                  <div class="tl-dot-col">
+                    <div class="tl-dot" style="background:var(--green)"></div>
+                    <div class="tl-line"></div>
+                  </div>
+                  <div class="tl-content">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                      <div class="tl-title">EP-006 · Upper Respiratory Infection — Closed</div>
+                      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">CLOSED</span>
+                    </div>
+                    <div class="tl-meta">Jan 15, 2025 · OPD · Dr. Arnav Sen</div>
+                    <div class="tl-tags">
+                      <span class="tl-tag">Common Cold + Low-grade Fever</span>
+                      <span class="tl-tag">Cetirizine + Paracetamol</span>
+                      <span class="tl-tag" style="color:var(--green)">Resolved in 5 days</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- EP-005 -->
+                <div class="tl-item">
+                  <div class="tl-dot-col">
+                    <div class="tl-dot" style="background:var(--green)"></div>
+                    <div class="tl-line"></div>
+                  </div>
+                  <div class="tl-content">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                      <div class="tl-title">EP-005 · Seasonal Allergic Rhinitis — Closed</div>
+                      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">CLOSED</span>
+                    </div>
+                    <div class="tl-meta">Oct 08, 2024 · OPD · Dr. Arnav Sen</div>
+                    <div class="tl-tags">
+                      <span class="tl-tag">Sneezing, Rhinorrhoea, Eye Itching</span>
+                      <span class="tl-tag">Cetirizine 10mg OD × 2 weeks</span>
+                      <span class="tl-tag" style="color:var(--gold)">Seasonal recurrence noted</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- EP-004 -->
+                <div class="tl-item">
+                  <div class="tl-dot-col">
+                    <div class="tl-dot" style="background:var(--gold)"></div>
+                    <div class="tl-line"></div>
+                  </div>
+                  <div class="tl-content">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                      <div class="tl-title">EP-004 · Acute Gastritis — Closed</div>
+                      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">CLOSED</span>
+                    </div>
+                    <div class="tl-meta">Jul 22, 2024 · OPD · Dr. Arnav Sen</div>
+                    <div class="tl-tags">
+                      <span class="tl-tag">Acidity, Epigastric Pain, Nausea</span>
+                      <span class="tl-tag">PPI 14 days — Pantoprazole</span>
+                      <span class="tl-tag" style="color:var(--teal)">✦ AI: Similar to EP-007</span>
+                    </div>
+                    <div style="margin-top:6px;background:var(--ai-dim);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--teal)">✦ AI Pattern: EP-004 and EP-007 both GI-dominant episodes in summer. Contaminated water or food hygiene may be a contributing factor. Counsel on food/water safety.</div>
+                  </div>
+                </div>
+
+                <!-- EP-003 -->
+                <div class="tl-item">
+                  <div class="tl-dot-col">
+                    <div class="tl-dot" style="background:var(--indigo)"></div>
+                    <div class="tl-line"></div>
+                  </div>
+                  <div class="tl-content">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                      <div class="tl-title">EP-003 · Annual Health Checkup — Closed</div>
+                      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--blue-dim);color:var(--blue);border:1px solid rgba(61,79,138,0.2)">ANNUAL</span>
+                    </div>
+                    <div class="tl-meta">Mar 10, 2024 · OPD · Dr. Arnav Sen</div>
+                    <div class="tl-tags">
+                      <span class="tl-tag">Full health screen</span>
+                      <span class="tl-tag">CBC, LFT, RFT, FBS, Lipid profile</span>
+                      <span class="tl-tag" style="color:var(--green)">All parameters normal</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- EP-002 -->
+                <div class="tl-item">
+                  <div class="tl-dot-col">
+                    <div class="tl-dot" style="background:var(--green)"></div>
+                    <div class="tl-line"></div>
+                  </div>
+                  <div class="tl-content">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                      <div class="tl-title">EP-002 · Viral Fever — Closed</div>
+                      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">CLOSED</span>
+                    </div>
+                    <div class="tl-meta">Aug 05, 2023 · OPD · Dr. Arnav Sen</div>
+                    <div class="tl-tags">
+                      <span class="tl-tag">Fever 3 days, body aches, fatigue</span>
+                      <span class="tl-tag">Paracetamol + rest</span>
+                      <span class="tl-tag" style="color:var(--green)">Recovered in 5 days</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- EP-001 -->
+                <div class="tl-item">
+                  <div class="tl-dot-col">
+                    <div class="tl-dot" style="background:var(--teal)"></div>
+                  </div>
+                  <div class="tl-content">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                      <div class="tl-title">EP-001 · First Registration</div>
+                      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--teal-dim);color:var(--teal);border:1px solid rgba(26,107,90,0.2)">FIRST VISIT</span>
+                    </div>
+                    <div class="tl-meta">Feb 12, 2023 · OPD · Dr. Arnav Sen · WB-BRH Cluster</div>
+                    <div class="tl-tags">
+                      <span class="tl-tag">Patient registration</span>
+                      <span class="tl-tag">Baseline vitals recorded</span>
+                      <span class="tl-tag">Blood group O +ve · Penicillin allergy noted</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- EPISODE SIDEBAR: CURRENT EPISODE DETAIL -->
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-header">
+                <div class="card-title">📋 Current Episode Detail</div>
+                <span class="card-badge amber">EP-007</span>
+              </div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                  <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                    <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:3px">Opened</div>
+                    <div style="font-size:13px;font-weight:600;color:var(--text-dark)">Apr 25, 2025</div>
+                  </div>
+                  <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                    <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:3px">Status</div>
+                    <div style="font-size:13px;font-weight:600;color:var(--amber)">Active</div>
+                  </div>
+                  <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                    <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:3px">Visit Type</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text-dark)">OPD</div>
+                  </div>
+                  <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                    <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:3px">Next Follow-up</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--rose)">Apr 27 — Due</div>
+                  </div>
+                </div>
+                <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                  <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:4px">Provisional Diagnosis</div>
+                  <div style="font-size:13px;font-weight:600;color:var(--text-dark)">Acute Gastroenteritis + Enteric Fever (Widal 1:160) + Hypokalemia</div>
+                </div>
+                <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                  <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:4px">Lab Pending</div>
+                  <div style="font-size:12px;color:var(--text-mid)">🔬 Stool culture (Apr 27) · 🩸 Blood culture (Apr 28)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FOLLOW-UP SCHEDULE -->
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-header">
+                <div class="card-title">🔁 Follow-up Schedule</div>
+                <span class="card-badge blue">2 upcoming</span>
+              </div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+                <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:8px;padding:10px 12px">
+                  <div style="font-size:12px;font-weight:600;color:var(--rose)">⚠ Apr 27, 2025 — OPD Review</div>
+                  <div style="font-size:11px;color:var(--text-mid);margin-top:2px">Stool culture result + diarrhoea reassessment + K⁺ recheck</div>
+                </div>
+                <div style="background:var(--blue-dim);border:1px solid rgba(61,79,138,0.2);border-radius:8px;padding:10px 12px">
+                  <div style="font-size:12px;font-weight:600;color:var(--indigo)">📅 May 02, 2025 — Final Review</div>
+                  <div style="font-size:11px;color:var(--text-mid);margin-top:2px">Blood culture result + antibiotic completion + episode closure</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI PATTERN ANALYSIS -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">✦ AI Episode Insights</div>
+                <span class="card-badge teal">Pattern Detected</span>
+              </div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+                <div style="background:var(--ivory);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid)">
+                  <div style="font-weight:600;color:var(--teal);margin-bottom:3px">🔄 GI Recurrence Pattern</div>
+                  EP-004 (Jul '24) + EP-007 (Apr '25) — both GI dominant episodes. Investigate food/water source. Hygiene counselling warranted.
+                </div>
+                <div style="background:var(--ivory);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid)">
+                  <div style="font-weight:600;color:var(--indigo);margin-bottom:3px">📊 Seasonal Pattern</div>
+                  2 respiratory episodes in winter (Jan, Oct). 2 GI episodes in summer (Jul, Apr). Seasonal susceptibility noted.
+                </div>
+                <div style="background:var(--ivory);border-radius:8px;padding:10px;font-size:12px;color:var(--text-mid)">
+                  <div style="font-weight:600;color:var(--gold);margin-bottom:3px">📅 Visit Frequency</div>
+                  Average 2.3 episodes/year since registration (Feb 2023). Low-risk trajectory except current active episode.
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -820,25 +1847,173 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 
       <!-- ======== BILLING TAB ======== -->
       <div class="tab-panel" id="panel-billing" style="margin-top:16px">
+
+        <!-- BILLING STATS ROW -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--text-dark);font-family:'DM Mono',monospace" id="bill-total-display">₹ 2,400</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Total Bill</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace" id="bill-paid-display">₹ 1,200</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Paid</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--rose);font-family:'DM Mono',monospace" id="bill-balance-display">₹ 1,200</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Balance Due</div>
+          </div>
+          <div style="background:var(--teal-dim);border:1px solid rgba(26,107,90,0.2);border-radius:10px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:3px">✦ Payment Status</div>
+            <div style="font-size:12px;color:var(--text-mid)" id="bill-status-note">Partial payment received. Balance ₹1,200 due before next visit.</div>
+          </div>
+        </div>
+
         <div class="two-col">
+          <!-- CURRENT EPISODE BILL -->
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="cticon">💳</span> Billing — <span id="bill-episode">—</span></div>
-              <span class="card-badge amber" id="bill-status">—</span>
+              <div class="card-title"><span class="cticon">💳</span> Bill — <span id="bill-episode">EP-007</span></div>
+              <span class="card-badge amber" id="bill-status">Partial Payment</span>
             </div>
             <div class="card-body" id="billing-body">
-              <div style="color:var(--text-soft);font-size:13px">Loading billing data…</div>
+              <!-- itemised bill rendered by JS; fallback static content below -->
+              <div style="display:flex;flex-direction:column;gap:0">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--text-mid)">Consultation Fee</span>
+                  <span style="font-weight:500;font-family:'DM Mono',monospace">₹ 300.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--text-mid)">CBC Test</span>
+                  <span style="font-weight:500;font-family:'DM Mono',monospace">₹ 350.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--text-mid)">Stool RE + Culture</span>
+                  <span style="font-weight:500;font-family:'DM Mono',monospace">₹ 450.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--text-mid)">Widal Test</span>
+                  <span style="font-weight:500;font-family:'DM Mono',monospace">₹ 200.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--text-mid)">Biochemistry Panel</span>
+                  <span style="font-weight:500;font-family:'DM Mono',monospace">₹ 800.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--text-mid)">ORS Sachets (×10)</span>
+                  <span style="font-weight:500;font-family:'DM Mono',monospace">₹ 150.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--text-mid)">Medicines (Pharmacy)</span>
+                  <span style="font-weight:500;font-family:'DM Mono',monospace">₹ 420.00</span>
+                </div>
+                <!-- Subtotal row -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--text-soft)">Subtotal</span>
+                  <span style="font-family:'DM Mono',monospace;color:var(--text-mid)">₹ 2,670.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--green)">Discount (Cluster CLDM)</span>
+                  <span style="font-family:'DM Mono',monospace;color:var(--green)">−₹ 270.00</span>
+                </div>
+                <!-- Total -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 8px;border-bottom:2px solid var(--border);font-size:15px;font-weight:700">
+                  <span>Total</span>
+                  <span style="font-family:'DM Mono',monospace">₹ 2,400.00</span>
+                </div>
+                <!-- Paid -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px">
+                  <span style="color:var(--green);font-weight:600">✓ Paid (Cash — Apr 25)</span>
+                  <span style="font-family:'DM Mono',monospace;color:var(--green);font-weight:600">₹ 1,200.00</span>
+                </div>
+                <!-- Balance -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;font-size:14px;font-weight:700">
+                  <span style="color:var(--rose)">⚠ Balance Due</span>
+                  <span style="font-family:'DM Mono',monospace;color:var(--rose)">₹ 1,200.00</span>
+                </div>
+              </div>
+              <!-- Payment actions -->
+              <div style="display:flex;gap:8px;margin-top:14px">
+                <button style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-mid);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🖨 Print Bill</button>
+                <button style="flex:2;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--teal-light),var(--teal));color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">💳 Collect Balance ₹ 1,200</button>
+              </div>
             </div>
           </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title"><span class="cticon">📊</span> Billing History</div></div>
-            <div class="card-body" style="padding:0">
-              <table class="fu-table">
-                <thead><tr><th>Episode</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
-                <tbody id="billing-history">
-                  <tr><td colspan="4" style="text-align:center;color:var(--text-soft);padding:16px">Loading…</td></tr>
-                </tbody>
-              </table>
+
+          <!-- BILLING HISTORY + INSURANCE -->
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-header"><div class="card-title"><span class="cticon">📊</span> Billing History — All Episodes</div></div>
+              <div class="card-body" style="padding:0">
+                <table class="fu-table">
+                  <thead><tr><th>Episode</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+                  <tbody id="billing-history">
+                    <tr>
+                      <td style="font-weight:600;color:var(--teal)">EP-007</td>
+                      <td>Apr 25, 2025</td>
+                      <td style="font-family:'DM Mono',monospace">₹ 2,400</td>
+                      <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:rgba(200,150,62,0.1);color:var(--gold);border:1px solid rgba(200,150,62,0.2)">Partial</span></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;color:var(--text-mid)">EP-006</td>
+                      <td>Jan 15, 2025</td>
+                      <td style="font-family:'DM Mono',monospace">₹ 800</td>
+                      <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">Paid</span></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;color:var(--text-mid)">EP-005</td>
+                      <td>Oct 08, 2024</td>
+                      <td style="font-family:'DM Mono',monospace">₹ 600</td>
+                      <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">Paid</span></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;color:var(--text-mid)">EP-004</td>
+                      <td>Jul 22, 2024</td>
+                      <td style="font-family:'DM Mono',monospace">₹ 1,100</td>
+                      <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">Paid</span></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;color:var(--text-mid)">EP-003</td>
+                      <td>Mar 10, 2024</td>
+                      <td style="font-family:'DM Mono',monospace">₹ 2,200</td>
+                      <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">Paid</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="padding:10px 16px;background:var(--teal-dim);border-top:1px solid var(--border)">
+                <div style="font-size:11px;color:var(--teal)">✦ Total lifetime billing: <strong>₹ 7,100</strong> across 7 episodes. Collection rate: <strong>95%</strong>. One outstanding balance: EP-007.</div>
+              </div>
+            </div>
+
+            <!-- PAYMENT METHODS / NOTES -->
+            <div class="card">
+              <div class="card-header"><div class="card-title">🧾 Payment & Insurance</div></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:9px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                  <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                    <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:3px">Cluster Scheme</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--teal)">CLDM — 10% Discount</div>
+                  </div>
+                  <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                    <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:3px">Health Insurance</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text-mid)">None enrolled</div>
+                  </div>
+                  <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                    <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:3px">Last Payment</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text-dark)">Apr 25, 2025 · Cash</div>
+                  </div>
+                  <div style="background:var(--ivory);border-radius:8px;padding:10px">
+                    <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;margin-bottom:3px">Preferred Mode</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text-dark)">Cash / UPI</div>
+                  </div>
+                </div>
+                <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:8px;padding:10px;font-size:12px;color:var(--rose)">
+                  ⚠ Outstanding balance ₹ 1,200 — collect before dispensing next prescription. Waiver requires senior doctor approval.
+                </div>
+                <div style="background:var(--teal-dim);border:1px solid rgba(26,107,90,0.15);border-radius:8px;padding:10px;font-size:12px;color:var(--teal)">
+                  ✦ AI: Suggest enrolling in Ayushman Bharat / state health scheme — patient is a student qualifying for subsidised care.
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -846,18 +2021,142 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-d
 
       <!-- ======== FOLLOW-UPS TAB ======== -->
       <div class="tab-panel" id="panel-visits" style="margin-top:16px">
+
+        <!-- FU STATS ROW -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--rose);font-family:'DM Mono',monospace">1</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Overdue</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace">1</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Scheduled</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--indigo);font-family:'DM Mono',monospace">1</div>
+            <div style="font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px">Planned</div>
+          </div>
+          <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:10px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:700;color:var(--rose);margin-bottom:2px">⚠ Overdue Alert</div>
+            <div style="font-size:11px;color:var(--text-mid)">Apr 27 OPD review missed — stool culture result pending. Contact patient.</div>
+          </div>
+        </div>
+
+        <!-- UPCOMING VISIT CARDS -->
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+
+          <!-- OVERDUE VISIT -->
+          <div style="background:#fff;border:1px solid rgba(192,80,74,0.3);border-radius:12px;padding:16px 18px;display:flex;gap:16px;align-items:flex-start">
+            <div style="width:44px;height:44px;border-radius:10px;background:var(--rose-dim);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⚠️</div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <div style="font-size:14px;font-weight:700;color:var(--rose)">Apr 27, 2025 — OPD Review (OVERDUE)</div>
+                <span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:5px;background:var(--rose-dim);color:var(--rose);border:1px solid rgba(192,80,74,0.2)">OVERDUE</span>
+              </div>
+              <div style="font-size:12px;color:var(--text-mid);margin-bottom:8px">Stool culture result + diarrhoea reassessment + K⁺ recheck · Dr. Arnav Sen · EP-007</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <span style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--rose)">📞 Call Patient</span>
+                <span style="background:var(--ivory);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text-mid);cursor:pointer">Reschedule</span>
+                <span style="background:var(--teal-dim);border:1px solid rgba(26,107,90,0.2);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--teal);cursor:pointer">Mark Done</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SCHEDULED VISIT -->
+          <div style="background:#fff;border:1px solid rgba(200,150,62,0.3);border-radius:12px;padding:16px 18px;display:flex;gap:16px;align-items:flex-start">
+            <div style="width:44px;height:44px;border-radius:10px;background:rgba(200,150,62,0.08);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📅</div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <div style="font-size:14px;font-weight:700;color:var(--gold)">May 02, 2025 — Final OPD Review</div>
+                <span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:5px;background:rgba(200,150,62,0.1);color:var(--gold);border:1px solid rgba(200,150,62,0.2)">SCHEDULED</span>
+              </div>
+              <div style="font-size:12px;color:var(--text-mid);margin-bottom:8px">Blood culture result + antibiotic completion check + episode closure · Dr. Arnav Sen · EP-007</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <span style="background:var(--ivory);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text-mid);cursor:pointer">Add Reminder</span>
+                <span style="background:var(--ivory);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text-mid);cursor:pointer">Reschedule</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPLETED VISIT -->
+          <div style="background:#f9f9f7;border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;gap:16px;align-items:flex-start;opacity:0.85">
+            <div style="width:44px;height:44px;border-radius:10px;background:var(--green-dim);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">✅</div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <div style="font-size:14px;font-weight:600;color:var(--text-mid)">Jan 17, 2025 — OPD Review (EP-006)</div>
+                <span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">COMPLETED</span>
+              </div>
+              <div style="font-size:12px;color:var(--text-soft)">URI follow-up — throat swab culture reviewed. Full recovery confirmed. Episode closed. · Dr. Arnav Sen</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FULL FOLLOW-UP TABLE -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="cticon">🔁</span> Follow-up Schedule</div>
-            <span class="card-badge blue" id="visits-badge">—</span>
+            <div class="card-title"><span class="cticon">🔁</span> All Follow-up Records</div>
+            <span class="card-badge blue" id="visits-badge">3 entries</span>
           </div>
           <div class="card-body" style="padding:0">
             <table class="fu-table">
               <thead><tr><th>Date</th><th>Visit Type</th><th>Chief Complaint / Service</th><th>Allocated To</th><th>Status</th></tr></thead>
               <tbody id="followups-tbody">
-                <tr><td colspan="5" style="text-align:center;color:var(--text-soft);padding:24px">Loading follow-ups…</td></tr>
+                <tr>
+                  <td style="color:var(--rose);font-weight:600">Apr 27, 2025</td>
+                  <td>OPD Review</td>
+                  <td>Stool culture result + diarrhoea reassessment + K⁺ recheck</td>
+                  <td>Dr. Arnav Sen</td>
+                  <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--rose-dim);color:var(--rose);border:1px solid rgba(192,80,74,0.2)">Overdue</span></td>
+                </tr>
+                <tr>
+                  <td>May 02, 2025</td>
+                  <td>OPD Review</td>
+                  <td>Blood culture result + antibiotic completion + episode closure</td>
+                  <td>Dr. Arnav Sen</td>
+                  <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:rgba(200,150,62,0.1);color:var(--gold);border:1px solid rgba(200,150,62,0.2)">Scheduled</span></td>
+                </tr>
+                <tr style="opacity:0.75">
+                  <td>Jan 17, 2025</td>
+                  <td>OPD Review</td>
+                  <td>URI follow-up — EP-006 throat swab review</td>
+                  <td>Dr. Arnav Sen</td>
+                  <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--green-dim);color:var(--green);border:1px solid rgba(22,163,74,0.2)">Completed</span></td>
+                </tr>
               </tbody>
             </table>
+          </div>
+          <div style="padding:10px 16px;background:var(--ai-dim);border-top:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--teal)">✦ AI Recommendation: Apr 27 visit was critical for stool culture results and K⁺ recheck. Patient should be contacted immediately. Culture results may change antibiotic management (Azithromycin vs Cefixime).</div>
+          </div>
+        </div>
+
+        <!-- CARE PLAN REMINDERS -->
+        <div class="card" style="margin-top:14px">
+          <div class="card-header">
+            <div class="card-title"><span class="cticon">🎯</span> Care Plan Reminders</div>
+            <span class="card-badge teal">EP-007</span>
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+            <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:center">
+              <span style="font-size:16px">🔴</span>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--rose)">Stool culture result pending</div><div style="font-size:11px;color:var(--text-mid)">Sent Apr 25 — expected Apr 27. Contact lab or collect result.</div></div>
+            </div>
+            <div style="background:var(--rose-dim);border:1px solid rgba(192,80,74,0.2);border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:center">
+              <span style="font-size:16px">🔴</span>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--rose)">K⁺ recheck overdue</div><div style="font-size:11px;color:var(--text-mid)">K⁺ was 3.2 mEq/L — should have been rechecked Apr 27 after KCl supplementation.</div></div>
+            </div>
+            <div style="background:rgba(200,150,62,0.08);border:1px solid rgba(200,150,62,0.2);border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:center">
+              <span style="font-size:16px">⚠️</span>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--gold)">Blood culture result — 72h window</div><div style="font-size:11px;color:var(--text-mid)">Sent Apr 25 — results expected Apr 28. If positive — escalate antibiotic per sensitivity.</div></div>
+            </div>
+            <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:center">
+              <span style="font-size:16px">📋</span>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text-dark)">Episode closure review — May 02</div><div style="font-size:11px;color:var(--text-mid)">Confirm antibiotic completion (Azithromycin 7 days), repeat CBC if needed, close EP-007.</div></div>
+            </div>
+            <div style="background:var(--teal-dim);border:1px solid rgba(26,107,90,0.15);border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:center">
+              <span style="font-size:16px">✦</span>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--teal)">AI Preventive Suggestion</div><div style="font-size:11px;color:var(--text-mid)">Typhoid vaccine (Vi polysaccharide) recommended after episode resolution. Hygiene counselling on safe drinking water.</div></div>
+            </div>
           </div>
         </div>
       </div>
@@ -3136,6 +4435,48 @@ function closePrint() { var m = document.getElementById('printModal'); if (m) m.
     var overlay = document.getElementById('pageOverlay');
     if (overlay) { overlay.style.opacity = '1'; overlay.style.pointerEvents = 'all'; }
     setTimeout(function() { window.location.href = href; }, 280);
+  });
+})();
+
+// ════════════════════════════════════════════════════════════════
+// ADD PHOTO — FILE UPLOAD
+// ════════════════════════════════════════════════════════════════
+(function() {
+  var input = document.getElementById('photoUploadInput');
+  if (!input) return;
+  input.addEventListener('change', function() {
+    var files = Array.from(input.files);
+    if (!files.length) return;
+    var grid = document.querySelector('.photo-grid');
+    var addBtn = document.getElementById('addPhotoBtn');
+    files.forEach(function(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var thumb = document.createElement('div');
+        thumb.className = 'photo-thumb';
+        thumb.style.padding = '0';
+        thumb.style.overflow = 'hidden';
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:10px;display:block;';
+        var label = document.createElement('div');
+        label.className = 'photo-label';
+        label.style.cssText = 'position:absolute;bottom:4px;left:0;right:0;text-align:center;';
+        label.textContent = file.name.replace(/\.[^.]+$/, '').slice(0, 14);
+        thumb.style.position = 'relative';
+        thumb.appendChild(img);
+        thumb.appendChild(label);
+        grid.insertBefore(thumb, addBtn);
+      };
+      reader.readAsDataURL(file);
+    });
+    // Update badge count
+    var badge = document.querySelector('.card-badge.teal');
+    if (badge && badge.textContent.match(/\d+/)) {
+      var current = parseInt(badge.textContent);
+      badge.textContent = (current + files.length) + ' uploaded';
+    }
+    input.value = '';
   });
 })();
 
